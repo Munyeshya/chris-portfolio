@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 export function useScrollHeader(headerRef, menuOpen) {
   const [hidden, setHidden] = useState(false)
@@ -16,7 +16,7 @@ export function useScrollHeader(headerRef, menuOpen) {
       travel += delta
       previousY = y
       if (direction) previousDirection = direction
-      if (y < 120 || menuOpen || headerRef.current?.contains(document.activeElement)) {
+      if (y < 120 || menuOpen || (headerRef.current?.contains(document.activeElement) && document.activeElement.matches(':focus-visible'))) {
         setHidden(false)
         travel = 0
       } else if (Math.abs(travel) > 12) {

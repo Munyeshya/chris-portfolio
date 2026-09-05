@@ -361,7 +361,7 @@ main:focus { outline: none; }
 /* Header motion and typography match the site's condensed heading family. */
 .header { transition: transform 320ms cubic-bezier(.22, 1, .36, 1); will-change: transform; }
 .header-hidden { transform: translateY(calc(-100% - 2px)); pointer-events: none; }
-.header:focus-within { transform: translateY(0); pointer-events: auto; }
+.header:has(:focus-visible) { transform: translateY(0); pointer-events: auto; }
 .header .logo-crop { width: 155px; }
 .nav-wrap { height: 106px; }
 .navigation { font-family: var(--heading); font-size: 17px; font-weight: 600; letter-spacing: .045em; }
