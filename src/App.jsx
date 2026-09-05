@@ -38,6 +38,17 @@ function PartnerSlider({ items }) {
   return <div className="client-slider"><div className="client-grid"><div className="client-track">{[0, 1].map(copy => <div className="client-set" key={copy} aria-hidden={copy === 1}>{items.map(client => <div className={`client-cell${client.knockout ? ' knockout-logo' : ''}`} key={`${copy}-${client.name}`}><img src={client.logo} alt={copy === 0 ? client.name : ''} loading="lazy" /></div>)}</div>)}</div></div></div>
 }
 
+function FloatingBackToTop() {
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const update = () => setVisible(window.scrollY > 160)
+    update()
+    window.addEventListener('scroll', update, { passive: true })
+    return () => window.removeEventListener('scroll', update)
+  }, [])
+  return <a className={`floating-back-top${visible ? ' is-visible' : ''}`} href="#home" aria-label="Back to top"><FaArrowUp aria-hidden="true" /><span>Back to top</span></a>
+}
+
 function PortalLink({ className = '', onUnavailable }) {
   return company.portalUrl
     ? <a className={className} href={company.portalUrl} target="_blank" rel="noreferrer">Portal <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a>
@@ -181,8 +192,10 @@ function App() {
         <WavyBackdrop id="footer-wave-stroke" />
         <div className="footer-intro"><Brand /><div><p className="footer-tagline">Creative Production and Technology Partner.</p><p>Professional AV production, media, event management, and digital solutions for businesses, organizations, and events.</p></div></div>
         <div className="footer-columns"><div><h2>Quick Links</h2><ul>{footerLinks.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}<li><PortalLink className="footer-portal" onUnavailable={showPortalNotice} /></li></ul></div><div><h2>Services</h2><ul>{services.slice(0, 3).map(service => <li key={service.id}><a href={`#${service.id}`}>{service.title}</a></li>)}<li><a href="#event-solutions">Event Planning &amp; Management</a></li><li><a href="#creative-digital">Creative &amp; Digital Solutions</a></li></ul></div><div><h2>Contact</h2><ul><li>{company.location}</li>{company.whatsappNumbers.map(number => <li key={number.international}><a className="footer-whatsapp" href={`https://wa.me/${number.international}`} target="_blank" rel="noreferrer"><FaWhatsapp aria-hidden="true" /> {number.label}</a></li>)}{company.email && <li><a href={`mailto:${company.email}`}>{company.email}</a></li>}</ul></div><div><h2>Follow Us</h2><ul>{Object.entries(company.socials).map(([label, url]) => <li key={label}>{url ? <a href={url} target="_blank" rel="noreferrer"><span className="footer-social">{label === 'Instagram' ? <FaInstagram aria-hidden="true" /> : <FaYoutube aria-hidden="true" />}{label}</span></a> : <span className="social-pending">{label}<small>Link pending</small></span>}</li>)}</ul></div></div>
-        <div className="footer-bottom"><p>© 2026 Lions ENT. All Rights Reserved.</p><a href="#home">BACK TO TOP <FaArrowUp aria-hidden="true" className="ui-icon" /></a></div>
+        <div className="footer-bottom"><p>© 2026 Lions ENT. All Rights Reserved.</p></div>
       </footer>
+
+      <FloatingBackToTop />
 
       <dialog ref={dialogRef} className="information-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description" onClose={() => setDialogContent(null)} onClick={event => {
         if (event.target === dialogRef.current) {
