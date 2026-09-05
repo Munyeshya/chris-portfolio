@@ -357,3 +357,50 @@ main:focus { outline: none; }
   .gallery-controls { margin-left: auto; }
   .image-credit { font-size: 7px; }
 }
+
+/* Header motion and typography match the site's condensed heading family. */
+.header { transition: transform 320ms cubic-bezier(.22, 1, .36, 1); will-change: transform; }
+.header-hidden { transform: translateY(calc(-100% - 2px)); pointer-events: none; }
+.header:focus-within { transform: translateY(0); pointer-events: auto; }
+.header .logo-crop { width: 155px; }
+.nav-wrap { height: 106px; }
+.navigation { font-family: var(--heading); font-size: 17px; font-weight: 600; letter-spacing: .045em; }
+.navigation .nav-cta { font-family: inherit; }
+.ui-icon { display: inline-block; width: 1em; height: 1em; flex-shrink: 0; vertical-align: -.1em; }
+.button > .ui-icon { width: 15px; height: 15px; }
+.nav-cta > .ui-icon { width: 14px; height: 14px; }
+.hero-asterisk { position: absolute; right: 120px; top: 130px; width: 145px; height: 145px; color: var(--red); }
+.section-motif { width: 70px; height: 70px; flex-shrink: 0; }
+.hero-bottom a > .ui-icon, .footer-bottom a > .ui-icon { width: 16px; height: 16px; }
+.image-credit svg { width: 9px; height: 9px; margin-left: 4px; }
+.album-caption h3 svg { width: 15px; height: 15px; margin-top: 4px; }
+.preview-hint > .ui-icon { width: 17px; height: 17px; }
+.gallery-close, .dialog-close, .gallery-controls button { display: grid; place-items: center; }
+.gallery-close svg, .dialog-close svg { width: 21px; height: 21px; }
+.gallery-controls svg { width: 18px; height: 18px; }
+.whatsapp-numbers { display: flex; flex-direction: column; gap: 12px; }
+.whatsapp-numbers > a { display: flex; align-items: center; gap: 14px; min-height: 48px; padding-block: 6px; width: fit-content; }
+.whatsapp-numbers svg { width: 26px; height: 26px; flex-shrink: 0; }
+.whatsapp-numbers .number-arrow { width: 12px; height: 12px; opacity: .8; }
+.social-icon-links { display: flex; gap: 14px; }
+.social-icon-links a { width: 54px; height: 54px; display: grid; place-items: center; border: 1px solid #ffffff80; border-radius: 50%; transition: background .2s, transform .2s; }
+.social-icon-links a:hover { background: white; color: var(--red); transform: translateY(-3px); }
+.social-icon-links svg { width: 25px; height: 25px; }
+.footer-whatsapp, .footer-social { display: inline-flex; align-items: center; gap: 9px; }
+.footer-whatsapp svg, .footer-social svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Progressive enhancement: content is visible until an observer is attached. */
+.reveal-ready { opacity: 0; transform: translate3d(0, 26px, 0); transition: opacity 700ms ease, transform 850ms cubic-bezier(.22, 1, .36, 1); transition-delay: var(--reveal-delay, 0ms); }
+.reveal-ready.is-revealed, .reveal-ready:focus-within { opacity: 1; transform: translate3d(0, 0, 0); }
+@media (max-width: 860px) {
+  .header .logo-crop { width: 125px; }
+  .nav-wrap { height: 88px; }
+  .navigation { top: 88px; font-size: 19px; }
+  .menu-toggle { display: inline-flex; align-items: center; gap: 12px; font-family: var(--heading); font-size: 17px; }
+  .menu-toggle svg { width: 16px; height: 16px; }
+  .section-motif { width: 55px; height: 55px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .header, .reveal-ready, .social-icon-links a { transition: none !important; }
+  .reveal-ready { opacity: 1; transform: none; }
+}
