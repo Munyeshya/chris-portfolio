@@ -171,17 +171,13 @@ main:focus { outline: none; }
 .clients-heading .eyebrow { justify-content: center; }
 .clients-heading p:last-child { font-size: 13px; color: #666; margin-top: 22px; }
 .client-slider { position: relative; }
-.client-grid { overflow-x: auto; border: 1px solid #d8d3cd; background: #d8d3cd; scroll-behavior: smooth; scroll-snap-type: x proximity; scrollbar-width: none; }
-.client-grid::-webkit-scrollbar { display: none; }
-.client-track { display: flex; gap: 1px; width: max-content; }
-.client-cell { flex: 0 0 clamp(220px, 23vw, 330px); min-height: 120px; padding: 20px; display: grid; place-items: center; background: var(--cream); scroll-snap-align: start; }
-.client-cell.dark-logo { background: #171717; }
-.client-cell img { width: 100%; max-width: 150px; max-height: 70px; object-fit: contain; filter: grayscale(1); opacity: .72; transition: filter .3s ease, opacity .3s ease, transform .3s ease; }
-.client-cell:hover img, .client-cell:focus-within img { filter: grayscale(0); opacity: 1; transform: scale(1.04); }
-.client-slider-controls { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
-.client-slider-controls button { width: 42px; height: 42px; display: grid; place-items: center; border: 0; color: #191919; background: rgba(25, 25, 25, .09); }
-.client-slider-controls button:hover { color: #fff; background: var(--red); }
-.client-slider-controls svg { width: 14px; height: 14px; }
+.client-grid { overflow: hidden; border: 0; background: #fff; mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent); }
+.client-track { display: flex; width: max-content; animation: partner-marquee 32s linear infinite; }
+.client-set { display: flex; flex-shrink: 0; }
+.client-cell { flex: 0 0 clamp(220px, 23vw, 330px); min-height: 120px; padding: 20px; display: grid; place-items: center; background: transparent; }
+.client-cell img { width: 100%; max-width: 150px; max-height: 70px; object-fit: contain; }
+.client-cell.knockout-logo img { filter: invert(1) grayscale(1); mix-blend-mode: multiply; }
+@keyframes partner-marquee { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 .client-placeholder { text-align: center; font-size: 10px; letter-spacing: .09em; line-height: 1.9; color: #807c76; }
 .client-placeholder strong { font-weight: 500; font-size: 13px; letter-spacing: .2em; }
 .team { padding-block: 95px; }

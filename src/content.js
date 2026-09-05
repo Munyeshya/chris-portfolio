@@ -45,7 +45,7 @@ export const workCategories = [
 export const clients = [
   { name: 'Agakiza Investment Group Ltd', logo: '/partners/agakiza.jpeg' },
   { name: 'Bohoka TV', logo: '/partners/bohoka.png' },
-  { name: 'Beloved Souls', logo: '/partners/boloved.png', dark: true },
+  { name: 'Beloved Souls', logo: '/partners/boloved.png', knockout: true },
   { name: 'Inkuru Factory', logo: '/partners/inkuru.png' },
   { name: 'Iyaaka Beauty Saloon', logo: '/partners/IYAAKA%20BEAUTY%20SALOON%20logo.png' },
   { name: 'Chorale Umushumba Mwiza', logo: '/partners/umushumba.png' },

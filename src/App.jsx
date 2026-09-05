@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { company, services, eventSolutions, clients, team } from './content'
 import './App.css'
 import Portfolio from './Portfolio'
-import { FaInstagram, FaYoutube, FaWhatsapp, FaArrowUpRightFromSquare, FaArrowDown, FaArrowUp, FaArrowLeft, FaArrowRight, FaBars, FaXmark, FaAsterisk } from 'react-icons/fa6'
+import { FaInstagram, FaYoutube, FaWhatsapp, FaArrowUpRightFromSquare, FaArrowDown, FaArrowUp, FaBars, FaXmark, FaAsterisk } from 'react-icons/fa6'
 import { useScrollHeader, useSectionReveals } from './usePageMotion'
 
 function Brand({ dark = false }) {
@@ -35,27 +35,7 @@ function WavyBackdrop({ id }) {
 }
 
 function PartnerSlider({ items }) {
-  const sliderRef = useRef(null)
-
-  const move = direction => {
-    const slider = sliderRef.current
-    if (!slider) return
-    slider.scrollBy({ left: direction * Math.max(slider.clientWidth * .55, 220), behavior: 'smooth' })
-  }
-
-  useEffect(() => {
-    const slider = sliderRef.current
-    if (!slider) return
-    const startAtEnd = requestAnimationFrame(() => { slider.scrollLeft = slider.scrollWidth - slider.clientWidth })
-    const timer = window.setInterval(() => {
-      if (slider.matches(':hover') || slider.contains(document.activeElement)) return
-      if (slider.scrollLeft <= 2) slider.scrollTo({ left: slider.scrollWidth - slider.clientWidth, behavior: 'auto' })
-      else slider.scrollBy({ left: -Math.max(slider.clientWidth * .28, 180), behavior: 'smooth' })
-    }, 2800)
-    return () => { cancelAnimationFrame(startAtEnd); window.clearInterval(timer) }
-  }, [])
-
-  return <div className="client-slider"><div ref={sliderRef} className="client-grid"><div className="client-track">{items.map((client, index) => <div className={`client-cell${client.dark ? ' dark-logo' : ''}`} key={client.name || index}><img src={client.logo} alt={client.name} loading="lazy" /></div>)}</div></div><div className="client-slider-controls"><button type="button" onClick={() => move(-1)} aria-label="Show previous partners"><FaArrowLeft aria-hidden="true" /></button><button type="button" onClick={() => move(1)} aria-label="Show next partners"><FaArrowRight aria-hidden="true" /></button></div></div>
+  return <div className="client-slider"><div className="client-grid"><div className="client-track">{[0, 1].map(copy => <div className="client-set" key={copy} aria-hidden={copy === 1}>{items.map(client => <div className={`client-cell${client.knockout ? ' knockout-logo' : ''}`} key={`${copy}-${client.name}`}><img src={client.logo} alt={copy === 0 ? client.name : ''} loading="lazy" /></div>)}</div>)}</div></div></div>
 }
 
 function PortalLink({ className = '', onUnavailable }) {
