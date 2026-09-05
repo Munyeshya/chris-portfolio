@@ -155,7 +155,7 @@ function App() {
         <section className="team section-shell" id="team" data-section="08-team" aria-labelledby="team-title">
           <WavyBackdrop id="team-wave-stroke" />
           <div className="team-heading"><SectionLabel>THE PEOPLE BEHIND THE WORK</SectionLabel><h2 id="team-title">Our <span>Team</span></h2><h3>Meet the creative and technical team behind Lions Entertainment.</h3><p>Our team brings together experience in audiovisual production, photography, videography, livestreaming, event production, design, and technology to deliver reliable solutions from concept to execution.</p></div>
-          <div className="team-grid">{team.map((member, index) => <article className="team-card" key={member.name || index}><div className="team-photo">{member.photo ? <img src={member.photo} alt={member.name} loading="lazy" /> : <><span className="portrait-placeholder" aria-hidden="true"><i /><b /></span><span className="photo-label">PHOTO</span></>}</div><h3>{member.name || 'Name'}</h3><p>{member.role || 'Role'}</p></article>)}</div>
+          <div className="team-grid">{team.map((member, index) => <article className="team-card" key={member.name || index}><div className="team-photo">{member.photo ? <img src={member.photo} alt={member.name} loading="lazy" /> : <><span className="portrait-placeholder" aria-hidden="true"><i /><b /></span><span className="photo-label">PHOTO</span></>}</div><h3>{member.name || 'Name'}</h3>{member.role && <p>{member.role}</p>}</article>)}</div>
         </section>
 
         <section className="contact section-shell" id="contact" data-section="09-contact" aria-labelledby="contact-title">

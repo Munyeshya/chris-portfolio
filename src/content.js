@@ -51,8 +51,13 @@ export const clients = [
   { name: 'Chorale Umushumba Mwiza', logo: '/partners/umushumba.png' },
 ]
 
-// Replace with approved team profiles when available.
-export const team = Array.from({ length: 4 }, () => ({ name: '', role: '', photo: '' }))
+// Roles will be added when the approved titles are available.
+export const team = [
+  { name: 'Chris', role: '', photo: '/team/chris.jpeg' },
+  { name: 'Cedrick', role: '', photo: '/team/cedrick.jpeg' },
+  { name: 'Beni', role: '', photo: '/team/beni.jpeg' },
+  { name: 'Ntwari', role: '', photo: '/team/ntwari.jpeg' },
+]
 
 export const portfolioUrl = "https://www.flickr.com/photos/196950681@N03/albums/"
 
