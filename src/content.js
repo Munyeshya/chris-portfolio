@@ -42,8 +42,16 @@ export const workCategories = [
   { title: 'Creative & Digital Projects', icon: 'creative' },
 ]
 
-// Replace with approved client names/logos and team profiles when available.
-export const clients = Array.from({ length: 8 }, () => ({ name: '', logo: '' }))
+export const clients = [
+  { name: 'Agakiza Investment Group Ltd', logo: '/partners/agakiza.jpeg' },
+  { name: 'Bohoka TV', logo: '/partners/bohoka.png' },
+  { name: 'Beloved Souls', logo: '/partners/boloved.png', dark: true },
+  { name: 'Inkuru Factory', logo: '/partners/inkuru.png' },
+  { name: 'Iyaaka Beauty Saloon', logo: '/partners/IYAAKA%20BEAUTY%20SALOON%20logo.png' },
+  { name: 'Chorale Umushumba Mwiza', logo: '/partners/umushumba.png' },
+]
+
+// Replace with approved team profiles when available.
 export const team = Array.from({ length: 4 }, () => ({ name: '', role: '', photo: '' }))
 
 export const portfolioUrl = "https://www.flickr.com/photos/196950681@N03/albums/"
