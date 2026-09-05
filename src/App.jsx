@@ -15,16 +15,23 @@ function Brand({ dark = false }) {
   )
 }
 
-function Pattern({ className = '' }) {
-  return <div className={`pattern ${className}`} aria-hidden="true"><i /><i /><i /><i /></div>
-}
-
 function Icon({ type }) {
   return <span className={`service-icon icon-${type}`} aria-hidden="true"><i /><b /><em /></span>
 }
 
 function SectionLabel({ children, light = false }) {
   return <p className={`eyebrow${light ? ' on-red' : ''}`}>{children}</p>
+}
+
+function WavyBackdrop({ id }) {
+  return (
+    <div className="wave-backdrop" aria-hidden="true">
+      <svg viewBox="0 0 1600 620" preserveAspectRatio="none">
+        <defs><linearGradient id={id} x1="0" x2="1"><stop stopColor="#c41b1b" stopOpacity="0" /><stop offset=".22" stopColor="#e94a4a" stopOpacity=".75" /><stop offset=".72" stopColor="#fff" stopOpacity=".28" /><stop offset="1" stopColor="#c41b1b" stopOpacity="0" /></linearGradient></defs>
+        {Array.from({ length: 13 }, (_, index) => <path key={index} style={{ stroke: `url(#${id})` }} d="M-120 300 C120 70 350 70 565 300 S1010 530 1235 300 S1580 70 1720 260" transform={`translate(0 ${index * 42 - 252})`} />)}
+      </svg>
+    </div>
+  )
 }
 
 function PortalLink({ className = '', onUnavailable }) {
@@ -100,8 +107,8 @@ function App() {
           <img className="hero-photo" src="/portfolio/55487392634.jpg" alt="Drummers performing at Kigali Twataramye 3rd edition" fetchPriority="high" />
           <div className="hero-shade" />
           <div className="hero-content section-shell">
-            <p className="eyebrow hero-kicker"><span className="red-dash" /> LIONS ENT</p>
-            <h1 id="hero-title">We Are a <span>Creative Production</span> and Technology Partner.</h1>
+            <p className="eyebrow hero-kicker"><span className="red-dash" /><span className="hero-kicker-label">LIONS ENT<span className="red-dot" /></span></p>
+            <h1 id="hero-title">We Are a <span>Creative Production</span><br />and Technology Partner.</h1>
             <div className="hero-copy">
               <p>Lions ENT combines professional AV production, creative media, and digital technology to help businesses, organizations, and events communicate, connect, and create memorable experiences.</p>
               <p>From photography, videography, livestreaming, LED displays, and audiovisual production to web design and web application development, we deliver integrated solutions from concept to execution.</p>
@@ -115,11 +122,12 @@ function App() {
 
         <section className="about section-shell" id="about" data-section="03-about" aria-labelledby="about-title">
           <div className="about-heading"><SectionLabel>WHO WE ARE</SectionLabel><h2 id="about-title">About <span>Us</span></h2><div className="experience"><strong>5<span>+</span></strong><span>YEARS OF<br />EXPERIENCE</span></div></div>
-          <div className="about-copy"><p>Lions ENT is a creative production and technology company with over 5 years of experience delivering professional AV production, media, event, and digital solutions.</p><p>We combine creativity and technology to provide photography, videography, livestreaming, LED displays, web design, and web application development for businesses, organizations, and events.</p><div className="about-signature"><Brand dark /><span>CREATIVITY.<br />MEET TECHNOLOGY.</span></div></div>
-          <Pattern className="about-pattern" />
+          <div className="about-copy"><p>Lions ENT is a creative production and technology company with over 5 years of experience delivering professional AV production, media, event, and digital solutions.</p><p>We combine creativity and technology to provide photography, videography, livestreaming, LED displays, web design, and web application development for businesses, organizations, and events.</p></div>
+          <img className="lion-motif about-pattern" src="/brand/vector.png" alt="" aria-hidden="true" />
         </section>
 
         <section className="services section-shell" id="services" data-section="04-services" aria-labelledby="services-title">
+          <WavyBackdrop id="services-wave-stroke" />
           <div className="section-heading"><div><SectionLabel>WHAT WE DO</SectionLabel><h2 id="services-title">Our <span>Services</span></h2></div><FaAsterisk className="section-motif" aria-hidden="true" /></div>
           <div className="service-grid">{services.map((service, index) => <article className="service-card" key={service.id} id={service.id}><div className="service-top"><span>0{index + 1}</span><Icon type={service.icon} /></div><h3>{service.title}</h3><p>{service.description}</p><span className="card-rule" aria-hidden="true" /></article>)}</div>
         </section>
@@ -127,20 +135,23 @@ function App() {
         <section className="events section-shell" id="event-solutions" data-section="05-event-solutions" aria-labelledby="events-title">
           <div className="events-heading"><SectionLabel light>EVENT SOLUTIONS</SectionLabel><h2 id="events-title">Event Planning &amp;<br />Management Solutions</h2><h3>From Planning to Execution, We Help You Manage It All.</h3></div>
           <div className="events-content"><p>Lions ENT supports clients with both event planning and event management solutions, helping organize smooth, professional, and well-coordinated events from preparation to event day.</p><ul className="event-list">{eventSolutions.map((item, index) => <li key={item}><span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>{item}</li>)}</ul><p className="events-closing">Whether it is a conference, corporate event, exhibition, launch, or private event, we help manage the details so the entire event runs smoothly.</p></div>
-          <Pattern className="events-pattern" />
+          <img className="lion-motif events-pattern" src="/brand/vector.png" alt="" aria-hidden="true" />
         </section>
 
         <section className="work section-shell" id="portfolio" data-section="06-work" aria-labelledby="work-title">
+          <WavyBackdrop id="work-wave-stroke" />
           <div className="section-heading"><div><SectionLabel>PORTFOLIO</SectionLabel><h2 id="work-title">Our <span>Work</span></h2></div><p>A selection of projects delivered across audiovisual production, photography, videography, livestreaming, events, and digital solutions.</p></div>
           <Portfolio />
         </section>
 
         <section className="clients section-shell" id="clients" data-section="07-clients" aria-labelledby="clients-title">
+          <img className="lion-motif clients-pattern" src="/brand/vector.png" alt="" aria-hidden="true" />
           <div className="clients-heading"><SectionLabel>Clients &amp; Partners</SectionLabel><h2 id="clients-title">Trusted <span>By</span></h2><p>We are proud to have worked with businesses, organizations, institutions, and brands across different projects.</p></div>
           <div className="client-grid">{clients.map((client, index) => <div className="client-cell" key={client.name || index}>{client.logo ? <img src={client.logo} alt={client.name} loading="lazy" /> : <span className="client-placeholder">CLIENT / PARTNER<br /><strong>LOGO</strong></span>}</div>)}</div>
         </section>
 
         <section className="team section-shell" id="team" data-section="08-team" aria-labelledby="team-title">
+          <WavyBackdrop id="team-wave-stroke" />
           <div className="team-heading"><SectionLabel>THE PEOPLE BEHIND THE WORK</SectionLabel><h2 id="team-title">Our <span>Team</span></h2><h3>Meet the creative and technical team behind Lions ENT.</h3><p>Our team brings together experience in audiovisual production, photography, videography, livestreaming, event production, design, and technology to deliver reliable solutions from concept to execution.</p></div>
           <div className="team-grid">{team.map((member, index) => <article className="team-card" key={member.name || index}><div className="team-photo">{member.photo ? <img src={member.photo} alt={member.name} loading="lazy" /> : <><span className="portrait-placeholder" aria-hidden="true"><i /><b /></span><span className="photo-label">PHOTO</span></>}</div><h3>{member.name || 'Name'}</h3><p>{member.role || 'Role'}</p></article>)}</div>
         </section>
@@ -158,11 +169,12 @@ function App() {
             <a className="button light" href={contactHref} target={contactHref.startsWith('https:') ? '_blank' : undefined} rel={contactHref.startsWith('https:') ? 'noreferrer' : undefined}>Get in Touch <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a>
             {!company.email && !company.phone && <p className="contact-note">Message us on WhatsApp to discuss your project.</p>}
           </div>
-          <Pattern className="contact-pattern" />
+          <img className="lion-motif contact-pattern" src="/brand/vector.png" alt="" aria-hidden="true" />
         </section>
       </main>
 
       <footer className="footer section-shell" data-section="10-footer">
+        <WavyBackdrop id="footer-wave-stroke" />
         <div className="footer-intro"><Brand /><div><p className="footer-tagline">Creative Production and Technology Partner.</p><p>Professional AV production, media, event management, and digital solutions for businesses, organizations, and events.</p></div></div>
         <div className="footer-columns"><div><h2>Quick Links</h2><ul>{footerLinks.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}<li><PortalLink className="footer-portal" onUnavailable={showPortalNotice} /></li></ul></div><div><h2>Services</h2><ul>{services.slice(0, 3).map(service => <li key={service.id}><a href={`#${service.id}`}>{service.title}</a></li>)}<li><a href="#event-solutions">Event Planning &amp; Management</a></li><li><a href="#creative-digital">Creative &amp; Digital Solutions</a></li></ul></div><div><h2>Contact</h2><ul><li>{company.location}</li>{company.whatsappNumbers.map(number => <li key={number.international}><a className="footer-whatsapp" href={`https://wa.me/${number.international}`} target="_blank" rel="noreferrer"><FaWhatsapp aria-hidden="true" /> {number.label}</a></li>)}{company.email && <li><a href={`mailto:${company.email}`}>{company.email}</a></li>}</ul></div><div><h2>Follow Us</h2><ul>{Object.entries(company.socials).map(([label, url]) => <li key={label}>{url ? <a href={url} target="_blank" rel="noreferrer"><span className="footer-social">{label === 'Instagram' ? <FaInstagram aria-hidden="true" /> : <FaYoutube aria-hidden="true" />}{label}</span></a> : <span className="social-pending">{label}<small>Link pending</small></span>}</li>)}</ul></div></div>
         <div className="footer-bottom"><p>© 2026 Lions ENT. All Rights Reserved.</p><a href="#home">BACK TO TOP <FaArrowUp aria-hidden="true" className="ui-icon" /></a></div>
