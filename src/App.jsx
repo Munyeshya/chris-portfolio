@@ -1,6 +1,7 @@
-﻿import { useEffect, useRef, useState } from 'react'
-import { company, services, eventSolutions, workCategories, clients, team } from './content'
+import { useEffect, useRef, useState } from 'react'
+import { company, services, eventSolutions, clients, team } from './content'
 import './App.css'
+import Portfolio from './Portfolio'
 
 function Brand({ dark = false }) {
   return (
@@ -22,6 +23,12 @@ function Icon({ type }) {
 
 function SectionLabel({ number, children, light = false }) {
   return <p className={`eyebrow${light ? ' on-red' : ''}`}><span>{number}</span>{children}</p>
+}
+
+function PortalLink({ className = '', onUnavailable }) {
+  return company.portalUrl
+    ? <a className={className} href={company.portalUrl} target="_blank" rel="noreferrer">Portal <span aria-hidden="true">↗</span></a>
+    : <button className={className} type="button" onClick={onUnavailable}>Portal <span aria-hidden="true">↗</span></button>
 }
 
 function App() {
@@ -60,25 +67,14 @@ function App() {
     if (dialogContent) dialogRef.current?.showModal()
   }, [dialogContent])
 
-  function showContact() {
-    setDialogContent({
-      title: "Let's Work Together.",
-      text: 'Phone / WhatsApp and email details will be added here once confirmed.',
-    })
-  }
-
-  function PortalLink({ className = '' }) {
-    return company.portalUrl
-      ? <a className={className} href={company.portalUrl} target="_blank" rel="noreferrer">Portal <span aria-hidden="true">↗</span></a>
-      : <button className={className} type="button" onClick={() => {
-        setMenuOpen(false)
-        setDialogContent({ title: 'Registration & Booking Portal', text: 'The portal is a separate registration and booking platform. Its link will be added here once confirmed.' })
-      }}>Portal <span aria-hidden="true">↗</span></button>
+  function showPortalNotice() {
+    setMenuOpen(false)
+    setDialogContent({ title: 'Registration & Booking Portal', text: 'The portal is a separate registration and booking platform. Its link will be added here once confirmed.' })
   }
 
   const navLinks = [['about', 'About Us'], ['services', 'Services'], ['portfolio', 'Portfolio'], ['contact', 'Contact Us']]
   const footerLinks = [['about', 'About Us'], ['services', 'Services'], ['event-solutions', 'Event Solutions'], ['portfolio', 'Portfolio'], ['team', 'Our Team'], ['contact', 'Contact Us']]
-  const contactHref = company.email ? `mailto:${company.email}` : company.phone ? `tel:${company.phone.replace(/[^+\d]/g, '')}` : null
+  const contactHref = company.email ? `mailto:${company.email}` : company.phone ? `tel:${company.phone.replace(/[^+\d]/g, '')}` : company.socials.Instagram
 
   return (
     <>
@@ -89,14 +85,14 @@ function App() {
           <button ref={menuButtonRef} className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? 'Close ×' : 'Menu ☰'}</button>
           <nav ref={menuRef} id="navigation" className={`navigation${menuOpen ? ' open' : ''}`} aria-label="Main navigation">
             {navLinks.map(([id, label]) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
-            <PortalLink className="nav-cta" />
+            <PortalLink className="nav-cta" onUnavailable={showPortalNotice} />
           </nav>
         </div>
       </header>
 
       <main id="main" tabIndex={-1}>
         <section className="hero" id="home" data-section="02-hero" aria-labelledby="hero-title">
-          <img className="hero-photo" src="/images/concert.jpg" alt="Live concert production with red stage lighting and an audience" fetchPriority="high" />
+          <img className="hero-photo" src="/portfolio/55487392634.jpg" alt="Drummers performing at Kigali Twataramye 3rd edition" fetchPriority="high" />
           <div className="hero-shade" />
           <div className="hero-content section-shell">
             <p className="eyebrow hero-kicker"><span className="red-dash" /> LIONS ENT</p>
@@ -109,7 +105,7 @@ function App() {
           </div>
           <div className="hero-art" aria-hidden="true"><i /><i /><i /><span>✳</span></div>
           <div className="hero-bottom section-shell"><a href="#about">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a><span>PRODUCTION / MEDIA / EVENTS / TECHNOLOGY</span></div>
-          <span className="image-credit">Illustrative image · Unsplash</span>
+          <a className="image-credit" href="https://www.flickr.com/photos/196950681@N03/albums/72177720335314989" target="_blank" rel="noreferrer">Kigali Twataramye 3rd edition · View album ↗</a>
         </section>
 
         <section className="about section-shell" id="about" data-section="03-about" aria-labelledby="about-title">
@@ -131,7 +127,7 @@ function App() {
 
         <section className="work section-shell" id="portfolio" data-section="06-work" aria-labelledby="work-title">
           <div className="section-heading"><div><SectionLabel number="06">PORTFOLIO</SectionLabel><h2 id="work-title">Our <span>Work</span></h2></div><p>A selection of projects delivered across audiovisual production, photography, videography, livestreaming, events, and digital solutions.</p></div>
-          <div className="work-grid">{workCategories.map((category, index) => <article className={`work-card work-${category.icon}`} key={category.title}><div className="work-art" aria-hidden="true"><span className="work-number">0{index + 1}</span><Icon type={category.icon} /><div className="art-lines" /></div><div className="work-caption"><h3>{category.title}</h3><span className="work-status">Projects to be added</span></div></article>)}</div>
+          <Portfolio />
         </section>
 
         <section className="clients section-shell" id="clients" data-section="07-clients" aria-labelledby="clients-title">
@@ -146,14 +142,24 @@ function App() {
 
         <section className="contact section-shell" id="contact" data-section="09-contact" aria-labelledby="contact-title">
           <div className="contact-heading"><SectionLabel number="09" light>Contact Us</SectionLabel><h2 id="contact-title">Let's Work<br /><span>Together.</span></h2><p>Planning an event, production, or digital project? Talk to Lions ENT and let's turn your idea into a professional solution.</p></div>
-          <div className="contact-content"><dl className="contact-details"><div><dt>Phone / WhatsApp</dt><dd>{company.phone ? <a href={`tel:${company.phone.replace(/[^+\d]/g, '')}`}>{company.phone}</a> : '[Add number]'}{company.whatsapp && <a className="whatsapp-link" href={`https://wa.me/${company.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>}</dd></div><div><dt>Email</dt><dd>{company.email ? <a href={`mailto:${company.email}`}>{company.email}</a> : '[Add email]'}</dd></div><div><dt>Location</dt><dd>{company.location}</dd></div></dl>{contactHref ? <a className="button light" href={contactHref}>Get in Touch <span aria-hidden="true">↗</span></a> : <button type="button" className="button light" onClick={showContact}>Get in Touch <span aria-hidden="true">↗</span></button>}</div>
+          <div className="contact-content">
+            <dl className="contact-details">
+              {company.phone && <div><dt>Phone / WhatsApp</dt><dd><a href={`tel:${company.phone.replace(/[^+\d]/g, '')}`}>{company.phone}</a>{company.whatsapp && <a className="whatsapp-link" href={`https://wa.me/${company.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>}</dd></div>}
+              {company.email && <div><dt>Email</dt><dd><a href={`mailto:${company.email}`}>{company.email}</a></dd></div>}
+              <div><dt>Instagram</dt><dd><a href={company.socials.Instagram} target="_blank" rel="noreferrer">@lions_ent_ ↗</a></dd></div>
+              <div><dt>YouTube</dt><dd><a href={company.socials.YouTube} target="_blank" rel="noreferrer">@golive-r9e ↗</a></dd></div>
+              <div><dt>Location</dt><dd>{company.location}</dd></div>
+            </dl>
+            <a className="button light" href={contactHref} target={contactHref.startsWith('https:') ? '_blank' : undefined} rel={contactHref.startsWith('https:') ? 'noreferrer' : undefined}>Get in Touch <span aria-hidden="true">↗</span></a>
+            {!company.email && !company.phone && <p className="contact-note">Message us on Instagram to discuss your project.</p>}
+          </div>
           <Pattern className="contact-pattern" />
         </section>
       </main>
 
       <footer className="footer section-shell" data-section="10-footer">
         <div className="footer-intro"><Brand /><div><p className="footer-tagline">Creative Production and Technology Partner.</p><p>Professional AV production, media, event management, and digital solutions for businesses, organizations, and events.</p></div></div>
-        <div className="footer-columns"><div><h2>Quick Links</h2><ul>{footerLinks.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}<li><PortalLink className="footer-portal" /></li></ul></div><div><h2>Services</h2><ul>{services.slice(0, 3).map(service => <li key={service.id}><a href={`#${service.id}`}>{service.title}</a></li>)}<li><a href="#event-solutions">Event Planning &amp; Management</a></li><li><a href="#creative-digital">Creative &amp; Digital Solutions</a></li></ul></div><div><h2>Contact</h2><ul><li>{company.location}</li><li>{company.phone ? <a href={`tel:${company.phone.replace(/[^+\d]/g, '')}`}>{company.phone}</a> : <a href="#contact">Phone / WhatsApp</a>}</li><li>{company.email ? <a href={`mailto:${company.email}`}>{company.email}</a> : <a href="#contact">Email</a>}</li></ul></div><div><h2>Follow Us</h2><ul>{Object.entries(company.socials).map(([label, url]) => <li key={label}>{url ? <a href={url} target="_blank" rel="noreferrer">{label} ↗</a> : <span className="social-pending">{label}<small>Link pending</small></span>}</li>)}</ul></div></div>
+        <div className="footer-columns"><div><h2>Quick Links</h2><ul>{footerLinks.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}<li><PortalLink className="footer-portal" onUnavailable={showPortalNotice} /></li></ul></div><div><h2>Services</h2><ul>{services.slice(0, 3).map(service => <li key={service.id}><a href={`#${service.id}`}>{service.title}</a></li>)}<li><a href="#event-solutions">Event Planning &amp; Management</a></li><li><a href="#creative-digital">Creative &amp; Digital Solutions</a></li></ul></div><div><h2>Contact</h2><ul><li>{company.location}</li><li><a href={company.socials.Instagram} target="_blank" rel="noreferrer">Message us on Instagram ↗</a></li>{company.email && <li><a href={`mailto:${company.email}`}>{company.email}</a></li>}</ul></div><div><h2>Follow Us</h2><ul>{Object.entries(company.socials).map(([label, url]) => <li key={label}>{url ? <a href={url} target="_blank" rel="noreferrer">{label} ↗</a> : <span className="social-pending">{label}<small>Link pending</small></span>}</li>)}</ul></div></div>
         <div className="footer-bottom"><p>© 2026 Lions ENT. All Rights Reserved.</p><a href="#home">BACK TO TOP <span aria-hidden="true">↑</span></a></div>
       </footer>
 
@@ -168,3 +174,4 @@ function App() {
 }
 
 export default App
+
