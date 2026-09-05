@@ -31,8 +31,6 @@ img { display: block; width: 100%; }
 main:focus { outline: none; }
 .section-shell { padding-inline: max(6vw, 24px); }
 .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; line-height: 1.5; display: flex; gap: 15px; align-items: center; margin-bottom: 24px; }
-.eyebrow > span:first-child:not(.red-dash) { color: #ee5858; padding-right: 15px; border-right: 1px solid #555; font-variant-numeric: tabular-nums; }
-.eyebrow.on-red > span:first-child { color: #fff; border-color: #ffffff60; }
 .button { display: inline-flex; align-items: center; justify-content: space-between; gap: 30px; min-height: 50px; padding: 17px 24px; font-size: 12px; font-weight: 600; border: 1px solid transparent; transition: background .2s, transform .2s; }
 .button:hover { transform: translateY(-3px); }
 .button > span { font-size: 21px; line-height: 1; }
@@ -86,7 +84,6 @@ main:focus { outline: none; }
 .pattern i:nth-child(3) { transform: rotate(-90deg); }
 .pattern i:nth-child(4) { transform: rotate(180deg); }
 .about { position: relative; overflow: hidden; display: grid; grid-template-columns: 1fr 1.15fr; gap: 80px; padding-block: 90px; background: var(--cream); color: #191919; }
-.about .eyebrow > span:first-child { color: var(--red); border-color: #ccc; }
 .about-copy { position: relative; z-index: 1; }
 .about-copy > p:first-child { font-size: 19px; line-height: 1.7; font-weight: 500; margin-bottom: 18px; }
 .about-copy > p + p { font-size: 14px; color: #606060; }
@@ -156,7 +153,6 @@ main:focus { outline: none; }
 .clients { padding-block: 85px; background: var(--cream); color: #191919; }
 .clients-heading { text-align: center; max-width: 680px; margin: 0 auto 35px; }
 .clients-heading .eyebrow { justify-content: center; }
-.clients-heading .eyebrow > span:first-child { color: var(--red); border-color: #bbb; }
 .clients-heading p:last-child { font-size: 13px; color: #666; margin-top: 22px; }
 .client-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; border: 1px solid #d8d3cd; background: #d8d3cd; }
 .client-cell { min-height: 120px; padding: 20px; display: grid; place-items: center; background: var(--cream); }

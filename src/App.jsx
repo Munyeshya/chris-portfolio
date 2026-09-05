@@ -23,8 +23,8 @@ function Icon({ type }) {
   return <span className={`service-icon icon-${type}`} aria-hidden="true"><i /><b /><em /></span>
 }
 
-function SectionLabel({ number, children, light = false }) {
-  return <p className={`eyebrow${light ? ' on-red' : ''}`}><span>{number}</span>{children}</p>
+function SectionLabel({ children, light = false }) {
+  return <p className={`eyebrow${light ? ' on-red' : ''}`}>{children}</p>
 }
 
 function PortalLink({ className = '', onUnavailable }) {
@@ -114,39 +114,39 @@ function App() {
         </section>
 
         <section className="about section-shell" id="about" data-section="03-about" aria-labelledby="about-title">
-          <div className="about-heading"><SectionLabel number="03">WHO WE ARE</SectionLabel><h2 id="about-title">About <span>Us</span></h2><div className="experience"><strong>5<span>+</span></strong><span>YEARS OF<br />EXPERIENCE</span></div></div>
+          <div className="about-heading"><SectionLabel>WHO WE ARE</SectionLabel><h2 id="about-title">About <span>Us</span></h2><div className="experience"><strong>5<span>+</span></strong><span>YEARS OF<br />EXPERIENCE</span></div></div>
           <div className="about-copy"><p>Lions ENT is a creative production and technology company with over 5 years of experience delivering professional AV production, media, event, and digital solutions.</p><p>We combine creativity and technology to provide photography, videography, livestreaming, LED displays, web design, and web application development for businesses, organizations, and events.</p><div className="about-signature"><Brand dark /><span>CREATIVITY.<br />MEET TECHNOLOGY.</span></div></div>
           <Pattern className="about-pattern" />
         </section>
 
         <section className="services section-shell" id="services" data-section="04-services" aria-labelledby="services-title">
-          <div className="section-heading"><div><SectionLabel number="04">WHAT WE DO</SectionLabel><h2 id="services-title">Our <span>Services</span></h2></div><FaAsterisk className="section-motif" aria-hidden="true" /></div>
+          <div className="section-heading"><div><SectionLabel>WHAT WE DO</SectionLabel><h2 id="services-title">Our <span>Services</span></h2></div><FaAsterisk className="section-motif" aria-hidden="true" /></div>
           <div className="service-grid">{services.map((service, index) => <article className="service-card" key={service.id} id={service.id}><div className="service-top"><span>0{index + 1}</span><Icon type={service.icon} /></div><h3>{service.title}</h3><p>{service.description}</p><span className="card-rule" aria-hidden="true" /></article>)}</div>
         </section>
 
         <section className="events section-shell" id="event-solutions" data-section="05-event-solutions" aria-labelledby="events-title">
-          <div className="events-heading"><SectionLabel number="05" light>EVENT SOLUTIONS</SectionLabel><h2 id="events-title">Event Planning &amp;<br />Management Solutions</h2><h3>From Planning to Execution, We Help You Manage It All.</h3></div>
+          <div className="events-heading"><SectionLabel light>EVENT SOLUTIONS</SectionLabel><h2 id="events-title">Event Planning &amp;<br />Management Solutions</h2><h3>From Planning to Execution, We Help You Manage It All.</h3></div>
           <div className="events-content"><p>Lions ENT supports clients with both event planning and event management solutions, helping organize smooth, professional, and well-coordinated events from preparation to event day.</p><ul className="event-list">{eventSolutions.map((item, index) => <li key={item}><span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>{item}</li>)}</ul><p className="events-closing">Whether it is a conference, corporate event, exhibition, launch, or private event, we help manage the details so the entire event runs smoothly.</p></div>
           <Pattern className="events-pattern" />
         </section>
 
         <section className="work section-shell" id="portfolio" data-section="06-work" aria-labelledby="work-title">
-          <div className="section-heading"><div><SectionLabel number="06">PORTFOLIO</SectionLabel><h2 id="work-title">Our <span>Work</span></h2></div><p>A selection of projects delivered across audiovisual production, photography, videography, livestreaming, events, and digital solutions.</p></div>
+          <div className="section-heading"><div><SectionLabel>PORTFOLIO</SectionLabel><h2 id="work-title">Our <span>Work</span></h2></div><p>A selection of projects delivered across audiovisual production, photography, videography, livestreaming, events, and digital solutions.</p></div>
           <Portfolio />
         </section>
 
         <section className="clients section-shell" id="clients" data-section="07-clients" aria-labelledby="clients-title">
-          <div className="clients-heading"><SectionLabel number="07">Clients &amp; Partners</SectionLabel><h2 id="clients-title">Trusted <span>By</span></h2><p>We are proud to have worked with businesses, organizations, institutions, and brands across different projects.</p></div>
+          <div className="clients-heading"><SectionLabel>Clients &amp; Partners</SectionLabel><h2 id="clients-title">Trusted <span>By</span></h2><p>We are proud to have worked with businesses, organizations, institutions, and brands across different projects.</p></div>
           <div className="client-grid">{clients.map((client, index) => <div className="client-cell" key={client.name || index}>{client.logo ? <img src={client.logo} alt={client.name} loading="lazy" /> : <span className="client-placeholder">CLIENT / PARTNER<br /><strong>LOGO</strong></span>}</div>)}</div>
         </section>
 
         <section className="team section-shell" id="team" data-section="08-team" aria-labelledby="team-title">
-          <div className="team-heading"><SectionLabel number="08">THE PEOPLE BEHIND THE WORK</SectionLabel><h2 id="team-title">Our <span>Team</span></h2><h3>Meet the creative and technical team behind Lions ENT.</h3><p>Our team brings together experience in audiovisual production, photography, videography, livestreaming, event production, design, and technology to deliver reliable solutions from concept to execution.</p></div>
+          <div className="team-heading"><SectionLabel>THE PEOPLE BEHIND THE WORK</SectionLabel><h2 id="team-title">Our <span>Team</span></h2><h3>Meet the creative and technical team behind Lions ENT.</h3><p>Our team brings together experience in audiovisual production, photography, videography, livestreaming, event production, design, and technology to deliver reliable solutions from concept to execution.</p></div>
           <div className="team-grid">{team.map((member, index) => <article className="team-card" key={member.name || index}><div className="team-photo">{member.photo ? <img src={member.photo} alt={member.name} loading="lazy" /> : <><span className="portrait-placeholder" aria-hidden="true"><i /><b /></span><span className="photo-label">PHOTO</span></>}</div><h3>{member.name || 'Name'}</h3><p>{member.role || 'Role'}</p></article>)}</div>
         </section>
 
         <section className="contact section-shell" id="contact" data-section="09-contact" aria-labelledby="contact-title">
-          <div className="contact-heading"><SectionLabel number="09" light>Contact Us</SectionLabel><h2 id="contact-title">Let's Work<br /><span>Together.</span></h2><p>Planning an event, production, or digital project? Talk to Lions ENT and let's turn your idea into a professional solution.</p></div>
+          <div className="contact-heading"><SectionLabel light>Contact Us</SectionLabel><h2 id="contact-title">Let's Work<br /><span>Together.</span></h2><p>Planning an event, production, or digital project? Talk to Lions ENT and let's turn your idea into a professional solution.</p></div>
           <div className="contact-content">
             <dl className="contact-details">
               {company.phone && <div><dt>Phone / WhatsApp</dt><dd><a href={`tel:${company.phone.replace(/[^+\d]/g, '')}`}>{company.phone}</a>{company.whatsapp && <a className="whatsapp-link" href={`https://wa.me/${company.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>}</dd></div>}
