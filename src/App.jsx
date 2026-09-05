@@ -1,62 +1,170 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
+import { company, services, eventSolutions, workCategories, clients, team } from './content'
 import './App.css'
 
-const services = [
-  ['01', 'Photography', 'The big picture. The little details.', 'Honest emotions, striking portraits and every in-between moment, captured with care.', '↗', '#/portfolio/visual'],
-  ['02', 'Videography', 'Stories you can feel.', 'Event films, brand stories and cinematic highlights that bring the moment back to life.', '▷', '#/portfolio/visual'],
-  ['03', 'Websites', 'Your next great first impression.', 'Distinctive, responsive websites that connect your brand with the people who matter.', '⌘', '#/portfolio/digital'],
-  ['04', 'Software', 'Good ideas. Built to work.', 'Thoughtful digital tools and custom applications that make your everyday work simpler.', '+', '#/portfolio/digital'],
-]
+function Brand({ dark = false }) {
+  return (
+    <a href="#home" className="brand" aria-label="Lions ENT — home">
+      <span className="logo-crop">
+        <img src={`/brand/lions-ent-${dark ? 'black' : 'white'}.png`} alt="Lions ENT" width="5404" height="3414" />
+      </span>
+    </a>
+  )
+}
 
-function Brand() {
-  return <a className="brand" href="#home" aria-label="LionsEvents home"><span className="brand-mark" aria-hidden="true">L<span>.</span></span><span>LIONS<span className="brand-light">EVENTS</span><small>CAPTURE. CREATE. CONNECT.</small></span></a>
+function Pattern({ className = '' }) {
+  return <div className={`pattern ${className}`} aria-hidden="true"><i /><i /><i /><i /></div>
 }
-function Pattern({ className = '' }) { return <div className={`pattern ${className}`} aria-hidden="true"><i /><i /><i /><i /></div> }
-function DigitalArt() {
-  return <div className="digital-art" aria-hidden="true"><div className="browser-art"><div className="browser-top"><span>● ● ●</span><span>STUDIO / DIGITAL</span></div><div className="browser-content"><small>IDEAS INTO EXPERIENCES</small><strong>Made to<br /><em>stand out.</em></strong><span className="art-button">EXPLORE THE POSSIBILITIES ↗</span><div className="art-orbit" /></div></div><div className="code-tag">&lt; creativity meets code /&gt;</div></div>
+
+function Icon({ type }) {
+  return <span className={`service-icon icon-${type}`} aria-hidden="true"><i /><b /><em /></span>
 }
+
+function SectionLabel({ number, children, light = false }) {
+  return <p className={`eyebrow${light ? ' on-red' : ''}`}><span>{number}</span>{children}</p>
+}
+
 function App() {
-  const [hash, setHash] = useState(window.location.hash || '#home')
   const [menuOpen, setMenuOpen] = useState(false)
-  const [filter, setFilter] = useState('All')
-  const [copied, setCopied] = useState(false)
-  const [brief, setBrief] = useState('')
+  const [activeSection, setActiveSection] = useState('home')
+  const [dialogContent, setDialogContent] = useState(null)
+  const dialogRef = useRef(null)
+  const menuRef = useRef(null)
+  const menuButtonRef = useRef(null)
+
   useEffect(() => {
-    const onHash = () => { setHash(window.location.hash || '#home'); setMenuOpen(false); setFilter('All') }
-    window.addEventListener('hashchange', onHash)
-    return () => window.removeEventListener('hashchange', onHash)
+    const observer = new IntersectionObserver(entries => {
+      for (const entry of entries) if (entry.isIntersecting) setActiveSection(entry.target.id)
+    }, { rootMargin: '-15% 0px -55% 0px', threshold: 0 })
+    document.querySelectorAll('main > section[id]').forEach(section => observer.observe(section))
+    return () => observer.disconnect()
   }, [])
-  const portfolio = hash.startsWith('#/portfolio/')
-  const digital = hash === '#/portfolio/digital'
+
   useEffect(() => {
-    document.title = portfolio ? `${digital ? 'Web & Software' : 'Photo & Film'} Portfolio | LionsEvents` : 'LionsEvents | Capture. Create. Connect.'
-    if (portfolio) window.scrollTo(0, 0)
-    else requestAnimationFrame(() => document.getElementById(hash.slice(1) || 'home')?.scrollIntoView())
-  }, [hash, portfolio, digital])
-  async function createBrief(event) {
-    event.preventDefault()
-    const data = new FormData(event.currentTarget)
-    const text = `LionsEvents project enquiry\nName: ${data.get('name')}\nEmail: ${data.get('email')}\nService: ${data.get('service')}\n\n${data.get('message')}`
-    setBrief(text)
-    try { await navigator.clipboard.writeText(text); setCopied(true) } catch { setCopied(false) }
+    if (!menuOpen) return
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') { setMenuOpen(false); menuButtonRef.current?.focus() }
+    }
+    const closeOutside = event => {
+      if (!menuRef.current?.contains(event.target) && !menuButtonRef.current?.contains(event.target)) setMenuOpen(false)
+    }
+    document.addEventListener('keydown', closeOnEscape)
+    document.addEventListener('pointerdown', closeOutside)
+    return () => {
+      document.removeEventListener('keydown', closeOnEscape)
+      document.removeEventListener('pointerdown', closeOutside)
+    }
+  }, [menuOpen])
+
+  useEffect(() => {
+    if (dialogContent) dialogRef.current?.showModal()
+  }, [dialogContent])
+
+  function showContact() {
+    setDialogContent({
+      title: "Let's Work Together.",
+      text: 'Phone / WhatsApp and email details will be added here once confirmed.',
+    })
   }
-  return <>
-    <a className="skip-link" href="#main">Skip to content</a>
-    <header className="header"><div className="nav-wrap"><Brand /><button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-controls="navigation">{menuOpen ? 'Close ×' : 'Menu ☰'}</button><nav id="navigation" className={menuOpen ? 'navigation open' : 'navigation'} aria-label="Main navigation"><a className={hash === '#home' ? 'active' : ''} href="#home">Home</a><a href="#about">About us</a><a href="#services">Services</a><a className={portfolio ? 'active' : ''} href="#work">Our work</a><a className="nav-cta" href="#contact">Let’s talk <span>↗</span></a></nav></div></header>
-    <main id="main">
-    {portfolio ? <>
-      <section className="portfolio-intro section-shell"><a className="back-link" href="#work">← Back to home</a><p className="eyebrow">THE LIONSEVENTS PORTFOLIO</p><h1>{digital ? 'Ideas, built' : 'Life, captured'}<br /><span>{digital ? 'for the real world.' : 'in every frame.'}</span></h1><p className="intro-copy">{digital ? 'A space for our websites, digital products and custom software.' : 'A space for our event photography, cinematic films and visual stories.'}</p><div className="portfolio-switch"><a className={!digital ? 'selected' : ''} href="#/portfolio/visual">Photography & film</a><a className={digital ? 'selected' : ''} href="#/portfolio/digital">Web & software</a></div><Pattern /></section>
-      <section className="section-shell portfolio-body"><div className="filter-row" aria-label="Portfolio categories">{(digital ? ['All', 'Websites', 'Software'] : ['All', 'Photography', 'Videography']).map(item => <button key={item} className={filter === item ? 'selected' : ''} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}</div><div className="portfolio-placeholder"><span className="eyebrow">{filter === 'All' ? 'PORTFOLIO' : filter.toUpperCase()}</span><h2>Great stories belong here.</h2><p>Our {filter === 'All' ? 'project collection' : filter.toLowerCase()} will be added soon. In the meantime, explore what we can create together.</p><a className="button red" href="#contact">Discuss your project ↗</a></div></section>
-    </> : <>
-      <section className="hero" id="home"><img className="hero-photo" src="/images/concert.jpg" alt="Audience watching a live concert under red stage lighting" fetchPriority="high" /><div className="hero-shade" /><div className="hero-content section-shell"><p className="eyebrow"><span className="red-dash" /> MOMENTS. STORIES. DIGITAL EXPERIENCES.</p><h1>WE MAKE<br />MOMENTS<br /><span>MATTER.</span></h1><p className="hero-description">From the energy of your event to the impact of your online presence. We capture it. We create it. We bring it to life.</p><div className="hero-actions"><a className="button red" href="#work">Explore our work <span>↗</span></a><a className="button outline" href="#contact">Let’s create together <span>↗</span></a></div></div><div className="hero-art" aria-hidden="true"><span className="orbit orbit-one" /><span className="orbit orbit-two" /><span className="orbit orbit-three" /><span className="hero-star">✳</span></div><div className="hero-bottom section-shell"><a href="#about">SCROLL TO DISCOVER <span>↓</span></a><span>PHOTOGRAPHY & FILM <b> / </b> WEB & SOFTWARE</span></div><span className="photo-note">Preview image · Unsplash</span></section>
-      <div className="service-strip" aria-label="Our creative disciplines"><span>PHOTOGRAPHY</span><b>✳</b><span>VIDEOGRAPHY</span><b>✳</b><span>WEB DESIGN</span><b>✳</b><span>SOFTWARE DEVELOPMENT</span><b>✳</b></div>
-      <section className="about section-shell" id="about"><div><p className="eyebrow">THIS IS LIONSEVENTS</p><h2>CREATIVE MINDS.<br />ONE <span>BOLD VISION.</span></h2></div><div className="about-copy"><p>Some moments deserve more than a memory.<br />Some ideas deserve more than a sketch.</p><p>We bring visual storytelling and digital craft together. From capturing the atmosphere of an event to building a home for your brand online, we turn what matters to you into something people remember.</p><a className="text-link" href="#services">Discover what we do <span>↗</span></a></div><Pattern className="about-pattern" /></section>
-      <section className="services section-shell" id="services"><div className="section-heading"><div><p className="eyebrow">WHAT WE DO</p><h2>YOUR VISION.<br /><span>OUR CREATIVE ENERGY.</span></h2></div><p>Behind the lens. Beyond the screen.<br />A creative partner from start to finish.</p></div><div className="service-grid">{services.map(([number, title, subtitle, description, icon, link]) => <a className="service-card" key={number} href={link}><div className="service-top"><span>{number} /</span><b aria-hidden="true">{icon}</b></div><h3>{title}</h3><h4>{subtitle}</h4><p>{description}</p><span className="service-link">Explore {title.toLowerCase()} <span>↗</span></span></a>)}</div></section>
-      <section className="work section-shell" id="work"><div className="section-heading"><div><p className="eyebrow">TWO WORLDS. ONE CREATIVE SPIRIT.</p><h2>SEE WHAT’S <span>POSSIBLE.</span></h2></div><p>Explore our two sides.</p></div><div className="work-grid"><a className="work-card visual-work" href="#/portfolio/visual"><img src="/images/crowd.jpg" alt="A concert crowd illuminated by red stage lights" loading="lazy" /><span className="work-label">THE VISUAL SIDE</span><div className="work-caption"><div><p>PHOTOGRAPHY / VIDEOGRAPHY</p><h3>Stories in motion.<br />Moments in focus.</h3></div><span className="circle-arrow">↗</span></div><span className="sample-label">SAMPLE IMAGERY</span></a><a className="work-card digital-work" href="#/portfolio/digital"><span className="work-label">THE DIGITAL SIDE</span><DigitalArt /><div className="work-caption"><div><p>WEBSITES / SOFTWARE</p><h3>Experiences that click.<br />Ideas that work.</h3></div><span className="circle-arrow">↗</span></div><span className="sample-label">DESIGN CONCEPT</span></a></div></section>
-      <section className="process section-shell"><p className="eyebrow">HOW WE BRING IT TO LIFE</p><div className="process-grid"><h2>GOOD WORK.<br /><span>GREAT CONNECTION.</span></h2>{[['01', 'We listen.', 'Your story, your goals, your vision. Every project starts with a conversation.'], ['02', 'We create.', 'We shape the direction and bring every detail together with purpose.'], ['03', 'You shine.', 'A final experience made for you, ready to be seen, shared and remembered.']].map(([n,t,p]) => <div key={n}><span className="process-number">{n}</span><h3>{t}</h3><p>{p}</p></div>)}</div></section>
-    </>}
-      <section className="contact section-shell" id="contact"><div className="contact-copy"><p className="eyebrow">LET’S MAKE SOMETHING GREAT</p><h2>YOUR NEXT<br />BIG THING<br />STARTS <span>HERE.</span></h2><p>An event to capture? A brand to bring online?<br />Tell us what you have in mind.</p><Pattern className="contact-pattern" /></div><form onSubmit={createBrief}><div className="form-row"><label>Your name<input name="name" autoComplete="name" placeholder="Name" required maxLength={120} /></label><label>Email address<input name="email" type="email" autoComplete="email" placeholder="you@example.com" required /></label></div><label>What can we help you create?<select name="service" defaultValue="" required><option value="" disabled>Select a service</option>{services.map(s => <option key={s[1]}>{s[1]}</option>)}<option>A little of everything</option></select></label><label>Tell us about your project<textarea name="message" placeholder="Your idea, event date, or what you’re looking to build…" rows={4} required maxLength={5000} /></label><button className="button light" type="submit">Prepare project brief <span>↗</span></button><p className="form-note">Preview mode: prepare and copy your brief. Nothing is sent yet.</p>{brief && <div className="brief-result" role="status"><p>{copied ? 'Your brief is copied and ready to share. Nothing has been sent.' : 'Your brief is ready. Select and copy it below.'}</p><textarea aria-label="Prepared project brief" value={brief} readOnly rows={7} onFocus={event => event.target.select()} /></div>}</form></section>
-    </main><footer className="footer section-shell"><Brand /><span>© {new Date().getFullYear()} LionsEvents. All rights reserved.</span><a href="#home">BACK TO TOP ↑</a></footer>
-  </>
+
+  function PortalLink({ className = '' }) {
+    return company.portalUrl
+      ? <a className={className} href={company.portalUrl} target="_blank" rel="noreferrer">Portal <span aria-hidden="true">↗</span></a>
+      : <button className={className} type="button" onClick={() => {
+        setMenuOpen(false)
+        setDialogContent({ title: 'Registration & Booking Portal', text: 'The portal is a separate registration and booking platform. Its link will be added here once confirmed.' })
+      }}>Portal <span aria-hidden="true">↗</span></button>
+  }
+
+  const navLinks = [['about', 'About Us'], ['services', 'Services'], ['portfolio', 'Portfolio'], ['contact', 'Contact Us']]
+  const footerLinks = [['about', 'About Us'], ['services', 'Services'], ['event-solutions', 'Event Solutions'], ['portfolio', 'Portfolio'], ['team', 'Our Team'], ['contact', 'Contact Us']]
+  const contactHref = company.email ? `mailto:${company.email}` : company.phone ? `tel:${company.phone.replace(/[^+\d]/g, '')}` : null
+
+  return (
+    <>
+      <a className="skip-link" href="#main">Skip to content</a>
+      <header className="header" data-section="01-header">
+        <div className="nav-wrap">
+          <Brand />
+          <button ref={menuButtonRef} className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? 'Close ×' : 'Menu ☰'}</button>
+          <nav ref={menuRef} id="navigation" className={`navigation${menuOpen ? ' open' : ''}`} aria-label="Main navigation">
+            {navLinks.map(([id, label]) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
+            <PortalLink className="nav-cta" />
+          </nav>
+        </div>
+      </header>
+
+      <main id="main" tabIndex={-1}>
+        <section className="hero" id="home" data-section="02-hero" aria-labelledby="hero-title">
+          <img className="hero-photo" src="/images/concert.jpg" alt="Live concert production with red stage lighting and an audience" fetchPriority="high" />
+          <div className="hero-shade" />
+          <div className="hero-content section-shell">
+            <p className="eyebrow hero-kicker"><span className="red-dash" /> LIONS ENT</p>
+            <h1 id="hero-title">We Are a <span>Creative Production</span> and Technology Partner.</h1>
+            <div className="hero-copy">
+              <p>Lions ENT combines professional AV production, creative media, and digital technology to help businesses, organizations, and events communicate, connect, and create memorable experiences.</p>
+              <p>From photography, videography, livestreaming, LED displays, and audiovisual production to web design and web application development, we deliver integrated solutions from concept to execution.</p>
+            </div>
+            <div className="hero-actions"><a className="button red" href="#services">Explore Our Services <span aria-hidden="true">↗</span></a><a className="button outline" href="#portfolio">View Portfolio <span aria-hidden="true">↗</span></a></div>
+          </div>
+          <div className="hero-art" aria-hidden="true"><i /><i /><i /><span>✳</span></div>
+          <div className="hero-bottom section-shell"><a href="#about">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a><span>PRODUCTION / MEDIA / EVENTS / TECHNOLOGY</span></div>
+          <span className="image-credit">Illustrative image · Unsplash</span>
+        </section>
+
+        <section className="about section-shell" id="about" data-section="03-about" aria-labelledby="about-title">
+          <div className="about-heading"><SectionLabel number="03">WHO WE ARE</SectionLabel><h2 id="about-title">About <span>Us</span></h2><div className="experience"><strong>5<span>+</span></strong><span>YEARS OF<br />EXPERIENCE</span></div></div>
+          <div className="about-copy"><p>Lions ENT is a creative production and technology company with over 5 years of experience delivering professional AV production, media, event, and digital solutions.</p><p>We combine creativity and technology to provide photography, videography, livestreaming, LED displays, web design, and web application development for businesses, organizations, and events.</p><div className="about-signature"><Brand dark /><span>CREATIVITY.<br />MEET TECHNOLOGY.</span></div></div>
+          <Pattern className="about-pattern" />
+        </section>
+
+        <section className="services section-shell" id="services" data-section="04-services" aria-labelledby="services-title">
+          <div className="section-heading"><div><SectionLabel number="04">WHAT WE DO</SectionLabel><h2 id="services-title">Our <span>Services</span></h2></div><span className="section-motif" aria-hidden="true">✳</span></div>
+          <div className="service-grid">{services.map((service, index) => <article className="service-card" key={service.id} id={service.id}><div className="service-top"><span>0{index + 1}</span><Icon type={service.icon} /></div><h3>{service.title}</h3><p>{service.description}</p><span className="card-rule" aria-hidden="true" /></article>)}</div>
+        </section>
+
+        <section className="events section-shell" id="event-solutions" data-section="05-event-solutions" aria-labelledby="events-title">
+          <div className="events-heading"><SectionLabel number="05" light>EVENT SOLUTIONS</SectionLabel><h2 id="events-title">Event Planning &amp;<br />Management Solutions</h2><h3>From Planning to Execution, We Help You Manage It All.</h3></div>
+          <div className="events-content"><p>Lions ENT supports clients with both event planning and event management solutions, helping organize smooth, professional, and well-coordinated events from preparation to event day.</p><ul className="event-list">{eventSolutions.map((item, index) => <li key={item}><span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>{item}</li>)}</ul><p className="events-closing">Whether it is a conference, corporate event, exhibition, launch, or private event, we help manage the details so the entire event runs smoothly.</p></div>
+          <Pattern className="events-pattern" />
+        </section>
+
+        <section className="work section-shell" id="portfolio" data-section="06-work" aria-labelledby="work-title">
+          <div className="section-heading"><div><SectionLabel number="06">PORTFOLIO</SectionLabel><h2 id="work-title">Our <span>Work</span></h2></div><p>A selection of projects delivered across audiovisual production, photography, videography, livestreaming, events, and digital solutions.</p></div>
+          <div className="work-grid">{workCategories.map((category, index) => <article className={`work-card work-${category.icon}`} key={category.title}><div className="work-art" aria-hidden="true"><span className="work-number">0{index + 1}</span><Icon type={category.icon} /><div className="art-lines" /></div><div className="work-caption"><h3>{category.title}</h3><span className="work-status">Projects to be added</span></div></article>)}</div>
+        </section>
+
+        <section className="clients section-shell" id="clients" data-section="07-clients" aria-labelledby="clients-title">
+          <div className="clients-heading"><SectionLabel number="07">Clients &amp; Partners</SectionLabel><h2 id="clients-title">Trusted <span>By</span></h2><p>We are proud to have worked with businesses, organizations, institutions, and brands across different projects.</p></div>
+          <div className="client-grid">{clients.map((client, index) => <div className="client-cell" key={client.name || index}>{client.logo ? <img src={client.logo} alt={client.name} loading="lazy" /> : <span className="client-placeholder">CLIENT / PARTNER<br /><strong>LOGO</strong></span>}</div>)}</div>
+        </section>
+
+        <section className="team section-shell" id="team" data-section="08-team" aria-labelledby="team-title">
+          <div className="team-heading"><SectionLabel number="08">THE PEOPLE BEHIND THE WORK</SectionLabel><h2 id="team-title">Our <span>Team</span></h2><h3>Meet the creative and technical team behind Lions ENT.</h3><p>Our team brings together experience in audiovisual production, photography, videography, livestreaming, event production, design, and technology to deliver reliable solutions from concept to execution.</p></div>
+          <div className="team-grid">{team.map((member, index) => <article className="team-card" key={member.name || index}><div className="team-photo">{member.photo ? <img src={member.photo} alt={member.name} loading="lazy" /> : <><span className="portrait-placeholder" aria-hidden="true"><i /><b /></span><span className="photo-label">PHOTO</span></>}</div><h3>{member.name || 'Name'}</h3><p>{member.role || 'Role'}</p></article>)}</div>
+        </section>
+
+        <section className="contact section-shell" id="contact" data-section="09-contact" aria-labelledby="contact-title">
+          <div className="contact-heading"><SectionLabel number="09" light>Contact Us</SectionLabel><h2 id="contact-title">Let's Work<br /><span>Together.</span></h2><p>Planning an event, production, or digital project? Talk to Lions ENT and let's turn your idea into a professional solution.</p></div>
+          <div className="contact-content"><dl className="contact-details"><div><dt>Phone / WhatsApp</dt><dd>{company.phone ? <a href={`tel:${company.phone.replace(/[^+\d]/g, '')}`}>{company.phone}</a> : '[Add number]'}{company.whatsapp && <a className="whatsapp-link" href={`https://wa.me/${company.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>}</dd></div><div><dt>Email</dt><dd>{company.email ? <a href={`mailto:${company.email}`}>{company.email}</a> : '[Add email]'}</dd></div><div><dt>Location</dt><dd>{company.location}</dd></div></dl>{contactHref ? <a className="button light" href={contactHref}>Get in Touch <span aria-hidden="true">↗</span></a> : <button type="button" className="button light" onClick={showContact}>Get in Touch <span aria-hidden="true">↗</span></button>}</div>
+          <Pattern className="contact-pattern" />
+        </section>
+      </main>
+
+      <footer className="footer section-shell" data-section="10-footer">
+        <div className="footer-intro"><Brand /><div><p className="footer-tagline">Creative Production and Technology Partner.</p><p>Professional AV production, media, event management, and digital solutions for businesses, organizations, and events.</p></div></div>
+        <div className="footer-columns"><div><h2>Quick Links</h2><ul>{footerLinks.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}<li><PortalLink className="footer-portal" /></li></ul></div><div><h2>Services</h2><ul>{services.slice(0, 3).map(service => <li key={service.id}><a href={`#${service.id}`}>{service.title}</a></li>)}<li><a href="#event-solutions">Event Planning &amp; Management</a></li><li><a href="#creative-digital">Creative &amp; Digital Solutions</a></li></ul></div><div><h2>Contact</h2><ul><li>{company.location}</li><li>{company.phone ? <a href={`tel:${company.phone.replace(/[^+\d]/g, '')}`}>{company.phone}</a> : <a href="#contact">Phone / WhatsApp</a>}</li><li>{company.email ? <a href={`mailto:${company.email}`}>{company.email}</a> : <a href="#contact">Email</a>}</li></ul></div><div><h2>Follow Us</h2><ul>{Object.entries(company.socials).map(([label, url]) => <li key={label}>{url ? <a href={url} target="_blank" rel="noreferrer">{label} ↗</a> : <span className="social-pending">{label}<small>Link pending</small></span>}</li>)}</ul></div></div>
+        <div className="footer-bottom"><p>© 2026 Lions ENT. All Rights Reserved.</p><a href="#home">BACK TO TOP <span aria-hidden="true">↑</span></a></div>
+      </footer>
+
+      <dialog ref={dialogRef} className="information-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description" onClose={() => setDialogContent(null)} onClick={event => {
+        if (event.target === dialogRef.current) {
+          const bounds = dialogRef.current.getBoundingClientRect()
+          if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialogRef.current.close()
+        }
+      }}><button className="dialog-close" type="button" aria-label="Close dialog" onClick={() => dialogRef.current?.close()}>×</button><p className="eyebrow">LIONS ENT</p><h2 id="dialog-title">{dialogContent?.title}</h2><p id="dialog-description">{dialogContent?.text}</p><button className="button red" type="button" onClick={() => dialogRef.current?.close()}>Close</button></dialog>
+    </>
+  )
 }
+
 export default App
