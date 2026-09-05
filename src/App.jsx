@@ -108,7 +108,7 @@ function App() {
           <div className="hero-shade" />
           <div className="hero-content section-shell">
             <p className="eyebrow hero-kicker"><span className="red-dash" /><span className="hero-kicker-label">LIONS ENT<span className="red-dot" /></span></p>
-            <h1 id="hero-title">We Are a <span>Creative Production</span><br />and Technology Partner.</h1>
+            <h1 id="hero-title">We Are a <br className="hero-mobile-break" /><span>Creative Production</span><br />and Technology Partner.</h1>
             <div className="hero-copy">
               <p>Lions ENT combines professional AV production, creative media, and digital technology to help businesses, organizations, and events communicate, connect, and create memorable experiences.</p>
               <p>From photography, videography, livestreaming, LED displays, and audiovisual production to web design and web application development, we deliver integrated solutions from concept to execution.</p>
