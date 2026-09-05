@@ -1,16 +1,34 @@
-# React + Vite
+﻿# LionsEvents
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Local React + Vite design preview for event photography, videography, websites and software services.
 
-Currently, two official plugins are available:
+## Development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- `npm install`
+- `npm run dev`
+- `npm run build`
+- `npm run lint`
 
-## React Compiler
+If npm is not on the PowerShell path, first run:
+`$env:Path = 'C:\Program Files\nodejs;' + $env:Path`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Structure
 
-## Expanding the Oxlint configuration
+- `src/App.jsx`: homepage, hash-based portfolio views and project brief form.
+- `src/App.css`: responsive layout, design tokens and CSS decorative artwork.
+- `#/portfolio/visual`: photography and videography portfolio.
+- `#/portfolio/digital`: website and software portfolio.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Main sections stay on one page. Portfolio views currently have honest empty states pending real project content. The form only prepares/copies a brief; it does not send email or save data. Contact integration, approved logo, real work and business details are still to be supplied.
+
+## Visual direction and assets
+
+- Events Factory (https://eventsfactory.rw/): red #C41B1B, black #0C0C0C, white and condensed typography.
+- Rwanda Convention Bureau (https://www.rcb.rw/): layered shapes and decorative background direction. The site uses original CSS patterns, not copied RCB illustrations.
+- Preview concert photograph: https://unsplash.com/photos/a-crowd-of-people-sitting-in-front-of-a-stage-8xNAkPut8b4
+- Preview crowd photograph: https://unsplash.com/@cerencalhan (image photo-1720658758741-6c030830ba75).
+- Both photos are downloaded to public/images and are illustrative samples, not LionsEvents client work.
+- Barlow Condensed and Inter load from Google Fonts, with local system fallbacks.
+- Temporary LionsEvents wordmark is live text; the digital browser illustration is CSS.
+
+Kept local while the design is refined. No hosting is configured.
