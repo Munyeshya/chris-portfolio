@@ -429,6 +429,13 @@ main:focus { outline: none; }
   border-color: transparent;
   background: linear-gradient(135deg, rgba(229, 55, 55, .98), rgba(196, 27, 27, .94));
 }
+.gallery-dialog .gallery-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  margin: 0;
+}
 .contact .button.light {
   color: #fff;
   background: linear-gradient(135deg, rgba(255, 255, 255, .28), rgba(255, 255, 255, .12));
@@ -515,6 +522,9 @@ main:focus { outline: none; }
   .menu-toggle { display: inline-flex; align-items: center; gap: 12px; font-family: var(--heading); font-size: 12px; text-transform: none; }
   .menu-toggle svg { width: 16px; height: 16px; }
   .section-motif { width: 55px; height: 55px; }
+}
+@media (max-width: 600px) {
+  .gallery-dialog .gallery-close { top: 10px; right: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .header, .reveal-ready, .social-icon-links a { transition: none !important; }

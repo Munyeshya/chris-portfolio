@@ -1,4 +1,4 @@
-# Lions ENT
+# Lions Entertainment
 
 Local React + Vite implementation of `Lions_ENT_One_Page_Website_Final_Layout.pdf` (five pages). This document is the approved content and layout blueprint and supersedes the first LionsEvents draft.
 
@@ -38,7 +38,7 @@ Both supplied logo files are copied unchanged to `public/brand/`. CSS clips tran
 
 The previous reference direction is retained: Events Factory's #C41B1B red, #0C0C0C black, white and condensed headings; RCB-inspired decorative layers, using original CSS patterns.
 
-Hero image is illustrative and credited on the page. Source: https://unsplash.com/photos/a-crowd-of-people-sitting-in-front-of-a-stage-8xNAkPut8b4. It is not presented as Lions ENT portfolio work. No project samples are substituted for actual work.
+Hero image is illustrative and credited on the page. Source: https://unsplash.com/photos/a-crowd-of-people-sitting-in-front-of-a-stage-8xNAkPut8b4. It is not presented as Lions Entertainment portfolio work. No project samples are substituted for actual work.
 
 Inter and Barlow Condensed use Google Fonts with system fallbacks.
 

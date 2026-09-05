@@ -1,7 +1,7 @@
 // Approved wording: Lions_ENT_One_Page_Website_Final_Layout.pdf.
 // Empty values intentionally remain unconfigured until supplied by the owner.
 export const company = {
-  name: 'Lions ENT',
+  name: 'Lions Entertainment',
   phone: '',
   whatsapp: '250788336459',
   whatsappNumbers: [

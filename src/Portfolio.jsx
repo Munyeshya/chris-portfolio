@@ -19,6 +19,11 @@ export default function Portfolio() {
     if (filtered.length > 1) setSelected(filtered[(selectedIndex + direction + filtered.length) % filtered.length])
   }
 
+  function returnToWork() {
+    setSelected(null)
+    requestAnimationFrame(() => document.getElementById('portfolio')?.scrollIntoView({ block: 'start' }))
+  }
+
   return <>
     <div className="portfolio-filters" aria-label="Portfolio categories">
       {['All Work', ...workCategories.map(item => item.title)].map(label => <button key={label} type="button" aria-pressed={category === label} onClick={() => { setCategory(label); setLimit(6) }}>{label}</button>)}
@@ -32,7 +37,7 @@ export default function Portfolio() {
       <div className="album-caption"><span className="album-type">EVENT PHOTOGRAPHY</span><h3><a href={album.url} target="_blank" rel="noreferrer">{album.title} <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a></h3><a className="album-link" href={album.url} target="_blank" rel="noreferrer">View full album on Flickr</a></div>
     </article>)}</div> : <div className="portfolio-empty"><h3>{videoCategory ? 'Visit our YouTube channel.' : 'More projects to come.'}</h3><p>{videoCategory ? 'Explore our channel on YouTube for video content.' : 'Project details for this category have not been added yet. Explore our photography albums in the meantime.'}</p>{videoCategory ? <a className="button red" href={company.socials.YouTube} target="_blank" rel="noreferrer">Visit YouTube <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a> : <button type="button" className="button outline" onClick={() => { setCategory('Photography'); setLimit(6) }}>Explore Photography</button>}</div>}
     <div className="portfolio-actions">{filtered.length > limit && <button type="button" className="button outline" onClick={() => setLimit(filtered.length)}>Show more albums <FaPlus className="ui-icon" aria-hidden="true" /></button>}<a className="button outline" href={portfolioUrl} target="_blank" rel="noreferrer">Full Flickr Portfolio <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a><a className="video-channel-link" href={company.socials.YouTube} target="_blank" rel="noreferrer">Find us on YouTube <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a></div>
-    <dialog ref={dialogRef} className="gallery-dialog" aria-labelledby="gallery-title" onClose={() => setSelected(null)} onKeyDown={event => {
+    <dialog ref={dialogRef} className="gallery-dialog" aria-labelledby="gallery-title" onClose={returnToWork} onKeyDown={event => {
       if (event.key === 'ArrowRight') { event.preventDefault(); movePhoto(1) }
       if (event.key === 'ArrowLeft') { event.preventDefault(); movePhoto(-1) }
     }} onClick={event => {
