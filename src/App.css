@@ -60,10 +60,10 @@ main:focus { outline: none; }
 .hero { position: relative; isolation: isolate; overflow: hidden; min-height: 800px; padding-bottom: 100px; }
 .hero-photo { position: absolute; inset: 0; height: 100%; object-fit: cover; object-position: 65% center; z-index: -3; }
 .hero-shade { position: absolute; inset: 0; background: linear-gradient(90deg, #0c0c0cf5, #0c0c0cc9 45%, #0c0c0c38), linear-gradient(0deg, #0c0c0c, transparent 65%); z-index: -2; }
-.hero-content { padding-top: 65px; position: relative; z-index: 1; }
+.hero-content { padding-top: 130px; position: relative; z-index: 1; }
 .hero-kicker { letter-spacing: .25em; }
 .red-dash { width: 30px; height: 2px; background: #e93434; }
-.hero h1 { text-transform: uppercase; max-width: 950px; font-size: clamp(46px, 5.5vw, 82px); line-height: .98; margin-bottom: 28px; }
+.hero h1 { text-transform: uppercase; max-width: 950px; font-size: clamp(36px, 5vw, 72px); line-height: .98; margin-bottom: 28px; }
 .hero h1 > span { color: #e43131; }
 .hero-copy { max-width: 700px; color: #d0cbcb; font-size: 13px; }
 .hero-copy p + p { margin-top: 13px; }
@@ -237,8 +237,8 @@ main:focus { outline: none; }
   .navigation > a { padding: 17px 12px; }
   .navigation .nav-cta { margin-top: 10px; justify-content: space-between; }
   .hero { min-height: auto; padding-bottom: 110px; }
-  .hero-content { padding-top: 45px; }
-  .hero h1 { font-size: clamp(47px, 8.5vw, 66px); max-width: 650px; }
+  .hero-content { padding-top: 90px; }
+  .hero h1 { max-width: 650px; }
   .hero-copy { font-size: 12px; }
   .hero-shade { background: linear-gradient(90deg, #0c0c0cee, #0c0c0c9c), linear-gradient(0deg, #0c0c0c, transparent 85%); }
   .hero-art { right: -300px; opacity: .3; }
@@ -279,7 +279,7 @@ main:focus { outline: none; }
   .footer-bottom { flex-wrap: wrap; }
 }
 @media (max-width: 420px) {
-  .hero h1 { font-size: 46px; }
+  .hero h1 { font-size: 36px; }
   .hero-actions { flex-direction: column; align-items: stretch; }
   .service-grid, .work-grid, .event-list { grid-template-columns: 1fr; }
   .event-list { grid-template-rows: none; grid-auto-flow: row; }
