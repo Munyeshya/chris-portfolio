@@ -1,4 +1,5 @@
-﻿import { useEffect, useRef, useState } from 'react'
+import { FaArrowUpRightFromSquare, FaArrowLeft, FaArrowRight, FaXmark, FaPlus } from 'react-icons/fa6'
+import { useEffect, useRef, useState } from 'react'
 import { company, portfolioAlbums, portfolioUrl, workCategories } from './content'
 
 export default function Portfolio() {
@@ -26,11 +27,11 @@ export default function Portfolio() {
     {filtered.length ? <div className="album-grid">{filtered.slice(0, limit).map(album => <article className="album-card" key={album.url}>
       <button className="album-preview" type="button" onClick={() => setSelected(album)} aria-label={`Preview ${album.title}`}>
         <img src={album.image} alt={album.title} width={album.width} height={album.height} loading="lazy" decoding="async" />
-        <span className="preview-hint">VIEW PHOTO <span aria-hidden="true">↗</span></span>
+        <span className="preview-hint">VIEW PHOTO <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></span>
       </button>
-      <div className="album-caption"><span className="album-type">EVENT PHOTOGRAPHY</span><h3><a href={album.url} target="_blank" rel="noreferrer">{album.title} <span aria-hidden="true">↗</span></a></h3><a className="album-link" href={album.url} target="_blank" rel="noreferrer">View full album on Flickr</a></div>
-    </article>)}</div> : <div className="portfolio-empty"><h3>{videoCategory ? 'Visit our YouTube channel.' : 'More projects to come.'}</h3><p>{videoCategory ? 'Explore our channel on YouTube for video content.' : 'Project details for this category have not been added yet. Explore our photography albums in the meantime.'}</p>{videoCategory ? <a className="button red" href={company.socials.YouTube} target="_blank" rel="noreferrer">Visit YouTube <span aria-hidden="true">↗</span></a> : <button type="button" className="button outline" onClick={() => { setCategory('Photography'); setLimit(6) }}>Explore Photography</button>}</div>}
-    <div className="portfolio-actions">{filtered.length > limit && <button type="button" className="button outline" onClick={() => setLimit(filtered.length)}>Show more albums <span aria-hidden="true">+</span></button>}<a className="button outline" href={portfolioUrl} target="_blank" rel="noreferrer">Full Flickr Portfolio <span aria-hidden="true">↗</span></a><a className="video-channel-link" href={company.socials.YouTube} target="_blank" rel="noreferrer">Find us on YouTube <span aria-hidden="true">↗</span></a></div>
+      <div className="album-caption"><span className="album-type">EVENT PHOTOGRAPHY</span><h3><a href={album.url} target="_blank" rel="noreferrer">{album.title} <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a></h3><a className="album-link" href={album.url} target="_blank" rel="noreferrer">View full album on Flickr</a></div>
+    </article>)}</div> : <div className="portfolio-empty"><h3>{videoCategory ? 'Visit our YouTube channel.' : 'More projects to come.'}</h3><p>{videoCategory ? 'Explore our channel on YouTube for video content.' : 'Project details for this category have not been added yet. Explore our photography albums in the meantime.'}</p>{videoCategory ? <a className="button red" href={company.socials.YouTube} target="_blank" rel="noreferrer">Visit YouTube <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a> : <button type="button" className="button outline" onClick={() => { setCategory('Photography'); setLimit(6) }}>Explore Photography</button>}</div>}
+    <div className="portfolio-actions">{filtered.length > limit && <button type="button" className="button outline" onClick={() => setLimit(filtered.length)}>Show more albums <FaPlus className="ui-icon" aria-hidden="true" /></button>}<a className="button outline" href={portfolioUrl} target="_blank" rel="noreferrer">Full Flickr Portfolio <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a><a className="video-channel-link" href={company.socials.YouTube} target="_blank" rel="noreferrer">Find us on YouTube <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a></div>
     <dialog ref={dialogRef} className="gallery-dialog" aria-labelledby="gallery-title" onClose={() => setSelected(null)} onKeyDown={event => {
       if (event.key === 'ArrowRight') { event.preventDefault(); movePhoto(1) }
       if (event.key === 'ArrowLeft') { event.preventDefault(); movePhoto(-1) }
@@ -40,8 +41,8 @@ export default function Portfolio() {
         if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialogRef.current.close()
       }
     }}>
-      <button type="button" className="gallery-close" aria-label="Close photo preview" onClick={() => dialogRef.current?.close()}>×</button>
-      {selected && <><div className="gallery-image-wrap"><img src={selected.image} width={selected.width} height={selected.height} alt={selected.title} /></div><div className="gallery-caption"><div><p className="gallery-position" aria-live="polite">{selectedIndex + 1} / {filtered.length}</p><h3 id="gallery-title">{selected.title}</h3><a href={selected.url} target="_blank" rel="noreferrer">View full album on Flickr ↗</a></div><div className="gallery-controls"><button type="button" aria-label="Previous album photo" onClick={() => movePhoto(-1)}>←</button><button type="button" aria-label="Next album photo" onClick={() => movePhoto(1)}>→</button></div></div></>}
+      <button type="button" className="gallery-close" aria-label="Close photo preview" onClick={() => dialogRef.current?.close()}><FaXmark aria-hidden="true" /></button>
+      {selected && <><div className="gallery-image-wrap"><img src={selected.image} width={selected.width} height={selected.height} alt={selected.title} /></div><div className="gallery-caption"><div><p className="gallery-position" aria-live="polite">{selectedIndex + 1} / {filtered.length}</p><h3 id="gallery-title">{selected.title}</h3><a href={selected.url} target="_blank" rel="noreferrer">View full album on Flickr <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a></div><div className="gallery-controls"><button type="button" aria-label="Previous album photo" onClick={() => movePhoto(-1)}><FaArrowLeft aria-hidden="true" /></button><button type="button" aria-label="Next album photo" onClick={() => movePhoto(1)}><FaArrowRight aria-hidden="true" /></button></div></div></>}
     </dialog>
   </>
 }

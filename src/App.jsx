@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { company, services, eventSolutions, clients, team } from './content'
 import './App.css'
 import Portfolio from './Portfolio'
+import { FaInstagram, FaYoutube, FaWhatsapp, FaArrowUpRightFromSquare, FaArrowDown, FaArrowUp, FaBars, FaXmark, FaAsterisk } from 'react-icons/fa6'
+import { useScrollHeader, useSectionReveals } from './usePageMotion'
 
 function Brand({ dark = false }) {
   return (
@@ -27,8 +29,8 @@ function SectionLabel({ number, children, light = false }) {
 
 function PortalLink({ className = '', onUnavailable }) {
   return company.portalUrl
-    ? <a className={className} href={company.portalUrl} target="_blank" rel="noreferrer">Portal <span aria-hidden="true">↗</span></a>
-    : <button className={className} type="button" onClick={onUnavailable}>Portal <span aria-hidden="true">↗</span></button>
+    ? <a className={className} href={company.portalUrl} target="_blank" rel="noreferrer">Portal <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a>
+    : <button className={className} type="button" onClick={onUnavailable}>Portal <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></button>
 }
 
 function App() {
@@ -38,6 +40,9 @@ function App() {
   const dialogRef = useRef(null)
   const menuRef = useRef(null)
   const menuButtonRef = useRef(null)
+  const headerRef = useRef(null)
+  const headerHidden = useScrollHeader(headerRef, menuOpen)
+  useSectionReveals()
 
   useEffect(() => {
     const observer = new IntersectionObserver(entries => {
@@ -74,15 +79,15 @@ function App() {
 
   const navLinks = [['about', 'About Us'], ['services', 'Services'], ['portfolio', 'Portfolio'], ['contact', 'Contact Us']]
   const footerLinks = [['about', 'About Us'], ['services', 'Services'], ['event-solutions', 'Event Solutions'], ['portfolio', 'Portfolio'], ['team', 'Our Team'], ['contact', 'Contact Us']]
-  const contactHref = company.email ? `mailto:${company.email}` : company.phone ? `tel:${company.phone.replace(/[^+\d]/g, '')}` : company.socials.Instagram
+  const contactHref = company.whatsapp ? `https://wa.me/${company.whatsapp}` : company.email ? `mailto:${company.email}` : company.phone ? `tel:${company.phone.replace(/[^+\d]/g, '')}` : company.socials.Instagram
 
   return (
     <>
       <a className="skip-link" href="#main">Skip to content</a>
-      <header className="header" data-section="01-header">
+      <header ref={headerRef} className={`header${headerHidden ? ' header-hidden' : ''}`} data-section="01-header">
         <div className="nav-wrap">
           <Brand />
-          <button ref={menuButtonRef} className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="navigation" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? 'Close ×' : 'Menu ☰'}</button>
+          <button ref={menuButtonRef} className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="navigation" onClick={() => setMenuOpen(!menuOpen)}><span>{menuOpen ? 'Close' : 'Menu'}</span>{menuOpen ? <FaXmark aria-hidden="true" /> : <FaBars aria-hidden="true" />}</button>
           <nav ref={menuRef} id="navigation" className={`navigation${menuOpen ? ' open' : ''}`} aria-label="Main navigation">
             {navLinks.map(([id, label]) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
             <PortalLink className="nav-cta" onUnavailable={showPortalNotice} />
@@ -101,11 +106,11 @@ function App() {
               <p>Lions ENT combines professional AV production, creative media, and digital technology to help businesses, organizations, and events communicate, connect, and create memorable experiences.</p>
               <p>From photography, videography, livestreaming, LED displays, and audiovisual production to web design and web application development, we deliver integrated solutions from concept to execution.</p>
             </div>
-            <div className="hero-actions"><a className="button red" href="#services">Explore Our Services <span aria-hidden="true">↗</span></a><a className="button outline" href="#portfolio">View Portfolio <span aria-hidden="true">↗</span></a></div>
+            <div className="hero-actions"><a className="button red" href="#services">Explore Our Services <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a><a className="button outline" href="#portfolio">View Portfolio <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a></div>
           </div>
-          <div className="hero-art" aria-hidden="true"><i /><i /><i /><span>✳</span></div>
-          <div className="hero-bottom section-shell"><a href="#about">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a><span>PRODUCTION / MEDIA / EVENTS / TECHNOLOGY</span></div>
-          <a className="image-credit" href="https://www.flickr.com/photos/196950681@N03/albums/72177720335314989" target="_blank" rel="noreferrer">Kigali Twataramye 3rd edition · View album ↗</a>
+          <div className="hero-art" aria-hidden="true"><i /><i /><i /><FaAsterisk aria-hidden="true" className="hero-asterisk" /></div>
+          <div className="hero-bottom section-shell"><a href="#about">SCROLL TO EXPLORE <FaArrowDown aria-hidden="true" className="ui-icon" /></a><span>PRODUCTION / MEDIA / EVENTS / TECHNOLOGY</span></div>
+          <a className="image-credit" href="https://www.flickr.com/photos/196950681@N03/albums/72177720335314989" target="_blank" rel="noreferrer">Kigali Twataramye 3rd edition · View album <FaArrowUpRightFromSquare aria-hidden="true" /></a>
         </section>
 
         <section className="about section-shell" id="about" data-section="03-about" aria-labelledby="about-title">
@@ -115,7 +120,7 @@ function App() {
         </section>
 
         <section className="services section-shell" id="services" data-section="04-services" aria-labelledby="services-title">
-          <div className="section-heading"><div><SectionLabel number="04">WHAT WE DO</SectionLabel><h2 id="services-title">Our <span>Services</span></h2></div><span className="section-motif" aria-hidden="true">✳</span></div>
+          <div className="section-heading"><div><SectionLabel number="04">WHAT WE DO</SectionLabel><h2 id="services-title">Our <span>Services</span></h2></div><FaAsterisk className="section-motif" aria-hidden="true" /></div>
           <div className="service-grid">{services.map((service, index) => <article className="service-card" key={service.id} id={service.id}><div className="service-top"><span>0{index + 1}</span><Icon type={service.icon} /></div><h3>{service.title}</h3><p>{service.description}</p><span className="card-rule" aria-hidden="true" /></article>)}</div>
         </section>
 
@@ -146,12 +151,12 @@ function App() {
             <dl className="contact-details">
               {company.phone && <div><dt>Phone / WhatsApp</dt><dd><a href={`tel:${company.phone.replace(/[^+\d]/g, '')}`}>{company.phone}</a>{company.whatsapp && <a className="whatsapp-link" href={`https://wa.me/${company.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">WhatsApp ↗</a>}</dd></div>}
               {company.email && <div><dt>Email</dt><dd><a href={`mailto:${company.email}`}>{company.email}</a></dd></div>}
-              <div><dt>Instagram</dt><dd><a href={company.socials.Instagram} target="_blank" rel="noreferrer">@lions_ent_ ↗</a></dd></div>
-              <div><dt>YouTube</dt><dd><a href={company.socials.YouTube} target="_blank" rel="noreferrer">@golive-r9e ↗</a></dd></div>
+              <div><dt>WhatsApp</dt><dd className="whatsapp-numbers">{company.whatsappNumbers.map(number => <a key={number.international} href={`https://wa.me/${number.international}`} target="_blank" rel="noreferrer" aria-label={`Chat on WhatsApp: ${number.label}`}><FaWhatsapp aria-hidden="true" /><span>{number.label}</span><FaArrowUpRightFromSquare className="number-arrow" aria-hidden="true" /></a>)}</dd></div>
+              <div><dt>Follow Us</dt><dd className="social-icon-links"><a href={company.socials.Instagram} target="_blank" rel="noreferrer" aria-label="Lions ENT on Instagram" title="Instagram"><FaInstagram aria-hidden="true" /></a><a href={company.socials.YouTube} target="_blank" rel="noreferrer" aria-label="Lions ENT on YouTube" title="YouTube"><FaYoutube aria-hidden="true" /></a></dd></div>
               <div><dt>Location</dt><dd>{company.location}</dd></div>
             </dl>
-            <a className="button light" href={contactHref} target={contactHref.startsWith('https:') ? '_blank' : undefined} rel={contactHref.startsWith('https:') ? 'noreferrer' : undefined}>Get in Touch <span aria-hidden="true">↗</span></a>
-            {!company.email && !company.phone && <p className="contact-note">Message us on Instagram to discuss your project.</p>}
+            <a className="button light" href={contactHref} target={contactHref.startsWith('https:') ? '_blank' : undefined} rel={contactHref.startsWith('https:') ? 'noreferrer' : undefined}>Get in Touch <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a>
+            {!company.email && !company.phone && <p className="contact-note">Message us on WhatsApp to discuss your project.</p>}
           </div>
           <Pattern className="contact-pattern" />
         </section>
@@ -159,8 +164,8 @@ function App() {
 
       <footer className="footer section-shell" data-section="10-footer">
         <div className="footer-intro"><Brand /><div><p className="footer-tagline">Creative Production and Technology Partner.</p><p>Professional AV production, media, event management, and digital solutions for businesses, organizations, and events.</p></div></div>
-        <div className="footer-columns"><div><h2>Quick Links</h2><ul>{footerLinks.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}<li><PortalLink className="footer-portal" onUnavailable={showPortalNotice} /></li></ul></div><div><h2>Services</h2><ul>{services.slice(0, 3).map(service => <li key={service.id}><a href={`#${service.id}`}>{service.title}</a></li>)}<li><a href="#event-solutions">Event Planning &amp; Management</a></li><li><a href="#creative-digital">Creative &amp; Digital Solutions</a></li></ul></div><div><h2>Contact</h2><ul><li>{company.location}</li><li><a href={company.socials.Instagram} target="_blank" rel="noreferrer">Message us on Instagram ↗</a></li>{company.email && <li><a href={`mailto:${company.email}`}>{company.email}</a></li>}</ul></div><div><h2>Follow Us</h2><ul>{Object.entries(company.socials).map(([label, url]) => <li key={label}>{url ? <a href={url} target="_blank" rel="noreferrer">{label} ↗</a> : <span className="social-pending">{label}<small>Link pending</small></span>}</li>)}</ul></div></div>
-        <div className="footer-bottom"><p>© 2026 Lions ENT. All Rights Reserved.</p><a href="#home">BACK TO TOP <span aria-hidden="true">↑</span></a></div>
+        <div className="footer-columns"><div><h2>Quick Links</h2><ul>{footerLinks.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}<li><PortalLink className="footer-portal" onUnavailable={showPortalNotice} /></li></ul></div><div><h2>Services</h2><ul>{services.slice(0, 3).map(service => <li key={service.id}><a href={`#${service.id}`}>{service.title}</a></li>)}<li><a href="#event-solutions">Event Planning &amp; Management</a></li><li><a href="#creative-digital">Creative &amp; Digital Solutions</a></li></ul></div><div><h2>Contact</h2><ul><li>{company.location}</li>{company.whatsappNumbers.map(number => <li key={number.international}><a className="footer-whatsapp" href={`https://wa.me/${number.international}`} target="_blank" rel="noreferrer"><FaWhatsapp aria-hidden="true" /> {number.label}</a></li>)}{company.email && <li><a href={`mailto:${company.email}`}>{company.email}</a></li>}</ul></div><div><h2>Follow Us</h2><ul>{Object.entries(company.socials).map(([label, url]) => <li key={label}>{url ? <a href={url} target="_blank" rel="noreferrer"><span className="footer-social">{label === 'Instagram' ? <FaInstagram aria-hidden="true" /> : <FaYoutube aria-hidden="true" />}{label}</span></a> : <span className="social-pending">{label}<small>Link pending</small></span>}</li>)}</ul></div></div>
+        <div className="footer-bottom"><p>© 2026 Lions ENT. All Rights Reserved.</p><a href="#home">BACK TO TOP <FaArrowUp aria-hidden="true" className="ui-icon" /></a></div>
       </footer>
 
       <dialog ref={dialogRef} className="information-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description" onClose={() => setDialogContent(null)} onClick={event => {
@@ -168,7 +173,7 @@ function App() {
           const bounds = dialogRef.current.getBoundingClientRect()
           if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialogRef.current.close()
         }
-      }}><button className="dialog-close" type="button" aria-label="Close dialog" onClick={() => dialogRef.current?.close()}>×</button><p className="eyebrow">LIONS ENT</p><h2 id="dialog-title">{dialogContent?.title}</h2><p id="dialog-description">{dialogContent?.text}</p><button className="button red" type="button" onClick={() => dialogRef.current?.close()}>Close</button></dialog>
+      }}><button className="dialog-close" type="button" aria-label="Close dialog" onClick={() => dialogRef.current?.close()}><FaXmark aria-hidden="true" /></button><p className="eyebrow">LIONS ENT</p><h2 id="dialog-title">{dialogContent?.title}</h2><p id="dialog-description">{dialogContent?.text}</p><button className="button red" type="button" onClick={() => dialogRef.current?.close()}>Close</button></dialog>
     </>
   )
 }

@@ -3,7 +3,11 @@
 export const company = {
   name: 'Lions ENT',
   phone: '',
-  whatsapp: '',
+  whatsapp: '250788336459',
+  whatsappNumbers: [
+    { label: '0788 336 459', international: '250788336459' },
+    { label: '0788 401 104', international: '250788401104' },
+  ],
   email: '',
   location: 'Kigali, Rwanda',
   portalUrl: '',
