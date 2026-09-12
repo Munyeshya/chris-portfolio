@@ -10,11 +10,22 @@
 .portal-header a:hover, .portal-footer a:hover { color: #ed1c24; }
 .portal-header .portal-login { min-height: 42px; padding: 0 19px; display: inline-flex; align-items: center; color: #fff; background: linear-gradient(135deg, rgba(214,39,39,.96), rgba(196,27,27,.88)); backdrop-filter: blur(14px); }
 .portal-header .portal-login:hover { color: #fff; background: linear-gradient(135deg, rgba(229,55,55,.98), rgba(196,27,27,.94)); }
-.booking-hero { min-height: 690px; padding-block: 130px 80px; display: flex; flex-direction: column; justify-content: center; }
+.booking-hero { position: relative; isolation: isolate; overflow: hidden; min-height: 690px; display: flex; flex-direction: column; justify-content: center; }
+.booking-hero-photo { position: absolute; inset: 0; z-index: -4; width: 100%; height: 100%; object-fit: cover; object-position: center 42%; }
+.booking-hero-shade { position: absolute; inset: 0; z-index: -3; background: linear-gradient(90deg, rgba(5,5,5,.94) 0%, rgba(5,5,5,.75) 52%, rgba(5,5,5,.45) 100%), linear-gradient(0deg, rgba(5,5,5,.78), transparent 55%); }
+.booking-hero-content { position: relative; z-index: 2; padding-block: 130px 80px; }
+.booking-wave { position: absolute; left: 50%; top: 50%; z-index: 0; width: max(100%, 1500px); height: 640px; transform: translate(-50%,-50%); overflow: hidden; opacity: .34; pointer-events: none; }
+.booking-wave::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(8,8,8,.68) 0 30%, rgba(8,8,8,.22) 58%, transparent 80%); backdrop-filter: blur(1.5px); }
+.booking-wave svg { width: 100%; height: 100%; }
+.booking-wave path { fill: none; stroke-width: 1.1; vector-effect: non-scaling-stroke; }
+.booking-hero .booking-wave { z-index: -2; opacity: .22; }
+.booking-dark-section { position: relative; isolation: isolate; overflow: hidden; background: #080808; }
+.booking-section-content { position: relative; z-index: 2; }
+.booking-lion-motif { position: absolute; right: max(-80px, calc((100vw - 1450px) / 2)); bottom: -130px; width: min(600px, 48vw); height: min(600px, 48vw); object-fit: contain; opacity: .075; pointer-events: none; }
 .portal-eyebrow { margin: 0 0 20px; color: #ed1c24; font-size: .72rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
 .booking-hero h1 { max-width: 900px; margin: 0; font-size: clamp(3.1rem, 7.2vw, 6.7rem); line-height: .94; letter-spacing: -.065em; }
 .booking-hero h1 span { color: #ed1c24; }
-.booking-hero > p:not(.portal-eyebrow):not(.booking-rule) { max-width: 720px; margin: 32px 0 0; color: #bbb; font-size: clamp(1rem, 1.4vw, 1.2rem); line-height: 1.75; }
+.booking-hero-content > p:not(.portal-eyebrow):not(.booking-rule) { max-width: 720px; margin: 32px 0 0; color: #d3d3d3; font-size: clamp(1rem, 1.4vw, 1.2rem); line-height: 1.75; }
 .portal-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 38px; }
 .portal-button { min-height: 50px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 0; color: #fff; background: rgba(255,255,255,.07); backdrop-filter: blur(12px); text-decoration: none; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; transition: background .2s, border-color .2s; }
 .portal-button:hover { background: rgba(255,255,255,.13); }
@@ -31,7 +42,7 @@
 .service-options > div:nth-child(odd) { border-right: 1px solid rgba(255,255,255,.1); }
 .service-options > div:nth-last-child(-n+2) { border-bottom: 0; }
 .service-options svg { color: #ed1c24; }
-.process-section { background: #f4f2ed; color: #111; }
+.process-section { position: relative; isolation: isolate; overflow: hidden; background: #f4f2ed; color: #111; }
 .booking-steps { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid rgba(0,0,0,.15); list-style: none; }
 .booking-steps li { min-height: 175px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; border-right: 1px solid rgba(0,0,0,.15); border-bottom: 1px solid rgba(0,0,0,.15); }
 .booking-steps li:nth-child(4n) { border-right: 0; }
@@ -89,7 +100,11 @@
   .portal-brand img { width: 78px; height: 42px; }
   .portal-header nav { gap: 14px; overflow-x: auto; }
   .portal-header nav a { white-space: nowrap; font-size: .68rem; }
-  .booking-hero { min-height: calc(100svh - 66px); padding-block: 80px 50px; }
+  .booking-hero { min-height: calc(100svh - 66px); }
+  .booking-hero-content { padding-block: 80px 50px; }
+  .booking-hero-photo { object-position: 63% center; }
+  .booking-wave { width: 1200px; opacity: .26; }
+  .booking-lion-motif { right: -90px; bottom: -45px; width: 310px; height: 310px; opacity: .065; }
   .booking-hero h1 { font-size: clamp(3.2rem, 17vw, 5.2rem); }
   .portal-section { padding-block: 76px; }
   .service-options, .form-grid, .service-checks { grid-template-columns: 1fr; }

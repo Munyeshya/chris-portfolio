@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, Navigate } from 'react-router-dom'
-import { FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaXmark } from 'react-icons/fa6'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaXmark } from 'react-icons/fa6'
 import { authConfigured, supabase } from '../lib/supabase.js'
 import './DashboardPage.css'
 
@@ -16,6 +16,8 @@ const emptyForms = {
 }
 
 export default function DashboardPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const [session, setSession] = useState(authConfigured ? undefined : null)
   const [profile, setProfile] = useState(undefined)
   const [section, setSection] = useState('overview')
@@ -23,6 +25,29 @@ export default function DashboardPage() {
   const [data, setData] = useState({ bookings: [], team: [], partners: [], work: [] })
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState('')
+  const [toast, setToast] = useState(location.state?.toast || '')
+  const [accountOpen, setAccountOpen] = useState(false)
+  const accountRef = useRef(null)
+
+  useEffect(() => {
+    if (!toast) return undefined
+    navigate(location.pathname, { replace: true, state: null })
+    const timer = window.setTimeout(() => setToast(''), 3500)
+    return () => window.clearTimeout(timer)
+  }, [toast, navigate, location.pathname])
+
+  useEffect(() => {
+    if (!accountOpen) return undefined
+    const close = event => {
+      if (event.key === 'Escape' || !accountRef.current?.contains(event.target)) setAccountOpen(false)
+    }
+    document.addEventListener('keydown', close)
+    document.addEventListener('pointerdown', close)
+    return () => {
+      document.removeEventListener('keydown', close)
+      document.removeEventListener('pointerdown', close)
+    }
+  }, [accountOpen])
 
   useEffect(() => {
     if (!supabase) return undefined
@@ -65,17 +90,23 @@ export default function DashboardPage() {
 
   const CurrentIcon = sections.find(item => item[0] === section)?.[2] || FaBriefcase
   return <div className="dashboard-page">
+    {toast && <div className="dashboard-toast" role="status"><FaCheck aria-hidden="true" /><span>{toast}</span><button type="button" onClick={() => setToast('')} aria-label="Close notification"><FaXmark aria-hidden="true" /></button></div>}
     <aside className={`dashboard-sidebar${menuOpen ? ' open' : ''}`}>
       <div className="dashboard-logo"><img src="/brand/lions-ent-white.png" alt="Lions Entertainment" /><button onClick={() => setMenuOpen(false)} aria-label="Close menu"><FaXmark /></button></div>
       <nav>{sections.map(([id, label, Icon]) => <button className={section === id ? 'active' : ''} key={id} onClick={() => { setSection(id); setMenuOpen(false) }}><Icon /><span>{label}</span></button>)}</nav>
-      <div className="dashboard-account"><small>Signed in as</small><strong>{profile.full_name || profile.email}</strong><span>{profile.role}</span><button onClick={signOut}><FaArrowRightFromBracket /> Sign out</button></div>
+      <div className="dashboard-site-link"><Link to="/"><FaHouse /> View website</Link></div>
     </aside>
     <main className="dashboard-main">
-      <header><button className="dashboard-menu" onClick={() => setMenuOpen(true)}><FaBars /> Menu</button><div><p>Lions Entertainment</p><h1><CurrentIcon /> {sections.find(item => item[0] === section)?.[1]}</h1></div><Link to="/">View website</Link></header>
+      <header><button className="dashboard-menu" onClick={() => setMenuOpen(true)}><FaBars /> Menu</button><div className="dashboard-title"><p>Lions Entertainment</p><h1><CurrentIcon /> {sections.find(item => item[0] === section)?.[1]}</h1></div><div className="dashboard-account" ref={accountRef}><button className="account-avatar" type="button" aria-label="Open account menu" aria-expanded={accountOpen} onClick={() => setAccountOpen(open => !open)}>{getInitials(profile.full_name || profile.email)}</button>{accountOpen && <div className="account-dropdown"><small>Signed in as</small><strong>{profile.full_name || profile.email}</strong><span>{profile.role}</span><button className="account-signout" onClick={signOut}><FaArrowRightFromBracket /> Sign out</button></div>}</div></header>
       {notice && <p className="dashboard-notice" role="status">{notice}<button onClick={() => setNotice('')}>Dismiss</button></p>}
       {loading ? <p className="dashboard-loading">Loading dashboard…</p> : <DashboardContent section={section} data={data} reload={loadAll} setNotice={setNotice} />}
     </main>
   </div>
+}
+
+function getInitials(value = '') {
+  const parts = value.includes('@') ? [value.split('@')[0]] : value.trim().split(/\s+/)
+  return parts.slice(0, 2).map(part => part[0]?.toUpperCase()).join('') || 'LE'
 }
 
 function DashboardMessage({ title, message, action }) {

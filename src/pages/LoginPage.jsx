@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { FaArrowLeft, FaArrowRight, FaCheck } from 'react-icons/fa6'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa6'
 import { authConfigured, supabase } from '../lib/supabase.js'
 import './PortalPages.css'
 
 export default function LoginPage() {
+  const navigate = useNavigate()
   const [mode, setMode] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -28,7 +29,7 @@ export default function LoginPage() {
     const { data, error } = await action
     if (error) return setStatus({ state: 'error', message: error.message })
     if (mode === 'register' && !data.session) return setStatus({ state: 'success', message: 'Account created. Check your email and confirm it before signing in.' })
-    setStatus({ state: 'success', message: 'Login successful.' })
+    navigate('/dashboard', { replace: true, state: { toast: 'Login successful. Welcome back.' } })
   }
 
   async function resetPassword() {
@@ -39,22 +40,10 @@ export default function LoginPage() {
     setStatus(error ? { state: 'error', message: error.message } : { state: 'success', message: 'Password reset instructions were sent to your email.' })
   }
 
-  async function signOut() {
-    setStatus({ state: 'loading', message: 'Signing out...' })
-    const { error } = await supabase.auth.signOut()
-    setStatus(error ? { state: 'error', message: error.message } : { state: 'idle', message: '' })
-  }
-
   return <main className="portal-page auth-page">
     <div className="auth-shell">
       <Link to="/" className="portal-brand auth-brand"><img src="/brand/lions-ent-white.png" alt="Lions Entertainment" /></Link>
-      {session ? <section className="auth-card auth-success">
-        <span className="auth-success-icon"><FaCheck aria-hidden="true" /></span>
-        <p className="portal-eyebrow">Authenticated</p>
-        <h1>Login successful.</h1>
-        <p>You are signed in as <strong>{session.user.email}</strong>.</p>
-        <div className="portal-actions"><Link className="portal-button primary" to="/dashboard">Open dashboard <FaArrowRight aria-hidden="true" /></Link><Link className="portal-button" to="/booking">Go to booking</Link><button className="portal-button" type="button" onClick={signOut}>Sign out</button></div>
-      </section> : <section className="auth-card">
+      {session ? <Navigate to="/dashboard" replace state={{ toast: 'You are already signed in.' }} /> : <section className="auth-card">
         <p className="portal-eyebrow">Lions Entertainment Portal</p>
         <h1>{mode === 'register' ? 'Create account' : 'Welcome back'}</h1>
         <p>{mode === 'register' ? 'Create your portal account. You may need to confirm your email.' : 'Sign in securely to your Lions Entertainment account.'}</p>
