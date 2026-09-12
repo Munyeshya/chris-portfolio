@@ -2,12 +2,12 @@ import { FaArrowUpRightFromSquare, FaArrowLeft, FaArrowRight, FaXmark, FaPlus } 
 import { useEffect, useRef, useState } from 'react'
 import { company, portfolioAlbums, portfolioUrl, workCategories } from './content'
 
-export default function Portfolio() {
+export default function Portfolio({ albums = portfolioAlbums }) {
   const [category, setCategory] = useState('All Work')
   const [limit, setLimit] = useState(6)
   const [selected, setSelected] = useState(null)
   const dialogRef = useRef(null)
-  const filtered = category === 'All Work' ? portfolioAlbums : portfolioAlbums.filter(album => album.categories.includes(category))
+  const filtered = category === 'All Work' ? albums : albums.filter(album => album.categories.includes(category))
   const selectedIndex = selected ? filtered.findIndex(album => album.url === selected.url) : -1
   const videoCategory = category === 'AV Production & Livestreaming' || category === 'Videography & Documentaries'
 

@@ -52,8 +52,8 @@ export default function LoginPage() {
         <span className="auth-success-icon"><FaCheck aria-hidden="true" /></span>
         <p className="portal-eyebrow">Authenticated</p>
         <h1>Login successful.</h1>
-        <p>You are signed in as <strong>{session.user.email}</strong>. Your management dashboard will be added in the next phase.</p>
-        <div className="portal-actions"><Link className="portal-button primary" to="/booking">Go to booking <FaArrowRight aria-hidden="true" /></Link><button className="portal-button" type="button" onClick={signOut}>Sign out</button></div>
+        <p>You are signed in as <strong>{session.user.email}</strong>.</p>
+        <div className="portal-actions"><Link className="portal-button primary" to="/dashboard">Open dashboard <FaArrowRight aria-hidden="true" /></Link><Link className="portal-button" to="/booking">Go to booking</Link><button className="portal-button" type="button" onClick={signOut}>Sign out</button></div>
       </section> : <section className="auth-card">
         <p className="portal-eyebrow">Lions Entertainment Portal</p>
         <h1>{mode === 'register' ? 'Create account' : 'Welcome back'}</h1>

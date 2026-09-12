@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { company, services, eventSolutions, clients, team } from './content'
+import { company, services, eventSolutions } from './content'
 import './App.css'
 import Portfolio from './Portfolio'
 import { FaInstagram, FaYoutube, FaWhatsapp, FaArrowUpRightFromSquare, FaArrowDown, FaArrowUp, FaBars, FaXmark, FaAsterisk } from 'react-icons/fa6'
 import { useScrollHeader, useSectionReveals } from './usePageMotion'
+import { useWebsiteContent } from './useWebsiteContent'
 
 function Brand({ dark = false }) {
   return (
@@ -50,6 +51,7 @@ function FloatingBackToTop() {
 }
 
 function App() {
+  const { team, partners, work } = useWebsiteContent()
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const menuRef = useRef(null)
@@ -141,13 +143,13 @@ function App() {
         <section className="work section-shell" id="portfolio" data-section="06-work" aria-labelledby="work-title">
           <WavyBackdrop id="work-wave-stroke" />
           <div className="section-heading"><div><SectionLabel>PORTFOLIO</SectionLabel><h2 id="work-title">Our <span>Work</span></h2></div><p>A selection of projects delivered across audiovisual production, photography, videography, livestreaming, events, and digital solutions.</p></div>
-          <Portfolio />
+          <Portfolio albums={work} />
         </section>
 
         <section className="clients section-shell" id="clients" data-section="07-clients" aria-labelledby="clients-title">
           <img className="lion-motif clients-pattern" src="/brand/vector.png" alt="" aria-hidden="true" />
           <div className="clients-heading"><SectionLabel>Clients &amp; Partners</SectionLabel><h2 id="clients-title">Trusted <span>By</span></h2><p>We are proud to have worked with businesses, organizations, institutions, and brands across different projects.</p></div>
-          <PartnerSlider items={clients} />
+          <PartnerSlider items={partners} />
         </section>
 
         <section className="team section-shell" id="team" data-section="08-team" aria-labelledby="team-title">
