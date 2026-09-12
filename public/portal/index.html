@@ -1,33 +1,193 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#0c0c0c" />
-    <link rel="icon" type="image/png" href="../brand/favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet" />
-    <title>Portal Coming Soon | Lions Entertainment</title>
-    <style>
-      * { box-sizing: border-box; }
-      body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: 24px; color: #fff; background: radial-gradient(circle at 50% 30%, #351010, #0c0c0c 58%); font-family: Montserrat, Arial, sans-serif; }
-      main { width: min(680px, 100%); text-align: center; }
-      img { width: clamp(250px, 42vw, 360px); height: auto; margin: 0 auto -16px; }
-      p { margin: 0 0 18px; color: #e14848; font-size: 12px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
-      h1 { margin: 0; font-size: clamp(42px, 9vw, 88px); line-height: .95; letter-spacing: -.04em; }
-      .message { margin: 25px auto 36px; max-width: 530px; color: #bbb; font-size: 15px; line-height: 1.8; letter-spacing: 0; text-transform: none; font-weight: 400; }
-      a { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; padding: 14px 22px; color: #fff; text-decoration: none; background: rgba(255,255,255,.12); box-shadow: inset 0 1px rgba(255,255,255,.28), 0 12px 30px #0006; backdrop-filter: blur(14px); }
-      a:hover { background: #c41b1b; }
-    </style>
-  </head>
-  <body>
-    <main>
-      <img src="../brand/lions-ent-white.png" alt="Lions Entertainment" />
-      <p>Registration &amp; Booking Portal</p>
-      <h1>Coming Soon</h1>
-      <p class="message">We’re building a simpler way to register, book, and connect with Lions Entertainment. Please check back soon.</p>
-      <a href="../">Return to the website</a>
-    </main>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0c0c0c" />
+  <meta name="description" content="Preview the upcoming Lions Entertainment booking and ticketing platforms." />
+  <link rel="icon" type="image/png" href="../brand/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Booking &amp; Ticketing Coming Soon | Lions Entertainment</title>
+  <style>
+    :root { --red:#c41b1b; --ink:#0c0c0c; --line:#ffffff20; --muted:#b9b9b9; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; scroll-padding-top:80px; }
+    body { margin:0; color:#fff; background:radial-gradient(circle at 50% 4%,#351010,var(--ink) 29%); font-family:Montserrat,Arial,sans-serif; }
+    .shell { width:min(1160px,calc(100% - 48px)); margin-inline:auto; }
+    .hero { min-height:78svh; display:grid; place-content:center; padding-block:64px; text-align:center; }
+    .brand { width:clamp(250px,42vw,370px); margin:0 auto -18px; }
+    .eyebrow { margin:0 0 16px; color:#ee5b5b; font-size:11px; font-weight:700; letter-spacing:.19em; text-transform:uppercase; }
+    h1,h2,h3,h4,p { margin-top:0; }
+    h1 { margin-bottom:0; font-size:clamp(45px,9vw,92px); line-height:.94; letter-spacing:-.045em; }
+    .lead { max-width:690px; margin:26px auto 32px; color:var(--muted); font-size:15px; line-height:1.8; }
+    .button { display:inline-flex; min-height:48px; align-items:center; padding:14px 22px; color:#fff; text-decoration:none; background:#ffffff1f; box-shadow:inset 0 1px #ffffff47,0 12px 30px #0006; backdrop-filter:blur(14px); }
+    .button:hover { background:var(--red); }
+    .notice,.callout { border-left:3px solid var(--red); background:#c41b1b1c; }
+    .notice { margin:42px 0 0; padding:15px 20px; color:#ddd; font-size:12px; line-height:1.7; text-align:left; }
+    .jump { position:sticky; top:0; z-index:10; border-block:1px solid var(--line); background:#0c0c0cd9; backdrop-filter:blur(16px); }
+    .jump .shell { display:flex; gap:6px; padding-block:11px; overflow-x:auto; scrollbar-width:none; }
+    .jump a { flex:none; padding:10px 13px; color:#ccc; text-decoration:none; font-size:11px; font-weight:600; }
+    .jump a:hover { color:#fff; background:#ffffff12; }
+    .section { padding-block:82px; }
+    .section + .section { border-top:1px solid var(--line); }
+    .heading { max-width:840px; margin-bottom:36px; }
+    .heading h2 { margin-bottom:16px; font-size:clamp(36px,6vw,66px); line-height:1; letter-spacing:-.035em; }
+    .heading p:last-of-type { color:var(--muted); font-size:14px; line-height:1.8; }
+    .tags { display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }
+    .tag { padding:9px 11px; color:#ffb4b4; background:#c41b1b30; font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    .card { padding:clamp(24px,4vw,38px); background:linear-gradient(145deg,#ffffff18,#ffffff08); box-shadow:inset 0 1px #ffffff26,0 18px 44px #0004; backdrop-filter:blur(14px); }
+    .wide { grid-column:1/-1; }
+    .card h3,.subsection>h3 { margin-bottom:18px; font-size:clamp(22px,3vw,32px); }
+    .card h4 { margin:26px 0 11px; color:#f2b0b0; font-size:13px; }
+    .card p { color:var(--muted); font-size:13px; line-height:1.75; }
+    ul,ol { margin:0; padding:0; list-style:none; }
+    .list { display:grid; gap:11px; }
+    .list li { position:relative; padding-left:19px; color:#eee; font-size:13px; line-height:1.6; }
+    .list li::before { content:''; position:absolute; left:0; top:.68em; width:6px; height:6px; border-radius:50%; background:var(--red); }
+    .steps { display:grid; counter-reset:step; gap:1px; background:var(--line); }
+    .steps li { counter-increment:step; display:grid; grid-template-columns:45px 1fr; gap:14px; align-items:center; padding:17px 18px; background:#121212; color:#eee; font-size:13px; line-height:1.6; }
+    .steps li::before { content:counter(step,decimal-leading-zero); color:#ed6969; font-size:10px; font-weight:700; }
+    .subsection { margin-top:44px; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; min-width:650px; border-collapse:collapse; }
+    th,td { padding:15px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; font-size:12px; line-height:1.6; }
+    th { color:#ff9c9c; background:#c41b1b1c; font-size:10px; letter-spacing:.09em; text-transform:uppercase; }
+    td:first-child { width:28%; color:#fff; font-weight:600; }
+    td:last-child { color:#ccc; }
+    .callout { padding:24px; }
+    .callout h3 { margin-bottom:10px; font-size:20px; }
+    .callout p { margin-bottom:0; color:#ccc; font-size:12px; line-height:1.8; }
+    .roadmap { background:#ffffff05; }
+    footer { padding-block:34px; border-top:1px solid var(--line); color:#888; font-size:11px; }
+    footer .shell { display:flex; justify-content:space-between; gap:20px; }
+    footer a { color:#ddd; text-decoration:none; }
+    @media(max-width:760px){.shell{width:min(100% - 32px,1160px)}.hero{min-height:72svh}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.section{padding-block:60px}footer .shell{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <header class="hero shell" id="top">
+    <img class="brand" src="../brand/lions-ent-white.png" alt="Lions Entertainment" />
+    <p class="eyebrow">Booking &amp; Ticketing Platforms</p>
+    <h1>Coming Soon</h1>
+    <p class="lead">Two dedicated platforms are planned: one for booking Lions Entertainment services and following projects, and another for event registration, ticket sales and entrance management.</p>
+    <div><a class="button" href="../">Return to the website</a></div>
+    <p class="notice">This page describes the planned experience. The features are not live yet and may be refined before launch.</p>
+  </header>
+
+  <nav class="jump" aria-label="Page sections"><div class="shell">
+    <a href="#booking">Booking</a><a href="#booking-flow">Booking flow</a><a href="#ticketing">Ticketing</a><a href="#ticketing-flow">Ticketing flow</a><a href="#entry">Entry &amp; seating</a><a href="#launch">Launch plan</a>
+  </div></nav>
+
+  <main>
+    <section class="section shell" id="booking">
+      <div class="heading">
+        <p class="eyebrow">01 / Service Booking</p>
+        <h2>Book services and follow every project stage</h2>
+        <p>For individuals and companies requesting Lions Entertainment services. Requests, quotations, approvals, payments, production updates and final delivery will be connected in one place.</p>
+        <div class="tags"><span class="tag">Planned: booking.lionsent.com</span><span class="tag">Coming soon</span></div>
+      </div>
+
+      <div class="grid">
+        <article class="card"><h3>Services covered</h3><ul class="list">
+          <li>Photography and videography</li><li>Livestreaming and AV production</li><li>LED screens and event production</li><li>Graphics, printing and audio production</li><li>Websites and software development</li>
+        </ul></article>
+        <article class="card"><h3>Access roles</h3><ul class="list">
+          <li><strong>Clients:</strong> their own bookings and files only.</li><li><strong>Administrators:</strong> full booking operations.</li><li><strong>Assigned staff:</strong> only projects and functions permitted by their role.</li>
+        </ul></article>
+        <article class="card wide"><h3>Client-facing areas</h3><div class="table-wrap"><table>
+          <thead><tr><th>Area</th><th>What it will do</th></tr></thead><tbody>
+          <tr><td>Public pages</td><td>Service information, packages, quotation requests, registration, sign-in and support.</td></tr>
+          <tr><td>Dashboard</td><td>Upcoming bookings, active projects, pending quotations, balances and recent updates.</td></tr>
+          <tr><td>New Booking</td><td>Select services and submit project requirements, dates and reference files.</td></tr>
+          <tr><td>My Bookings</td><td>View requests, confirmed bookings, schedules and status.</td></tr>
+          <tr><td>Quotations &amp; Contracts</td><td>Review quotations, request changes, accept the agreed scope and approve terms.</td></tr>
+          <tr><td>Invoices &amp; Payments</td><td>View deposits, balances, due dates, payment status and receipts.</td></tr>
+          <tr><td>Projects &amp; Files</td><td>Follow progress, upload references, review work and access final deliverables.</td></tr>
+          <tr><td>Messages &amp; Profile</td><td>Booking-specific communication and personal or company contact details.</td></tr>
+          </tbody></table></div></article>
+      </div>
+
+      <div class="subsection" id="booking-flow"><h3>How a booking will work</h3><ol class="steps">
+        <li>The client submits a request.</li><li>Lions Entertainment reviews scope, crew and equipment availability.</li><li>A quotation is sent; the client accepts or requests changes.</li><li>The agreed contract and deposit requirements are completed.</li><li>Lions Entertainment confirms and schedules the booking.</li><li>The team completes production and editing where applicable.</li><li>The client reviews the work and the team handles agreed revisions.</li><li>Final work is delivered and the project closes under the agreed payment terms.</li>
+      </ol></div>
+
+      <div class="subsection grid">
+        <article class="card"><h3>Booking form details</h3><ul class="list">
+          <li>Name, phone, email and optional company</li><li>Requested services, project name and brief</li><li>Event date, start/end time and location when applicable</li><li>Package choice or custom requirements</li><li>Optional budget, references and notes</li><li>For non-event work: a brief and delivery deadline instead of a venue</li>
+        </ul></article>
+        <article class="card"><h3>Administrator dashboard</h3><ul class="list">
+          <li>Client accounts, requests, packages and quotation revisions</li><li>Contracts, invoices, receipts, deposits and balances</li><li>Crew/equipment scheduling with setup, travel and teardown conflicts</li><li>Milestones, deadlines, tasks, reviews and delivery permissions</li><li>Project messages, references and final files</li><li>Booking activity, income, balances and audit history</li>
+        </ul></article>
+      </div>
+
+      <div class="subsection callout"><h3>Essential booking rules</h3><p>A request is not a confirmed booking. Availability must reflect resource capacity, not only whether a date already has another booking. Online payments must be confirmed server-side, manually verified payments must be audited, and file access must be restricted with defined storage limits and retention periods.</p></div>
+    </section>
+
+    <section class="section shell" id="ticketing">
+      <div class="heading">
+        <p class="eyebrow">02 / Event Ticketing</p>
+        <h2>Manage events from registration to entrance</h2>
+        <p>For Lions Entertainment and external event organizers. Organizers will not need to purchase production services to host an event. Ticket revenue and records will remain separate from Booking invoices and service payments.</p>
+        <div class="tags"><span class="tag">Proposed: ticketing.lionsent.com</span><span class="tag">Domain to be confirmed</span></div>
+      </div>
+
+      <div class="grid">
+        <article class="card"><h3>Private or free events</h3><ul class="list"><li>Invitations and guest lists</li><li>RSVP management</li><li>Seats and tables</li><li>Entrance check-in</li></ul></article>
+        <article class="card"><h3>Public paid events</h3><ul class="list"><li>Event discovery</li><li>Ticket sales and checkout</li><li>Seat selection where applicable</li><li>Payment and ticket validation</li></ul></article>
+        <article class="card wide"><h3>Public pages and attendee access</h3><p>Pages will include Explore Events, Event Details, Ticket/Seat Selection, Checkout, Retrieve My Tickets, organizer registration/sign-in and Help. Event pages will show the poster, organizer, description, venue, date/time, prices and entry/refund conditions.</p><p>Free registration will bypass payment. Ticket retrieval must verify access with a secure link or verification code, not an order number alone.</p></article>
+        <article class="card wide"><h3>Organizer dashboard</h3><div class="table-wrap"><table>
+          <thead><tr><th>Area</th><th>What it will do</th></tr></thead><tbody>
+          <tr><td>Overview &amp; My Events</td><td>Create/manage events and review sales and attendance.</td></tr>
+          <tr><td>Tickets &amp; Pricing</td><td>Set categories, prices, capacity, sales dates and complimentary tickets.</td></tr>
+          <tr><td>Guests &amp; Registration</td><td>Manage invitations, RSVPs, attendee details and guest lists.</td></tr>
+          <tr><td>Seating &amp; Tables</td><td>Configure sections, rows, seats and tables; assign guests or allow selection.</td></tr>
+          <tr><td>Orders &amp; Payments</td><td>Track purchases, confirmed/failed payments and refunds.</td></tr>
+          <tr><td>Check-in &amp; Team</td><td>Assign gate staff, scan tickets and monitor attendance.</td></tr>
+          <tr><td>Reports &amp; Settlements</td><td>Export reports; show fees, refunds and amounts payable to organizers.</td></tr>
+          <tr><td>Settings &amp; Support</td><td>Organization details, staff permissions and support requests.</td></tr>
+          </tbody></table></div></article>
+      </div>
+
+      <div class="subsection" id="ticketing-flow"><h3>Attendee journey</h3><ol class="steps">
+        <li>Open an event and review its details, prices and policies.</li><li>Register or select tickets.</li><li>Choose a seat when applicable.</li><li>Enter attendee details.</li><li>Pay when required; free registrations skip payment.</li><li>Receive confirmation and retrieve the secure QR ticket.</li><li>Present the QR ticket at entry.</li>
+      </ol></div>
+
+      <div class="subsection grid">
+        <article class="card"><h3>Event creation flow</h3><ul class="list"><li>Enter event details and poster</li><li>Set date/time and venue</li><li>Choose the seating mode</li><li>Configure tickets, prices and limits</li><li>Set sales dates and entry/refund policies</li><li>Submit for approval</li><li>Publish and share the event link</li></ul></article>
+        <article class="card"><h3>Ticket categories</h3><p>Categories can include early-bird, regular, VIP, VVIP, group, table, free and invitation-only tickets.</p><p>Each category can have its own price, capacity and sales window where applicable.</p></article>
+      </div>
+
+      <div class="subsection" id="entry"><h3>Seating modes</h3><div class="table-wrap"><table>
+        <thead><tr><th>Mode</th><th>Planned behavior</th></tr></thead><tbody>
+        <tr><td>General admission</td><td>Sell up to a capacity limit without assigning a specific seat.</td></tr>
+        <tr><td>Assigned seating</td><td>The organizer assigns individual guests to seats or tables.</td></tr>
+        <tr><td>Customer selection</td><td>The buyer selects a seat; it is held temporarily during checkout to prevent double-selling.</td></tr>
+        <tr><td>Table booking</td><td>Sell whole tables or individual places according to the event configuration.</td></tr>
+        </tbody></table></div></div>
+
+      <div class="subsection grid">
+        <article class="card"><h3>Gate staff and validation</h3><ul class="list"><li>Phone-friendly QR scanner</li><li>Manual attendee or ticket search</li><li>Seat/table details and attendance count</li><li>Clear valid, invalid, cancelled or already-used results</li><li>Every check-in recorded</li><li>Explicit permission for reversals or re-entry</li><li>Staff limited to assigned events without financial access</li></ul></article>
+        <article class="card"><h3>Central administration</h3><ul class="list"><li>Organizer and event approvals</li><li>Orders, support, platform fees and refunds</li><li>Payment reconciliation and organizer settlements</li><li>Tickets issued only after verified payment confirmation</li><li>Safe retries without duplicate tickets</li><li>Defined seat-hold expiry and late-payment handling</li></ul></article>
+      </div>
+
+      <div class="subsection callout"><h3>Offline entry limitation</h3><p>Disconnected scanners cannot reliably stop one ticket from being used on another disconnected device. Coordinated offline entry needs separate design and testing and is not part of the basic scanning promise.</p></div>
+      <div class="subsection callout"><h3>Security and financial separation</h3><p>Each organizer will see only their events and attendees. Staff will use individual role-based accounts. Ticket orders, fees, refunds and organizer settlements must remain separate from Booking accounts. Separate databases are optional, but secure access boundaries and distinct financial records are required.</p></div>
+    </section>
+
+    <section class="section roadmap" id="launch"><div class="shell">
+      <div class="heading"><p class="eyebrow">Development Roadmap</p><h2>Launch stages and open decisions</h2><p>External payments, messaging and storage services require provider accounts, integration, fees and testing.</p></div>
+      <div class="grid">
+        <article class="card"><h3>Booking initial build</h3><ul class="list"><li>Accounts and requests</li><li>Quotations and invoices</li><li>Payment tracking</li><li>Production calendar</li><li>Project progress and messages</li><li>File delivery</li></ul><h4>Confirm before launch</h4><p>Deposit rules, cancellation terms, payment provider, approval/signing method, staff permissions and file-storage policy.</p></article>
+        <article class="card"><h3>Ticketing foundation</h3><ul class="list"><li>Organizer accounts and events</li><li>Guest lists</li><li>Free/paid general-admission tickets</li><li>Payment integration</li><li>QR entry and reports</li></ul><h4>Advanced stage</h4><p>Interactive seating, table sales, promotions, settlement automation and coordinated offline support.</p></article>
+        <article class="card wide"><h3>Ticketing decisions still open</h3><ul class="list"><li>Final domain and whether reserved seating is needed at launch</li><li>Payment provider and who receives ticket funds</li><li>Platform fees, refunds and payout rules</li><li>SMS/email provider and data-retention policy</li></ul></article>
+      </div>
+    </div></section>
+  </main>
+
+  <footer><div class="shell"><span>© 2026 Lions Entertainment. Planned platform preview.</span><a href="#top">Back to top</a></div></footer>
+</body>
 </html>
