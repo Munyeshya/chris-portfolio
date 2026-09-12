@@ -36,7 +36,7 @@ export default function BookingPage() {
   }
 
   return <div className="portal-page">
-    <header className="portal-header"><Link to="/" className="portal-brand"><img src="/brand/lions-ent-white.png" alt="Lions Entertainment" /></Link><nav aria-label="Booking navigation"><a href="#services">Services</a><a href="#process">Process</a><a href="#request">Request booking</a><Link to="/ticketing">Ticketing</Link></nav></header>
+    <header className="portal-header"><Link to="/" className="portal-brand"><img src="/brand/lions-ent-white.png" alt="Lions Entertainment" /></Link><nav aria-label="Booking navigation"><a href="#services">Services</a><a href="#process">Process</a><a href="#request">Request booking</a><Link to="/ticketing">Ticketing</Link><Link className="portal-login" to="/login">Login</Link></nav></header>
 
     <main>
       <section className="booking-hero portal-shell"><p className="portal-eyebrow">Lions Entertainment Booking</p><h1>From request to <span>final delivery.</span></h1><p>Request creative production and technology services, receive a quotation, confirm your booking and follow the project through completion.</p><div className="portal-actions"><a className="portal-button primary" href="#request">Start a booking <FaArrowRight aria-hidden="true" /></a><a className="portal-button" href="#process">See how it works</a></div><p className="booking-rule">Submitting a request does not confirm a booking. Confirmation follows scope, resource, quotation, contract and deposit review.</p></section>

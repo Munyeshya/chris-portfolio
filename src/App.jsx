@@ -97,6 +97,7 @@ function App() {
             {navLinks.map(([id, label]) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
             <a href="./booking">Booking</a>
             <a href="./ticketing">Ticketing</a>
+            <a className="nav-cta" href="./login">Login <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a>
           </nav>
         </div>
       </header>
