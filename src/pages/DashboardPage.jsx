@@ -145,11 +145,16 @@ function ContentManager({ type, items, reload, setNotice }) {
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(emptyForms[type])
   const labels = { team: 'team member', partners: 'partner', work: 'work item' }
-  function start(item) { setEditing(item?.id || 'new'); setForm(item ? { ...item, categories: item.categories?.join(', ') || '' } : emptyForms[type]) }
+  function start(item) {
+    setEditing(item?.id || 'new')
+    if (!item) return setForm(emptyForms[type])
+    setForm(type === 'work' ? { ...item, categories: item.categories?.join(', ') || '' } : { ...item })
+  }
   async function save(event, imageFile) {
     event.preventDefault()
     const table = `website_${type}`
     const payload = { ...form }; delete payload.id; delete payload.created_at; delete payload.updated_at
+    if (type !== 'work') delete payload.categories
     if (type === 'team' && imageFile) {
       if (!imageFile.type.startsWith('image/')) return setNotice('Please select an image file.')
       if (imageFile.size > 5 * 1024 * 1024) return setNotice('Team photos must be 5 MB or smaller.')
