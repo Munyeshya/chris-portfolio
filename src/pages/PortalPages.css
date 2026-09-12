@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+.portal-page { min-height: 100vh; background: #080808; color: #f7f7f4; font-family: 'Montserrat', sans-serif; }
+.portal-page *, .portal-page *::before, .portal-page *::after { box-sizing: border-box; }
+.portal-shell { width: min(1180px, calc(100% - 48px)); margin-inline: auto; }
+.portal-header { position: sticky; top: 0; z-index: 20; min-height: 76px; padding: 12px max(24px, calc((100vw - 1180px) / 2)); display: flex; align-items: center; justify-content: space-between; gap: 28px; border-bottom: 1px solid rgba(255,255,255,.1); background: rgba(8,8,8,.84); backdrop-filter: blur(18px); }
+.portal-brand img { display: block; width: 104px; height: 50px; object-fit: contain; }
+.portal-header nav { display: flex; align-items: center; gap: 24px; }
+.portal-header a, .portal-footer a { color: inherit; text-decoration: none; font-size: .82rem; font-weight: 600; }
+.portal-header a:hover, .portal-footer a:hover { color: #ed1c24; }
+.booking-hero { min-height: 690px; padding-block: 130px 80px; display: flex; flex-direction: column; justify-content: center; }
+.portal-eyebrow { margin: 0 0 20px; color: #ed1c24; font-size: .72rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.booking-hero h1 { max-width: 900px; margin: 0; font-size: clamp(3.1rem, 7.2vw, 6.7rem); line-height: .94; letter-spacing: -.065em; }
+.booking-hero h1 span { color: #ed1c24; }
+.booking-hero > p:not(.portal-eyebrow):not(.booking-rule) { max-width: 720px; margin: 32px 0 0; color: #bbb; font-size: clamp(1rem, 1.4vw, 1.2rem); line-height: 1.75; }
+.portal-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 38px; }
+.portal-button { min-height: 50px; padding: 0 22px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid rgba(255,255,255,.2); border-radius: 0; color: #fff; background: rgba(255,255,255,.07); backdrop-filter: blur(12px); text-decoration: none; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; transition: background .2s, border-color .2s; }
+.portal-button:hover { background: rgba(255,255,255,.13); }
+.portal-button.primary { border-color: rgba(237,28,36,.65); background: rgba(237,28,36,.68); }
+.portal-button.primary:hover { background: rgba(237,28,36,.86); }
+.portal-button:disabled { opacity: .55; cursor: wait; }
+.booking-rule { max-width: 760px; margin: 34px 0 0; padding: 18px 20px; border-left: 2px solid #ed1c24; color: #c6c6c6; background: rgba(255,255,255,.045); font-size: .78rem; line-height: 1.65; }
+.portal-section { padding-block: 110px; }
+.portal-heading { max-width: 720px; margin-bottom: 46px; }
+.portal-heading h2 { margin: 0; font-size: clamp(2.2rem, 4.2vw, 4rem); line-height: 1; letter-spacing: -.045em; }
+.portal-heading > p:last-child:not(.portal-eyebrow) { margin: 20px 0 0; color: #aaa; line-height: 1.7; }
+.service-options { display: grid; grid-template-columns: repeat(2, 1fr); border: 1px solid rgba(255,255,255,.12); }
+.service-options > div { min-height: 78px; padding: 20px 24px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid rgba(255,255,255,.1); }
+.service-options > div:nth-child(odd) { border-right: 1px solid rgba(255,255,255,.1); }
+.service-options > div:nth-last-child(-n+2) { border-bottom: 0; }
+.service-options svg { color: #ed1c24; }
+.process-section { background: #f4f2ed; color: #111; }
+.booking-steps { margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid rgba(0,0,0,.15); list-style: none; }
+.booking-steps li { min-height: 175px; padding: 25px; display: flex; flex-direction: column; justify-content: space-between; gap: 40px; border-right: 1px solid rgba(0,0,0,.15); border-bottom: 1px solid rgba(0,0,0,.15); }
+.booking-steps li:nth-child(4n) { border-right: 0; }
+.booking-steps li:nth-last-child(-n+4) { border-bottom: 0; }
+.booking-steps span { color: #ed1c24; font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
+.booking-steps strong { max-width: 190px; font-size: .92rem; line-height: 1.45; }
+.booking-form { display: grid; gap: 22px; }
+.booking-form fieldset { margin: 0; padding: 30px; display: grid; gap: 24px; border: 1px solid rgba(255,255,255,.13); }
+.booking-form legend { padding: 0 12px; color: #fff; font-weight: 700; }
+.form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.booking-form label, .field-label { display: grid; gap: 9px; color: #ddd; font-size: .76rem; font-weight: 600; }
+.booking-form small { color: #777; font-weight: 500; }
+.booking-form input, .booking-form select, .booking-form textarea { width: 100%; border: 1px solid rgba(255,255,255,.14); border-radius: 0; outline: 0; padding: 14px 15px; color: #fff; background: rgba(255,255,255,.055); font: inherit; font-size: .88rem; }
+.booking-form select option { color: #111; }
+.booking-form textarea { resize: vertical; }
+.booking-form input:focus, .booking-form select:focus, .booking-form textarea:focus { border-color: #ed1c24; }
+.service-checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.service-checks label { padding: 13px 15px; display: flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,.1); cursor: pointer; }
+.service-checks input { width: auto; accent-color: #ed1c24; }
+.file-input { min-height: 78px; padding: 18px; display: flex !important; grid-template-columns: auto 1fr; align-items: center; border: 1px dashed rgba(255,255,255,.25); cursor: pointer; }
+.file-input svg { color: #ed1c24; font-size: 1.25rem; }
+.file-input input { grid-column: 1 / -1; padding: 0; border: 0; background: transparent; }
+.file-list, .form-status { margin: 0; font-size: .78rem; line-height: 1.6; }
+.form-status { padding: 15px 18px; border-left: 2px solid currentColor; background: rgba(255,255,255,.05); }
+.form-status.success { color: #7bd99b; }.form-status.error { color: #ff7479; }
+.portal-button.submit { justify-self: start; min-width: 245px; }
+.portal-footer { min-height: 120px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 1px solid rgba(255,255,255,.1); color: #8d8d8d; font-size: .75rem; }
+.portal-footer a { display: inline-flex; align-items: center; gap: 8px; }
+.ticketing-coming-soon { min-height: 100vh; padding: 40px 24px; display: grid; place-items: center; text-align: center; }
+.coming-soon-content { max-width: 720px; }
+.coming-soon-content img { width: min(310px, 75vw); height: 190px; object-fit: contain; margin-bottom: 8px; }
+.coming-soon-content h1 { margin: 0; font-size: clamp(4rem, 13vw, 9rem); line-height: .9; letter-spacing: -.065em; }
+.coming-soon-content > p:not(.portal-eyebrow) { max-width: 620px; margin: 28px auto; color: #aaa; line-height: 1.75; }
+
+@media (max-width: 760px) {
+  .portal-shell { width: min(100% - 28px, 1180px); }
+  .portal-header { min-height: 66px; padding: 8px 14px; }
+  .portal-brand img { width: 78px; height: 42px; }
+  .portal-header nav { gap: 14px; overflow-x: auto; }
+  .portal-header nav a { white-space: nowrap; font-size: .68rem; }
+  .booking-hero { min-height: calc(100svh - 66px); padding-block: 80px 50px; }
+  .booking-hero h1 { font-size: clamp(3.2rem, 17vw, 5.2rem); }
+  .portal-section { padding-block: 76px; }
+  .service-options, .form-grid, .service-checks { grid-template-columns: 1fr; }
+  .service-options > div, .service-options > div:nth-child(odd) { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
+  .service-options > div:nth-last-child(2) { border-bottom: 1px solid rgba(255,255,255,.1); }
+  .booking-steps { grid-template-columns: repeat(2, 1fr); }
+  .booking-steps li:nth-child(4n) { border-right: 1px solid rgba(0,0,0,.15); }
+  .booking-steps li:nth-child(2n) { border-right: 0; }
+  .booking-steps li:nth-last-child(-n+4) { border-bottom: 1px solid rgba(0,0,0,.15); }
+  .booking-steps li:nth-last-child(-n+2) { border-bottom: 0; }
+  .booking-form fieldset { padding: 22px 16px; }
+  .portal-button.submit { width: 100%; }
+}
+
+@media (max-width: 430px) {
+  .portal-header nav a:first-child, .portal-header nav a:nth-child(2) { display: none; }
+  .booking-steps { grid-template-columns: 1fr; }
+  .booking-steps li, .booking-steps li:nth-child(2n), .booking-steps li:nth-child(4n), .booking-steps li:nth-last-child(-n+2) { border-right: 0; border-bottom: 1px solid rgba(0,0,0,.15); }
+  .booking-steps li:last-child { border-bottom: 0; }
+}
