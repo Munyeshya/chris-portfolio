@@ -3,9 +3,10 @@ import cors from 'cors'
 import express from 'express'
 import multer from 'multer'
 import { randomUUID } from 'node:crypto'
+import { pathToFileURL } from 'node:url'
 import { supabase } from './supabase.js'
 
-const app = express()
+export const app = express()
 const port = Number(process.env.PORT || 8787)
 const allowedOrigins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173').split(',').map(value => value.trim())
 const upload = multer({ storage: multer.memoryStorage(), limits: { files: 5, fileSize: 10 * 1024 * 1024 } })
@@ -67,10 +68,14 @@ app.use((error, _request, response, _next) => {
   return response.status(500).json({ error: 'Unexpected server error.' })
 })
 
-app.listen(port, () => console.log(`Lions booking API listening on http://localhost:${port}`))
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
+  app.listen(port, () => console.log(`Lions booking API listening on http://localhost:${port}`))
+}
 
 function parseServices(value) {
   try { const parsed = JSON.parse(value || '[]'); return Array.isArray(parsed) ? parsed.filter(item => typeof item === 'string') : [] } catch { return [] }
 }
 
 function emptyToNull(value) { return value?.trim() || null }
+
+export default app
