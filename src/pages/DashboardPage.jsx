@@ -146,10 +146,20 @@ function ContentManager({ type, items, reload, setNotice }) {
   const [form, setForm] = useState(emptyForms[type])
   const labels = { team: 'team member', partners: 'partner', work: 'work item' }
   function start(item) { setEditing(item?.id || 'new'); setForm(item ? { ...item, categories: item.categories?.join(', ') || '' } : emptyForms[type]) }
-  async function save(event) {
+  async function save(event, imageFile) {
     event.preventDefault()
     const table = `website_${type}`
     const payload = { ...form }; delete payload.id; delete payload.created_at; delete payload.updated_at
+    if (type === 'team' && imageFile) {
+      if (!imageFile.type.startsWith('image/')) return setNotice('Please select an image file.')
+      if (imageFile.size > 5 * 1024 * 1024) return setNotice('Team photos must be 5 MB or smaller.')
+      const extension = imageFile.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg'
+      const objectPath = `team/${crypto.randomUUID()}.${extension}`
+      const uploaded = await supabase.storage.from('website-media').upload(objectPath, imageFile, { contentType: imageFile.type, upsert: false })
+      if (uploaded.error) return setNotice(uploaded.error.message)
+      payload.photo_url = supabase.storage.from('website-media').getPublicUrl(objectPath).data.publicUrl
+    }
+    if (type === 'team' && editing === 'new' && !payload.photo_url) return setNotice('Please choose a team member photo.')
     if (type === 'work') payload.categories = form.categories.split(',').map(value => value.trim()).filter(Boolean)
     const result = editing === 'new' ? await supabase.from(table).insert(payload) : await supabase.from(table).update(payload).eq('id', editing)
     setNotice(result.error ? result.error.message : `${labels[type]} saved.`)
@@ -160,11 +170,12 @@ function ContentManager({ type, items, reload, setNotice }) {
 }
 
 function ContentForm({ type, form, setForm, save, cancel }) {
+  const [imageFile, setImageFile] = useState(null)
   const update = event => setForm(current => ({ ...current, [event.target.name]: event.target.type === 'checkbox' ? event.target.checked : event.target.value }))
-  return <form className="content-form" onSubmit={save}>
+  return <form className="content-form" onSubmit={event => save(event, imageFile)}>
     <label>{type === 'work' ? 'Title' : 'Name'}<input required name={type === 'work' ? 'title' : 'name'} value={form[type === 'work' ? 'title' : 'name']} onChange={update} /></label>
     {type === 'team' && <label>Role<input name="role" value={form.role} onChange={update} /></label>}
-    <label>{type === 'team' ? 'Photo URL' : type === 'partners' ? 'Logo URL' : 'Image URL'}<input required name={type === 'team' ? 'photo_url' : type === 'partners' ? 'logo_url' : 'image_url'} value={form[type === 'team' ? 'photo_url' : type === 'partners' ? 'logo_url' : 'image_url']} onChange={update} /></label>
+    {type === 'team' ? <label className="dashboard-file-field">Team photo<input required={!form.photo_url} type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={event => setImageFile(event.target.files?.[0] || null)} /><small>{imageFile ? imageFile.name : form.photo_url ? 'Choose a file only when replacing the current photo.' : 'JPG, PNG, WebP or GIF · maximum 5 MB'}</small></label> : <label>{type === 'partners' ? 'Logo URL' : 'Image URL'}<input required name={type === 'partners' ? 'logo_url' : 'image_url'} value={form[type === 'partners' ? 'logo_url' : 'image_url']} onChange={update} /></label>}
     {type === 'work' && <><label>External album URL<input required type="url" name="external_url" value={form.external_url} onChange={update} /></label><label>Categories <small>Separate with commas</small><input name="categories" value={form.categories} onChange={update} /></label></>}
     {type === 'partners' && <label className="check-field"><input type="checkbox" name="knockout" checked={form.knockout} onChange={update} /> Use knockout treatment</label>}
     <label>Display order<input type="number" name="sort_order" value={form.sort_order} onChange={update} /></label>

@@ -60,6 +60,9 @@
 .content-form { padding: 17px; display: grid; grid-template-columns: repeat(2,1fr); gap: 13px; background: #f7f6f2; border-bottom: 1px solid #ddd; }
 .content-form label { display: grid; gap: 7px; color: #555; font-size: .65rem; font-weight: 600; }
 .content-form input { width: 100%; min-height: 34px; padding: 7px 9px; border: 1px solid #d5d3cd; background: #fff; font: inherit; font-size: .7rem; }
+.content-form input[type="file"] { padding: 5px; color: #666; }
+.content-form input[type="file"]::file-selector-button { min-height: 27px; margin-right: 10px; padding: 0 10px; border: 0; color: #fff; background: #252525; font: inherit; font-size: .62rem; cursor: pointer; }
+.dashboard-file-field small { color: #888; font-size: .56rem; font-weight: 500; }
 .content-form .check-field { display: flex; align-items: center; gap: 9px; }
 .content-form .check-field input { width: auto; accent-color: #c41b1b; }
 .content-form-actions { grid-column: 1/-1; display: flex; gap: 10px; }
