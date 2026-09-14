@@ -187,8 +187,10 @@ main:focus { outline: none; }
 .team-heading h3 { font-size: 29px; font-weight: 500; line-height: 1.25; margin-top: 28px; }
 .team-heading > p:last-child { font-size: 13px; color: var(--muted); margin-top: 18px; }
 .team-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-top: 40px; }
-.team-photo { position: relative; aspect-ratio: 4 / 4.5; background: #191919; display: grid; place-items: center; overflow: hidden; border: 1px solid #303030; }
-.team-photo img { height: 100%; object-fit: cover; }
+.team-photo { position: relative; background: #191919; display: grid; place-items: center; overflow: visible; border: 1px solid #303030; }
+.team-photo:has(.portrait-placeholder) { aspect-ratio: 3 / 4; }
+.team-photo img { display: block; width: 100%; height: auto; max-height: none; object-fit: contain; }
+.team-photo:has(img)::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; height: 6px; background: #fff; pointer-events: none; }
 .portrait-placeholder { display: block; position: relative; height: 120px; width: 120px; opacity: .5; }
 .portrait-placeholder i { position: absolute; border: 1px solid #686868; border-radius: 50%; width: 46px; height: 46px; top: 0; left: 37px; }
 .portrait-placeholder b { position: absolute; border: 1px solid #686868; border-radius: 50% 50% 0 0; width: 108px; height: 63px; bottom: 0; left: 6px; }
