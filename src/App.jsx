@@ -106,7 +106,7 @@ function App() {
 
       <main id="main" tabIndex={-1}>
         <section className="hero" id="home" data-section="02-hero" aria-labelledby="hero-title">
-          <img className="hero-photo" src="/portfolio/55487392634.jpg" alt="Drummers performing at Kigali Twataramye 3rd edition" fetchPriority="high" />
+          <iframe className="hero-video" src="https://player.vimeo.com/video/1227506863?background=1&autoplay=1&muted=1&loop=1&controls=0&title=0&byline=0&portrait=0&badge=0&autopause=0&playsinline=1&dnt=1" title="Africa Customer Experience Leaders Forum 2026 background video" allow="autoplay; fullscreen; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" aria-hidden="true" tabIndex="-1" />
           <div className="hero-shade" />
           <div className="hero-content section-shell">
             <p className="eyebrow hero-kicker"><span className="red-dash" /><span className="hero-kicker-label">Lions Entertainment<span className="red-dot" /></span></p>
@@ -119,7 +119,7 @@ function App() {
           </div>
           <div className="hero-art" aria-hidden="true"><i /><i /><i /><FaAsterisk aria-hidden="true" className="hero-asterisk" /></div>
           <div className="hero-bottom section-shell"><a href="#about">SCROLL TO EXPLORE <FaArrowDown aria-hidden="true" className="ui-icon" /></a><span>PRODUCTION / MEDIA / EVENTS / TECHNOLOGY</span></div>
-          <a className="image-credit" href="https://www.flickr.com/photos/196950681@N03/albums/72177720335314989" target="_blank" rel="noreferrer">Kigali Twataramye 3rd edition · View album <FaArrowUpRightFromSquare aria-hidden="true" /></a>
+          <a className="image-credit" href="https://vimeo.com/1227506863" target="_blank" rel="noreferrer">Africa Customer Experience Leaders Forum 2026 · View video <FaArrowUpRightFromSquare aria-hidden="true" /></a>
         </section>
 
         <section className="about section-shell" id="about" data-section="03-about" aria-labelledby="about-title">
