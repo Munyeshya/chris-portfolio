@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaTicket, FaUserPlus, FaXmark } from 'react-icons/fa6'
+import { FaArrowLeft, FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaTicket, FaUserPlus, FaXmark } from 'react-icons/fa6'
 import { api, authApi } from '../lib/api.js'
 import './DashboardPage.css'
 
@@ -131,7 +131,8 @@ function Stat({ label, value }) { return <article><span>{label}</span><strong>{v
 function Bookings({ items, reload, setNotice }) {
   const [selected, setSelected] = useState(null)
   async function updateStatus(id, status) { try { await api(`/admin/bookings/${id}/status`,{method:'PATCH',body:JSON.stringify({status})}); setNotice('Booking status updated.'); reload() } catch(error) { setNotice(error.message) } }
-  return <><section className="dashboard-panel"><div className="panel-heading"><div><p>Booking management</p><h2>All booking requests</h2></div><span>{items.length} requests</span></div><BookingTable items={items} updateStatus={updateStatus} onView={setSelected} /></section>{selected && <BookingDetails booking={selected} close={() => setSelected(null)} updateStatus={updateStatus} />}</>
+  if (selected) return <BookingDetails booking={selected} close={() => setSelected(null)} updateStatus={updateStatus} />
+  return <section className="dashboard-panel"><div className="panel-heading"><div><p>Booking management</p><h2>All booking requests</h2></div><span>{items.length} requests</span></div><BookingTable items={items} updateStatus={updateStatus} onView={setSelected} /></section>
 }
 
 function BookingTable({ items, updateStatus, onView }) {
@@ -140,7 +141,7 @@ function BookingTable({ items, updateStatus, onView }) {
 
 function BookingDetails({ booking, close, updateStatus }) {
   const detail = (label, value, wide = false) => value ? <div className={wide ? 'wide' : ''}><dt>{label}</dt><dd>{value}</dd></div> : null
-  return <div className="booking-detail-overlay" role="dialog" aria-modal="true" aria-labelledby="booking-detail-title" onMouseDown={event => { if (event.target === event.currentTarget) close() }}><article className="booking-detail-card"><button className="booking-detail-close" onClick={close} aria-label="Close booking details"><FaXmark /></button><header><p>{booking.reference}</p><h2 id="booking-detail-title">{booking.project_name}</h2><span>Submitted {new Date(booking.created_at).toLocaleString()}</span></header><div className="booking-detail-status"><label>Status<select value={booking.status} onChange={event => { updateStatus(booking.id, event.target.value); close() }}>{statuses.map(status => <option value={status} key={status}>{status.replaceAll('_',' ')}</option>)}</select></label></div><dl className="booking-detail-grid">{detail('Client',booking.client_name)}{detail('Email',booking.email)}{detail('Phone',booking.phone)}{detail('Company',booking.company)}{detail('Project type',booking.project_type?.replace('-', ' '))}{detail('Services',booking.services?.join(', '),true)}{detail('Event date',booking.event_date)}{detail('Start time',booking.start_time)}{detail('End time',booking.end_time)}{detail('Location',booking.location,true)}{detail('Delivery deadline',booking.delivery_deadline)}{detail('Package or option',booking.package_choice)}{detail('Estimated budget',booking.estimated_budget)}{detail('Project brief',booking.brief,true)}{detail('Custom requirements',booking.custom_requirements,true)}{detail('Additional notes',booking.notes,true)}</dl></article></div>
+  return <section className="booking-detail-page"><button className="booking-detail-back" onClick={close}><FaArrowLeft /> Back to all bookings</button><article className="booking-detail-card"><header><p>{booking.reference}</p><h2>{booking.project_name}</h2><span>Submitted {new Date(booking.created_at).toLocaleString()}</span></header><div className="booking-detail-status"><label>Status<select value={booking.status} onChange={event => { updateStatus(booking.id, event.target.value); close() }}>{statuses.map(status => <option value={status} key={status}>{status.replaceAll('_',' ')}</option>)}</select></label></div><dl className="booking-detail-grid">{detail('Client',booking.client_name)}{detail('Email',booking.email)}{detail('Phone',booking.phone)}{detail('Company',booking.company)}{detail('Project type',booking.project_type?.replace('-', ' '))}{detail('Services',booking.services?.join(', '),true)}{detail('Event date',booking.event_date)}{detail('Start time',booking.start_time)}{detail('End time',booking.end_time)}{detail('Location',booking.location,true)}{detail('Delivery deadline',booking.delivery_deadline)}{detail('Package or option',booking.package_choice)}{detail('Estimated budget',booking.estimated_budget)}{detail('Project brief',booking.brief,true)}{detail('Custom requirements',booking.custom_requirements,true)}{detail('Additional notes',booking.notes,true)}</dl></article></section>
 }
 
 function Clients({ bookings }) {
