@@ -74,6 +74,16 @@
 .content-list article > div:nth-child(2) { display: grid; gap: 5px; overflow-wrap: anywhere; }
 .content-list strong { font-size: .78rem; }.content-list span,.content-list small { color: #777; font-size: .62rem; }
 .row-actions { display: flex; gap: 8px; }.row-actions .danger { color: #b0181d; }
+.table-view-button { min-height: 30px; padding: 0 10px; border: 1px solid #c41b1b; color: #a3151a; background: #fff; font: inherit; font-size: .59rem; font-weight: 700; white-space: nowrap; }
+.table-view-button:hover { color: #fff; background: #c41b1b; }
+.booking-detail-overlay { position: fixed; inset: 0; z-index: 70; padding: 24px; display: grid; place-items: center; overflow-y: auto; background: #000a; backdrop-filter: blur(8px); }
+.booking-detail-card { position: relative; width: min(820px,100%); max-height: calc(100vh - 48px); overflow-y: auto; background: #fff; box-shadow: 0 30px 90px #0007; }
+.booking-detail-card > header { padding: 28px 30px 22px; color: #fff; background: #141414; }
+.booking-detail-card > header p { margin: 0 0 8px; color: #ed6267; font-size: .62rem; font-weight: 750; letter-spacing: .1em; }
+.booking-detail-card > header h2 { margin: 0; font-size: 1.55rem; }.booking-detail-card > header span { display: block; margin-top: 9px; color: #999; font-size: .62rem; }
+.booking-detail-close { position: absolute; top: 16px; right: 16px; z-index: 1; width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid #444; color: #fff; background: #262626; }
+.booking-detail-status { padding: 15px 30px; border-bottom: 1px solid #e5e3dd; background: #faf9f6; }.booking-detail-status label { display: flex; align-items: center; gap: 12px; color: #777; font-size: .62rem; font-weight: 700; }.booking-detail-status select { min-height: 32px; padding: 5px 8px; border: 1px solid #ccc; background: #fff; font: inherit; font-size: .65rem; text-transform: capitalize; }
+.booking-detail-grid { margin: 0; padding: 24px 30px 32px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0; }.booking-detail-grid > div { min-width: 0; padding: 15px 18px 15px 0; border-bottom: 1px solid #eee; }.booking-detail-grid > div:nth-child(even):not(.wide) { padding-left: 18px; border-left: 1px solid #eee; }.booking-detail-grid .wide { grid-column: 1/-1; }.booking-detail-grid dt { margin-bottom: 7px; color: #999; font-size: .55rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }.booking-detail-grid dd { margin: 0; overflow-wrap: anywhere; color: #222; font-size: .72rem; line-height: 1.65; white-space: pre-wrap; }
 
 @media (max-width: 950px) {
   .dashboard-page { grid-template-columns: 1fr; }
@@ -98,4 +108,5 @@
   .content-list article { grid-template-columns: 54px 1fr; padding: 14px; }
   .content-thumb { width: 54px; height: 54px; }
   .row-actions { grid-column: 1/-1; }
+  .booking-detail-overlay { padding: 10px; }.booking-detail-card { max-height: calc(100vh - 20px); }.booking-detail-card > header,.booking-detail-status { padding-left: 20px; padding-right: 20px; }.booking-detail-grid { padding: 12px 20px 24px; grid-template-columns: 1fr; }.booking-detail-grid > div,.booking-detail-grid > div:nth-child(even):not(.wide) { padding: 14px 0; border-left: 0; }.booking-detail-grid .wide { grid-column: auto; }
 }
