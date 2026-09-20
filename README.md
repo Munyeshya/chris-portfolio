@@ -21,7 +21,7 @@ Run `npm run dev` and `npm run dev:api` in separate terminals.
 
 Create every database change as a new numbered SQL file under `migrations/mysql`. The GitHub workflow records and applies pending migrations when they are pushed to `main`.
 
-In GitHub, open **Settings → Secrets and variables → Actions** and add `AIVEN_MYSQL_URI`. Never commit the service URI or database password.
+In GitHub, open **Settings → Secrets and variables → Actions** and add `AIVEN_MYSQL_URI` and `AIVEN_CA_CERT_BASE64`. Never commit the service URI, database password, or CA value.
 
 ## Approved section order
 

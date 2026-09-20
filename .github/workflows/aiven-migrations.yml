@@ -27,3 +27,4 @@ jobs:
         run: npm run migrate
         env:
           AIVEN_MYSQL_URI: ${{ secrets.AIVEN_MYSQL_URI }}
+          AIVEN_CA_CERT_BASE64: ${{ secrets.AIVEN_CA_CERT_BASE64 }}
