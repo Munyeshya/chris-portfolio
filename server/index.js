@@ -8,13 +8,14 @@ import { randomUUID } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
 import { clearSession, createSession, readSession, requireAdmin, requireAuth, requireStaff } from './auth.js'
 import { databaseConfigured, pool, query } from './database.js'
-import { sendBookingEmails } from './mailer.js'
+import { sendBookingEmails, sendQuotationEmail } from './mailer.js'
 
 export const app = express()
 const port = Number(process.env.PORT || 8787)
 const origins = (process.env.CLIENT_ORIGIN || 'http://localhost:5173').split(',').map(v => v.trim())
 const bookingUpload = multer({ storage: multer.memoryStorage(), limits: { files: 5, fileSize: 4 * 1024 * 1024 } })
 const imageUpload = multer({ storage: multer.memoryStorage(), limits: { files: 1, fileSize: 4 * 1024 * 1024 } })
+const quotationUpload = multer({ storage: multer.memoryStorage(), limits: { files: 1, fileSize: 4 * 1024 * 1024 } })
 app.use(cors({ origin: origins, credentials: true }))
 app.use(cookieParser())
 app.use(express.json({ limit: '1mb' }))
@@ -124,13 +125,26 @@ app.post('/api/bookings',bookingUpload.array('references',5),async (req,res) => 
 })
 
 app.get('/api/admin/dashboard',requireStaff,async (_req,res) => {
-  const [bookings,team,partners,work]=await Promise.all([query('select * from booking_requests order by created_at desc'),query('select * from website_team order by sort_order,id'),query('select * from website_partners order by sort_order,id'),query('select * from website_work order by sort_order,id')])
+  const [bookings,team,partners,work]=await Promise.all([query('select b.*,q.file_name quotation_file_name,q.sent_at quotation_sent_at from booking_requests b left join booking_quotations q on q.booking_id=b.id order by b.created_at desc'),query('select * from website_team order by sort_order,id'),query('select * from website_partners order by sort_order,id'),query('select * from website_work order by sort_order,id')])
   res.json({ bookings:bookings.map(bookingRow),team:team.map(teamRow),partners:partners.map(boolRow),work:work.map(workRow) })
 })
 app.patch('/api/admin/bookings/:id/status',requireStaff,async (req,res) => {
   const allowed=['submitted','under_review','quoted','contract_sent','deposit_pending','confirmed','in_production','client_review','completed','cancelled']
   if (!allowed.includes(req.body.status)) return res.status(400).json({ error:'Invalid booking status.' })
   await query('update booking_requests set status=? where id=?',[req.body.status,req.params.id]); res.json({ ok:true })
+})
+app.post('/api/admin/bookings/:id/quotation',requireStaff,quotationUpload.single('quotation'),async (req,res)=>{
+  if(!req.file)return res.status(400).json({error:'Choose a quotation document.'})
+  const allowed=['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'];if(!allowed.includes(req.file.mimetype))return res.status(400).json({error:'Quotation must be a PDF, DOC or DOCX file.'})
+  const bookings=await query('select id,reference,client_name,email,project_name from booking_requests where id=? limit 1',[req.params.id]);if(!bookings.length)return res.status(404).json({error:'Booking not found.'})
+  await query('insert into booking_quotations (booking_id,file_name,mime_type,size_bytes,contents,uploaded_by) values (?,?,?,?,?,?) on duplicate key update file_name=values(file_name),mime_type=values(mime_type),size_bytes=values(size_bytes),contents=values(contents),uploaded_by=values(uploaded_by),sent_at=null',[req.params.id,req.file.originalname,req.file.mimetype,req.file.size,req.file.buffer,req.user.sub])
+  await query("update booking_requests set status='quoted' where id=?",[req.params.id])
+  const email=await sendQuotationEmail(bookings[0],req.file);if(email.sent)await query('update booking_quotations set sent_at=now() where booking_id=?',[req.params.id])
+  res.json({ok:true,emailSent:email.sent,fileName:req.file.originalname})
+})
+app.get('/api/admin/bookings/:id/quotation',requireStaff,async (req,res)=>{
+  const rows=await query('select file_name,mime_type,contents from booking_quotations where booking_id=? limit 1',[req.params.id]);if(!rows.length)return res.status(404).json({error:'Quotation not found.'})
+  res.set('Content-Type',rows[0].mime_type).set('Content-Disposition',`attachment; filename="${rows[0].file_name.replace(/["\r\n]/g,'')}"`).send(rows[0].contents)
 })
 app.get('/api/admin/users',requireAdmin,async (_req,res)=>res.json({ users:await query('select id,email,full_name,role,created_at from users order by created_at desc') }))
 app.post('/api/admin/users',requireAdmin,async (req,res)=>{

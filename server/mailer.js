@@ -34,4 +34,20 @@ export async function sendBookingEmails(booking) {
   }
 }
 
+export async function sendQuotationEmail(booking, file) {
+  if (!transporter) return { sent:false, reason:'Email is not configured.' }
+  try {
+    await transporter.sendMail({
+      from:`Lions Entertainment <${user}>`, to:booking.email,
+      subject:`Quotation for ${booking.project_name} — ${booking.reference}`,
+      html:`<div style="font-family:Arial,sans-serif;color:#1b1b1b;line-height:1.65;max-width:640px;margin:auto"><h1 style="color:#d51f27">Your quotation is ready</h1><p>Hello ${escapeHtml(booking.client_name)},</p><p>Please find attached the quotation for <strong>${escapeHtml(booking.project_name)}</strong>.</p><p><strong>Booking reference:</strong> ${escapeHtml(booking.reference)}</p><p>Review the attached document and reply to this email if you have questions or would like revisions. Your booking is not confirmed until the quotation, contract and deposit requirements have been completed.</p><p>Lions Entertainment</p></div>`,
+      attachments:[{ filename:file.originalname, content:file.buffer, contentType:file.mimetype }],
+    })
+    return { sent:true }
+  } catch (error) {
+    console.error('Quotation email delivery failed:', error.message)
+    return { sent:false, reason:'Email delivery failed.' }
+  }
+}
+
 function escapeHtml(value='') { return String(value??'').replace(/[&<>'"]/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character])) }
