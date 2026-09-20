@@ -6,7 +6,7 @@ import express from 'express'
 import multer from 'multer'
 import { randomUUID } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
-import { clearSession, createSession, readSession, requireAdmin, requireAuth, requireStaff } from './auth.js'
+import { clearSession, createSession, readSession, requireAdmin, requireAuth } from './auth.js'
 import { databaseConfigured, pool, query } from './database.js'
 import { sendBookingEmails, sendQuotationEmail } from './mailer.js'
 
@@ -111,7 +111,7 @@ app.post('/api/ticketing/organizer/events/:id/check-in',requireAuth,approvedOrga
 })
 
 app.get('/api/admin/ticketing',requireAdmin,async (_req,res)=>{
-  const [organizers,events]=await Promise.all([query(`select o.*,u.email,u.full_name from organizer_accounts o join users u on u.id=o.user_id order by o.created_at desc`),query(`select e.*,o.organization_name,(select count(*) from event_attendees a where a.event_id=e.id and a.status<>'cancelled') registered from ticketing_events e join organizer_accounts o on o.id=e.organizer_id order by e.created_at desc`)]);res.json({organizers,events})
+  const organizers=await query(`select o.*,u.email,u.full_name from organizer_accounts o join users u on u.id=o.user_id order by o.created_at desc`);res.json({organizers})
 })
 app.patch('/api/admin/ticketing/organizers/:id',requireAdmin,async (req,res)=>{
   if(!['approved','rejected','suspended'].includes(req.body.status))return res.status(400).json({error:'Invalid approval status.'});await query('update organizer_accounts set status=?,reviewed_by=?,reviewed_at=now() where id=?',[req.body.status,req.user.sub,req.params.id]);res.json({ok:true})
@@ -135,16 +135,16 @@ app.post('/api/bookings',bookingUpload.array('references',5),async (req,res) => 
   } catch(error) { await connection.rollback(); throw error } finally { connection.release() }
 })
 
-app.get('/api/admin/dashboard',requireStaff,async (_req,res) => {
+app.get('/api/admin/dashboard',requireAdmin,async (_req,res) => {
   const [bookings,team,partners,work]=await Promise.all([query('select b.*,q.file_name quotation_file_name,q.sent_at quotation_sent_at from booking_requests b left join booking_quotations q on q.booking_id=b.id order by b.created_at desc'),query('select * from website_team order by sort_order,id'),query('select * from website_partners order by sort_order,id'),query('select * from website_work order by sort_order,id')])
   res.json({ bookings:bookings.map(bookingRow),team:team.map(teamRow),partners:partners.map(boolRow),work:work.map(workRow) })
 })
-app.patch('/api/admin/bookings/:id/status',requireStaff,async (req,res) => {
+app.patch('/api/admin/bookings/:id/status',requireAdmin,async (req,res) => {
   const allowed=['submitted','under_review','quoted','contract_sent','deposit_pending','confirmed','in_production','client_review','completed','cancelled']
   if (!allowed.includes(req.body.status)) return res.status(400).json({ error:'Invalid booking status.' })
   await query('update booking_requests set status=? where id=?',[req.body.status,req.params.id]); res.json({ ok:true })
 })
-app.post('/api/admin/bookings/:id/quotation',requireStaff,quotationUpload.single('quotation'),async (req,res)=>{
+app.post('/api/admin/bookings/:id/quotation',requireAdmin,quotationUpload.single('quotation'),async (req,res)=>{
   if(!req.file)return res.status(400).json({error:'Choose a quotation document.'})
   const allowed=['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document'];if(!allowed.includes(req.file.mimetype))return res.status(400).json({error:'Quotation must be a PDF, DOC or DOCX file.'})
   const bookings=await query('select id,reference,client_name,email,project_name from booking_requests where id=? limit 1',[req.params.id]);if(!bookings.length)return res.status(404).json({error:'Booking not found.'})
@@ -153,21 +153,21 @@ app.post('/api/admin/bookings/:id/quotation',requireStaff,quotationUpload.single
   const email=await sendQuotationEmail(bookings[0],req.file);if(email.sent)await query('update booking_quotations set sent_at=now() where booking_id=?',[req.params.id])
   res.json({ok:true,emailSent:email.sent,fileName:req.file.originalname})
 })
-app.get('/api/admin/bookings/:id/quotation',requireStaff,async (req,res)=>{
+app.get('/api/admin/bookings/:id/quotation',requireAdmin,async (req,res)=>{
   const rows=await query('select file_name,mime_type,contents from booking_quotations where booking_id=? limit 1',[req.params.id]);if(!rows.length)return res.status(404).json({error:'Quotation not found.'})
   res.set('Content-Type',rows[0].mime_type).set('Content-Disposition',`attachment; filename="${rows[0].file_name.replace(/["\r\n]/g,'')}"`).send(rows[0].contents)
 })
 app.get('/api/admin/users',requireAdmin,async (_req,res)=>res.json({ users:await query('select id,email,full_name,role,created_at from users order by created_at desc') }))
 app.post('/api/admin/users',requireAdmin,async (req,res)=>{
-  const email=req.body.email?.trim().toLowerCase(),password=req.body.password,role=['client','staff','admin'].includes(req.body.role)?req.body.role:'client'
+  const email=req.body.email?.trim().toLowerCase(),password=req.body.password,role=['client','admin'].includes(req.body.role)?req.body.role:'client'
   if(!email||!password||password.length<8)return res.status(400).json({error:'A valid email and an 8-character password are required.'})
   if((await query('select id from users where email=? limit 1',[email])).length)return res.status(409).json({error:'An account with this email already exists.'})
   await query('insert into users (id,email,password_hash,full_name,role) values (?,?,?,?,?)',[randomUUID(),email,await bcrypt.hash(password,12),req.body.fullName?.trim()||null,role])
   res.status(201).json({ok:true})
 })
-app.post('/api/admin/content/:type',requireStaff,imageUpload.single('image'),contentHandler('insert'))
-app.put('/api/admin/content/:type/:id',requireStaff,imageUpload.single('image'),contentHandler('update'))
-app.delete('/api/admin/content/:type/:id',requireStaff,async (req,res) => { const table=contentTable(req.params.type); if (!table) return res.status(404).json({ error:'Unknown content type.' }); await query(`delete from ${table} where id=?`,[req.params.id]); res.status(204).end() })
+app.post('/api/admin/content/:type',requireAdmin,imageUpload.single('image'),contentHandler('insert'))
+app.put('/api/admin/content/:type/:id',requireAdmin,imageUpload.single('image'),contentHandler('update'))
+app.delete('/api/admin/content/:type/:id',requireAdmin,async (req,res) => { const table=contentTable(req.params.type); if (!table) return res.status(404).json({ error:'Unknown content type.' }); await query(`delete from ${table} where id=?`,[req.params.id]); res.status(204).end() })
 
 function contentHandler(operation) { return async (req,res) => {
   const table=contentTable(req.params.type); if (!table) return res.status(404).json({ error:'Unknown content type.' })

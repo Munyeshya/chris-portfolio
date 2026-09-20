@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa6'
 import { authApi } from '../lib/api.js'
 import './PortalPages.css'
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [session, setSession] = useState(null)
+  const [session, setSession] = useState(undefined)
   const [status, setStatus] = useState({ state: 'idle', message: '' })
 
   useEffect(() => {
@@ -21,7 +22,8 @@ export default function LoginPage() {
     try {
       const data = await authApi.login(email, password)
       setSession(data.user)
-      navigate('/dashboard', { replace: true, state: { toast: 'Login successful. Welcome back.' } })
+      const destination = data.user.role === 'admin' ? '/dashboard' : '/planner'
+      navigate(location.state?.destination || destination, { replace: true, state: { toast: 'Login successful. Welcome back.' } })
     } catch (error) { setStatus({ state: 'error', message: error.message }) }
   }
 
@@ -34,7 +36,7 @@ export default function LoginPage() {
   return <main className="portal-page auth-page">
     <div className="auth-shell">
       <Link to="/" className="portal-brand auth-brand"><img src="/brand/lions-plus-white.png" alt="Lions Plus" /></Link>
-      {session ? <Navigate to="/dashboard" replace state={{ toast: 'You are already signed in.' }} /> : <section className="auth-card">
+      {session ? <Navigate to={session.role === 'admin' ? '/dashboard' : '/planner'} replace state={{ toast: 'You are already signed in.' }} /> : <section className="auth-card">
         <p className="portal-eyebrow">Lions Plus Portal</p>
         <h1>Welcome back</h1>
         <p>Sign in securely to your Lions Plus account.</p>

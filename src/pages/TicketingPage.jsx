@@ -8,7 +8,7 @@ import {
   FaCheck,
   FaLocationDot,
 } from "react-icons/fa6";
-import { api, authApi } from "../lib/api.js";
+import { api } from "../lib/api.js";
 import "./PortalPages.css";
 
 const emptyEvent = {
@@ -28,31 +28,14 @@ export default function TicketingPage() {
     [search, setSearch] = useState(""),
     [selected, setSelected] = useState(null),
     [ticket, setTicket] = useState(null),
-    [notice, setNotice] = useState(""),
-    [user, setUser] = useState(undefined),
-    [organizer, setOrganizer] = useState(null),
-    [myEvents, setMyEvents] = useState([]);
+    [notice, setNotice] = useState("");
   const loadPublic = () =>
     api("/ticketing/events")
       .then((d) => setEvents(d.events))
       .catch((e) => setNotice(e.message));
   useEffect(() => {
     loadPublic();
-    authApi
-      .session()
-      .then(({ user: u }) => {
-        setUser(u);
-        if (u)
-          api("/ticketing/organizer").then((d) => setOrganizer(d.organizer));
-      })
-      .catch(() => setUser(null));
   }, []);
-  useEffect(() => {
-    if (organizer?.status === "approved")
-      api("/ticketing/organizer/events")
-        .then((d) => setMyEvents(d.events))
-        .catch((e) => setNotice(e.message));
-  }, [organizer]);
   const filteredEvents = events.filter((event) =>
     `${event.title} ${event.venue} ${event.organization_name} ${event.description || ""}`
       .toLowerCase()
@@ -66,7 +49,7 @@ export default function TicketingPage() {
         </Link>
         <nav>
           <a href="#events">Events</a>
-          <a href="#organizer">Organizer portal</a>
+          <Link to="/planner">Planner portal</Link>
           <Link className="portal-login" to="/login">
             Login
           </Link>
@@ -155,49 +138,6 @@ export default function TicketingPage() {
           </div>
           </div>
         </section>
-        <section className="portal-section process-section" id="organizer">
-          <div className="portal-shell booking-section-content">
-            <div className="portal-heading">
-              <p className="portal-eyebrow">Organizer portal</p>
-              <h2>Manage registrations and entrance</h2>
-            </div>
-            {user === undefined ? (
-              <p>Checking your account…</p>
-            ) : !user ? (
-              <p>
-                Sign in with an account created by Lions Plus to
-                request organizer access. <Link to="/login">Log in</Link>
-              </p>
-            ) : !organizer ? (
-              <OrganizerApplication
-                onDone={() =>
-                  api("/ticketing/organizer").then((d) =>
-                    setOrganizer(d.organizer),
-                  )
-                }
-                setNotice={setNotice}
-              />
-            ) : organizer.status !== "approved" ? (
-              <div className="organizer-status">
-                <strong>Application {organizer.status}</strong>
-                <p>
-                  An administrator must approve your organizer account before
-                  you can create events.
-                </p>
-              </div>
-            ) : (
-              <OrganizerWorkspace
-                events={myEvents}
-                reload={() =>
-                  api("/ticketing/organizer/events").then((d) =>
-                    setMyEvents(d.events),
-                  )
-                }
-                setNotice={setNotice}
-              />
-            )}
-          </div>
-        </section>
       </main>
       <footer className="portal-footer portal-shell">
         <span>© 2026 Lions Plus</span>
@@ -222,7 +162,7 @@ export default function TicketingPage() {
   );
 }
 
-function OrganizerApplication({ onDone, setNotice }) {
+export function OrganizerApplication({ onDone, setNotice }) {
   const [f, setF] = useState({ organizationName: "", phone: "", reason: "" });
   async function submit(e) {
     e.preventDefault();
@@ -269,7 +209,7 @@ function OrganizerApplication({ onDone, setNotice }) {
   );
 }
 
-function OrganizerWorkspace({ events, reload, setNotice }) {
+export function OrganizerWorkspace({ events, reload, setNotice }) {
   const [f, setF] = useState(emptyEvent),
     [eventImage, setEventImage] = useState(null),
     [manage, setManage] = useState(null);

@@ -8,6 +8,7 @@ import TicketingPage from './pages/TicketingPage.jsx'
 import TicketPage from './pages/TicketPage.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import DashboardPage from './pages/DashboardPage.jsx'
+import PlannerPage from './pages/PlannerPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
         <Route path="/ticket/:token" element={<TicketPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/planner" element={<PlannerPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,
