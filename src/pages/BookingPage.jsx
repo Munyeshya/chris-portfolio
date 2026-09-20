@@ -67,6 +67,7 @@ export default function BookingPage() {
 
   async function submitRequest(event) {
     event.preventDefault()
+    const formElement = event.currentTarget
     setStatus({ state: 'loading', message: 'Sending your request...' })
     const body = new FormData()
     Object.entries(form).forEach(([key, value]) => body.append(key, Array.isArray(value) ? JSON.stringify(value) : value))
@@ -78,7 +79,7 @@ export default function BookingPage() {
       setStatus({ state: 'success', message: `Booking request submitted successfully. Your reference is ${result.reference}. Our team will review it and send a quotation; it is not yet a confirmed booking.` })
       setForm(initialForm)
       setFiles([])
-      event.currentTarget.reset()
+      formElement.reset()
     } catch (error) {
       setStatus({ state: 'error', message: error.message === 'Failed to fetch' ? 'Online booking is still being connected. Please try again when the platform is launched.' : error.message })
     }
