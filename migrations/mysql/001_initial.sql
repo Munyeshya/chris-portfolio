@@ -32,7 +32,7 @@ create table if not exists website_partners (
   created_at timestamp not null default current_timestamp, updated_at timestamp not null default current_timestamp on update current_timestamp
 );
 create table if not exists website_work (
-  id char(36) primary key, title varchar(300) not null, external_url text not null, image_url text not null,
+  id char(36) primary key, title varchar(300) not null, external_url text not null, image_url text not null, video_url text,
   categories json not null, width int default 1600, height int default 1067, sort_order int not null default 0, active boolean not null default true,
   created_at timestamp not null default current_timestamp, updated_at timestamp not null default current_timestamp on update current_timestamp
 );

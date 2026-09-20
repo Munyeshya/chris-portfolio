@@ -358,6 +358,8 @@ main:focus { outline: none; }
 .gallery-close { position: absolute; z-index: 1; right: 12px; top: 12px; height: 44px; width: 44px; border-radius: 50%; border: 1px solid #fff9; color: #fff; background: #000b; font-size: 30px; }
 .gallery-image-wrap { background: #090909; }
 .gallery-image-wrap img { display: block; width: 100%; height: auto; max-height: 65svh; object-fit: contain; }
+.gallery-video-wrap { aspect-ratio: 16 / 9; }
+.gallery-video-wrap iframe { display: block; width: 100%; height: 100%; border: 0; }
 .gallery-caption { padding: 22px 25px; display: flex; justify-content: space-between; gap: 25px; align-items: center; }
 .gallery-position { font-size: 10px; color: #aaa; margin-bottom: 6px; }
 .gallery-caption h3 { font-size: 28px; font-weight: 500; line-height: 1.2; margin-bottom: 10px; }

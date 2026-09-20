@@ -2,6 +2,23 @@ import { FaArrowUpRightFromSquare, FaArrowLeft, FaArrowRight, FaXmark, FaPlus } 
 import { useEffect, useRef, useState } from 'react'
 import { company, portfolioAlbums, portfolioUrl, workCategories } from './content'
 
+function videoEmbedUrl(value) {
+  if (!value) return ''
+  try {
+    const url = new URL(value)
+    if (url.hostname.includes('youtu.be')) return `https://www.youtube.com/embed/${url.pathname.slice(1)}?rel=0`
+    if (url.hostname.includes('youtube.com')) {
+      const id = url.searchParams.get('v') || url.pathname.split('/').filter(Boolean).pop()
+      return id ? `https://www.youtube.com/embed/${id}?rel=0` : ''
+    }
+    if (url.hostname.includes('vimeo.com')) {
+      const id = url.pathname.split('/').filter(Boolean).pop()
+      return id ? `https://player.vimeo.com/video/${id}` : ''
+    }
+  } catch { return '' }
+  return ''
+}
+
 export default function Portfolio({ albums = portfolioAlbums }) {
   const [category, setCategory] = useState('All Work')
   const [limit, setLimit] = useState(6)
@@ -32,7 +49,7 @@ export default function Portfolio({ albums = portfolioAlbums }) {
     {filtered.length ? <div className="album-grid">{filtered.slice(0, limit).map(album => <article className="album-card" key={album.url}>
       <button className="album-preview" type="button" onClick={() => setSelected(album)} aria-label={`Preview ${album.title}`}>
         <img src={album.image} alt={album.title} width={album.width} height={album.height} loading="lazy" decoding="async" />
-        <span className="preview-hint">VIEW PHOTO <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></span>
+        <span className="preview-hint">{album.video ? 'PLAY VIDEO' : 'VIEW PHOTO'} <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></span>
       </button>
       <div className="album-caption"><span className="album-type">EVENT PHOTOGRAPHY</span><h3><a href={album.url} target="_blank" rel="noreferrer">{album.title} <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a></h3><a className="album-link" href={album.url} target="_blank" rel="noreferrer">View full album on Flickr</a></div>
     </article>)}</div> : <div className="portfolio-empty"><h3>{videoCategory ? 'Visit our YouTube channel.' : 'More projects to come.'}</h3><p>{videoCategory ? 'Explore our channel on YouTube for video content.' : 'Project details for this category have not been added yet. Explore our photography albums in the meantime.'}</p>{videoCategory ? <a className="button red" href={company.socials.YouTube} target="_blank" rel="noreferrer">Visit YouTube <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a> : <button type="button" className="button outline" onClick={() => { setCategory('Photography'); setLimit(6) }}>Explore Photography</button>}</div>}
@@ -47,7 +64,7 @@ export default function Portfolio({ albums = portfolioAlbums }) {
       }
     }}>
       <button type="button" className="gallery-close" aria-label="Close photo preview" onClick={() => dialogRef.current?.close()}><FaXmark aria-hidden="true" /></button>
-      {selected && <><div className="gallery-image-wrap"><img src={selected.image} width={selected.width} height={selected.height} alt={selected.title} /></div><div className="gallery-caption"><div><p className="gallery-position" aria-live="polite">{selectedIndex + 1} / {filtered.length}</p><h3 id="gallery-title">{selected.title}</h3><a href={selected.url} target="_blank" rel="noreferrer">View full album on Flickr <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a></div><div className="gallery-controls"><button type="button" aria-label="Previous album photo" onClick={() => movePhoto(-1)}><FaArrowLeft aria-hidden="true" /></button><button type="button" aria-label="Next album photo" onClick={() => movePhoto(1)}><FaArrowRight aria-hidden="true" /></button></div></div></>}
+      {selected && <><div className={`gallery-image-wrap${selected.video ? ' gallery-video-wrap' : ''}`}>{selected.video && videoEmbedUrl(selected.video) ? <iframe src={videoEmbedUrl(selected.video)} title={selected.title} allow="autoplay; fullscreen; picture-in-picture" allowFullScreen /> : <img src={selected.image} width={selected.width} height={selected.height} alt={selected.title} />}</div><div className="gallery-caption"><div><p className="gallery-position" aria-live="polite">{selectedIndex + 1} / {filtered.length}</p><h3 id="gallery-title">{selected.title}</h3><a href={selected.video || selected.url} target="_blank" rel="noreferrer">{selected.video ? 'Open original video' : 'View full album on Flickr'} <FaArrowUpRightFromSquare className="ui-icon" aria-hidden="true" /></a></div><div className="gallery-controls"><button type="button" aria-label="Previous project" onClick={() => movePhoto(-1)}><FaArrowLeft aria-hidden="true" /></button><button type="button" aria-label="Next project" onClick={() => movePhoto(1)}><FaArrowRight aria-hidden="true" /></button></div></div></>}
     </dialog>
   </>
 }

@@ -13,7 +13,7 @@ const statuses = ['submitted','under_review','quoted','contract_sent','deposit_p
 const emptyForms = {
   team: { name: '', role: '', photo_url: '', sort_order: 0, active: true },
   partners: { name: '', logo_url: '', knockout: false, sort_order: 0, active: true },
-  work: { title: '', external_url: '', image_url: '', categories: 'Photography', sort_order: 0, active: true },
+  work: { title: '', external_url: '', image_url: '', video_url: '', categories: 'Photography', sort_order: 0, active: true },
 }
 
 export default function DashboardPage() {
@@ -182,7 +182,7 @@ function ContentForm({ type, form, setForm, save, cancel }) {
     <label>{type === 'work' ? 'Title' : 'Name'}<input required name={type === 'work' ? 'title' : 'name'} value={form[type === 'work' ? 'title' : 'name']} onChange={update} /></label>
     {type === 'team' && <label>Role<input name="role" value={form.role} onChange={update} /></label>}
     {type === 'team' || type === 'partners' ? <label className="dashboard-file-field">{type === 'team' ? 'Team photo' : 'Partner logo'}<input required={type === 'team' ? !form.photo_url : !form.logo_url} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" onChange={event => setImageFile(event.target.files?.[0] || null)} /><small>{imageFile ? imageFile.name : (form.photo_url || form.logo_url) ? 'Choose a file only when replacing the current image.' : 'JPG, PNG, WebP, GIF or SVG · maximum 4 MB'}</small></label> : <label>Image URL<input required name="image_url" value={form.image_url} onChange={update} /></label>}
-    {type === 'work' && <><label>External album URL<input required type="url" name="external_url" value={form.external_url} onChange={update} /></label><label>Categories <small>Separate with commas</small><input name="categories" value={form.categories} onChange={update} /></label></>}
+    {type === 'work' && <><label>External project or album URL<input required type="url" name="external_url" value={form.external_url} onChange={update} /></label><label>Video link <small>For AV Production &amp; Livestreaming or Videography &amp; Documentaries. YouTube and Vimeo links are supported.</small><input type="url" name="video_url" value={form.video_url || ''} onChange={update} placeholder="https://www.youtube.com/watch?v=..." /></label><label>Categories <small>Separate with commas</small><input name="categories" value={form.categories} onChange={update} /></label></>}
     {type === 'partners' && <label className="check-field"><input type="checkbox" name="knockout" checked={form.knockout} onChange={update} /> Use knockout treatment</label>}
     <label>Display order<input type="number" name="sort_order" value={form.sort_order} onChange={update} /></label>
     <label className="check-field"><input type="checkbox" name="active" checked={form.active} onChange={update} /> Visible on website</label>

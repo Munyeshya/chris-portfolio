@@ -94,7 +94,8 @@ export default function TicketingPage() {
             Explore events <FaArrowRight />
           </a>
         </section>
-        <section className="portal-section portal-shell" id="events">
+        <section className="portal-section events-listing-section" id="events">
+          <div className="portal-shell events-listing-content">
           <div className="portal-heading">
             <p className="portal-eyebrow">Upcoming events</p>
             <h2>Choose your event</h2>
@@ -117,6 +118,13 @@ export default function TicketingPage() {
                     <span>{new Date(e.starts_at).toLocaleDateString()}</span>
                   </div>
                   <h3>{e.title}</h3>
+                  {e.image_url && (
+                    <img
+                      className="ticket-event-image"
+                      src={e.image_url}
+                      alt={`${e.title} event`}
+                    />
+                  )}
                   <p>
                     <FaLocationDot /> {e.venue}
                   </p>
@@ -144,6 +152,7 @@ export default function TicketingPage() {
                   : "No public events are available yet."}
               </p>
             )}
+          </div>
           </div>
         </section>
         <section className="portal-section process-section" id="organizer">
@@ -262,16 +271,27 @@ function OrganizerApplication({ onDone, setNotice }) {
 
 function OrganizerWorkspace({ events, reload, setNotice }) {
   const [f, setF] = useState(emptyEvent),
+    [eventImage, setEventImage] = useState(null),
     [manage, setManage] = useState(null);
   async function create(e) {
     e.preventDefault();
     try {
+      const body = new FormData();
+      Object.entries(f).forEach(([key, value]) =>
+        body.append(
+          key,
+          key === "registrationFields" ? JSON.stringify(value) : String(value),
+        ),
+      );
+      if (eventImage) body.append("eventImage", eventImage);
       await api("/ticketing/organizer/events", {
         method: "POST",
-        body: JSON.stringify(f),
+        body,
       });
       setNotice("Event created.");
       setF(emptyEvent);
+      setEventImage(null);
+      e.currentTarget.reset();
       reload();
     } catch (x) {
       setNotice(x.message);
@@ -342,6 +362,14 @@ function OrganizerWorkspace({ events, reload, setNotice }) {
             rows="4"
             value={f.description}
             onChange={(e) => setF({ ...f, description: e.target.value })}
+          />
+        </label>
+        <label>
+          Event card image · maximum 4 MB
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setEventImage(e.target.files?.[0] || null)}
           />
         </label>
         <FieldBuilder

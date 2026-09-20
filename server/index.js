@@ -48,7 +48,7 @@ app.get('/api/media/:id', async (req,res) => {
 })
 
 app.get('/api/ticketing/events',async (_req,res)=>{
-  const events=await query(`select e.id,e.title,e.description,e.venue,e.starts_at,e.ends_at,e.capacity,e.registration_deadline,e.registration_fields,o.organization_name,
+  const events=await query(`select e.id,e.title,e.description,e.venue,e.starts_at,e.ends_at,e.capacity,e.registration_deadline,e.registration_fields,e.image_url,o.organization_name,
     (select count(*) from event_attendees a where a.event_id=e.id and a.status<>'cancelled') registered
     from ticketing_events e join organizer_accounts o on o.id=e.organizer_id where e.status='published' and e.starts_at>=now() order by e.starts_at`)
   res.json({events:events.map(ticketingEventRow)})
@@ -93,10 +93,12 @@ app.post('/api/ticketing/organizer/apply',requireAuth,async (req,res)=>{
 app.get('/api/ticketing/organizer/events',requireAuth,approvedOrganizer,async (req,res)=>{
   const events=await query(`select e.*,(select count(*) from event_attendees a where a.event_id=e.id and a.status<>'cancelled') registered from ticketing_events e where e.organizer_id=? order by e.starts_at desc`,[req.organizer.id]);res.json({events:events.map(ticketingEventRow)})
 })
-app.post('/api/ticketing/organizer/events',requireAuth,approvedOrganizer,async (req,res)=>{
+app.post('/api/ticketing/organizer/events',requireAuth,approvedOrganizer,imageUpload.single('eventImage'),async (req,res)=>{
   if(!req.body.title?.trim()||!req.body.venue?.trim()||!req.body.startsAt||Number(req.body.capacity)<1)return res.status(400).json({error:'Title, venue, date and a valid capacity are required.'})
-  const registrationFields=normalizeRegistrationFields(req.body.registrationFields)
-  const id=randomUUID();await query('insert into ticketing_events (id,organizer_id,title,description,venue,starts_at,ends_at,capacity,registration_deadline,registration_fields,status) values (?,?,?,?,?,?,?,?,?,?,?)',[id,req.organizer.id,req.body.title.trim(),empty(req.body.description),req.body.venue.trim(),req.body.startsAt,empty(req.body.endsAt),Number(req.body.capacity),empty(req.body.registrationDeadline),JSON.stringify(registrationFields),req.body.publish?'published':'draft']);res.status(201).json({id})
+  if(req.file&&!req.file.mimetype.startsWith('image/'))return res.status(400).json({error:'Please select an image file.'})
+  const registrationFields=normalizeRegistrationFields(arrayValue(req.body.registrationFields)),mediaId=req.file?randomUUID():null,imageUrl=mediaId?`/api/media/${mediaId}`:null
+  if(req.file)await query('insert into media (id,file_name,mime_type,size_bytes,contents) values (?,?,?,?,?)',[mediaId,req.file.originalname,req.file.mimetype,req.file.size,req.file.buffer])
+  const id=randomUUID();await query('insert into ticketing_events (id,organizer_id,title,description,venue,starts_at,ends_at,capacity,registration_deadline,registration_fields,image_media_id,image_url,status) values (?,?,?,?,?,?,?,?,?,?,?,?,?)',[id,req.organizer.id,req.body.title.trim(),empty(req.body.description),req.body.venue.trim(),req.body.startsAt,empty(req.body.endsAt),Number(req.body.capacity),empty(req.body.registrationDeadline),JSON.stringify(registrationFields),mediaId,imageUrl,toBool(req.body.publish)?'published':'draft']);res.status(201).json({id})
 })
 app.get('/api/ticketing/organizer/events/:id/attendees',requireAuth,approvedOrganizer,organizerEvent,async (req,res)=>{
   const attendees=await query('select id,ticket_code,qr_token,full_name,email,phone,registration_data,status,checked_in_at,created_at from event_attendees where event_id=? order by full_name',[req.params.id]);res.json({event:ticketingEventRow(req.event),attendees:attendees.map(attendeeRow)})
@@ -179,8 +181,8 @@ function contentHandler(operation) { return async (req,res) => {
     if(!b.name||(!photoUrl&&operation==='insert'))return res.status(400).json({error:'Name and logo are required.'})
     if (operation==='insert') await query('insert into website_partners (id,name,logo_url,knockout,sort_order,active) values (?,?,?,?,?,?)',[randomUUID(),b.name,photoUrl,toBool(b.knockout),Number(b.sort_order)||0,toBool(b.active)]); else await query('update website_partners set name=?,logo_url=coalesce(?,logo_url),knockout=?,sort_order=?,active=? where id=?',[b.name,photoUrl,toBool(b.knockout),Number(b.sort_order)||0,toBool(b.active),req.params.id])
   } else {
-    const values=[b.title,b.external_url,b.image_url,JSON.stringify(arrayValue(b.categories)),Number(b.sort_order)||0,toBool(b.active)]
-    if (operation==='insert') await query('insert into website_work (id,title,external_url,image_url,categories,sort_order,active) values (?,?,?,?,?,?,?)',[randomUUID(),...values]); else await query('update website_work set title=?,external_url=?,image_url=?,categories=?,sort_order=?,active=? where id=?',[...values,req.params.id])
+    const values=[b.title,b.external_url,b.image_url,empty(b.video_url),JSON.stringify(arrayValue(b.categories)),Number(b.sort_order)||0,toBool(b.active)]
+    if (operation==='insert') await query('insert into website_work (id,title,external_url,image_url,video_url,categories,sort_order,active) values (?,?,?,?,?,?,?,?)',[randomUUID(),...values]); else await query('update website_work set title=?,external_url=?,image_url=?,video_url=?,categories=?,sort_order=?,active=? where id=?',[...values,req.params.id])
   }
   res.status(operation==='insert'?201:200).json({ ok:true })
 } }
