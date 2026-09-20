@@ -28,3 +28,10 @@ jobs:
         env:
           AIVEN_MYSQL_URI: ${{ secrets.AIVEN_MYSQL_URI }}
           AIVEN_CA_CERT_BASE64: ${{ secrets.AIVEN_CA_CERT_BASE64 }}
+      - name: Ensure initial administrator exists
+        run: npm run create-admin
+        env:
+          AIVEN_MYSQL_URI: ${{ secrets.AIVEN_MYSQL_URI }}
+          AIVEN_CA_CERT_BASE64: ${{ secrets.AIVEN_CA_CERT_BASE64 }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}

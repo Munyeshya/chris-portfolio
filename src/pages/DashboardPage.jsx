@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaXmark } from 'react-icons/fa6'
+import { FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaUserPlus, FaXmark } from 'react-icons/fa6'
 import { api, authApi } from '../lib/api.js'
 import './DashboardPage.css'
 
 const sections = [
   ['overview', 'Overview', FaHouse], ['bookings', 'Bookings', FaCalendarDays], ['clients', 'Clients', FaPeopleGroup],
   ['team', 'Team', FaPeopleGroup], ['partners', 'Partners', FaHandshake], ['work', 'Our Work', FaImage],
+  ['users', 'Users', FaUserPlus],
 ]
 const statuses = ['submitted','under_review','quoted','contract_sent','deposit_pending','confirmed','in_production','client_review','completed','cancelled']
 const emptyForms = {
@@ -69,16 +70,17 @@ export default function DashboardPage() {
   if (!session) return <Navigate to="/login" replace />
   if (!profile || !['staff', 'admin'].includes(profile.role)) return <DashboardMessage title="Management access required" message="This account is signed in but has not been assigned a staff or admin role." action={<><Link className="portal-button primary" to="/booking">Go to booking</Link><button className="portal-button" onClick={signOut}>Sign out</button></>} />
 
-  const CurrentIcon = sections.find(item => item[0] === section)?.[2] || FaBriefcase
+  const navigationSections = profile.role === 'admin' ? sections : sections.filter(item => item[0] !== 'users')
+  const CurrentIcon = navigationSections.find(item => item[0] === section)?.[2] || FaBriefcase
   return <div className="dashboard-page">
     {toast && <div className="dashboard-toast" role="status"><FaCheck aria-hidden="true" /><span>{toast}</span><button type="button" onClick={() => setToast('')} aria-label="Close notification"><FaXmark aria-hidden="true" /></button></div>}
     <aside className={`dashboard-sidebar${menuOpen ? ' open' : ''}`}>
       <div className="dashboard-logo"><img src="/brand/lions-ent-white.png" alt="Lions Entertainment" /><button onClick={() => setMenuOpen(false)} aria-label="Close menu"><FaXmark /></button></div>
-      <nav>{sections.map(([id, label, Icon]) => <button className={section === id ? 'active' : ''} key={id} onClick={() => { setSection(id); setMenuOpen(false) }}><Icon /><span>{label}</span></button>)}</nav>
+      <nav>{navigationSections.map(([id, label, Icon]) => <button className={section === id ? 'active' : ''} key={id} onClick={() => { setSection(id); setMenuOpen(false) }}><Icon /><span>{label}</span></button>)}</nav>
       <div className="dashboard-site-link"><Link to="/"><FaHouse /> View website</Link></div>
     </aside>
     <main className="dashboard-main">
-      <header><button className="dashboard-menu" onClick={() => setMenuOpen(true)}><FaBars /> Menu</button><div className="dashboard-title"><p>Lions Entertainment</p><h1><CurrentIcon /> {sections.find(item => item[0] === section)?.[1]}</h1></div><div className="dashboard-account" ref={accountRef}><button className="account-avatar" type="button" aria-label="Open account menu" aria-expanded={accountOpen} onClick={() => setAccountOpen(open => !open)}>{getInitials(profile.full_name || profile.email)}</button>{accountOpen && <div className="account-dropdown"><small>Signed in as</small><strong>{profile.full_name || profile.email}</strong><span>{profile.role}</span><button className="account-signout" onClick={signOut}><FaArrowRightFromBracket /> Sign out</button></div>}</div></header>
+      <header><button className="dashboard-menu" onClick={() => setMenuOpen(true)}><FaBars /> Menu</button><div className="dashboard-title"><p>Lions Entertainment</p><h1><CurrentIcon /> {navigationSections.find(item => item[0] === section)?.[1]}</h1></div><div className="dashboard-account" ref={accountRef}><button className="account-avatar" type="button" aria-label="Open account menu" aria-expanded={accountOpen} onClick={() => setAccountOpen(open => !open)}>{getInitials(profile.full_name || profile.email)}</button>{accountOpen && <div className="account-dropdown"><small>Signed in as</small><strong>{profile.full_name || profile.email}</strong><span>{profile.role}</span><button className="account-signout" onClick={signOut}><FaArrowRightFromBracket /> Sign out</button></div>}</div></header>
       {notice && <p className="dashboard-notice" role="status">{notice}<button onClick={() => setNotice('')}>Dismiss</button></p>}
       {loading ? <p className="dashboard-loading">Loading dashboard…</p> : <DashboardContent section={section} data={data} reload={loadAll} setNotice={setNotice} />}
     </main>
@@ -98,7 +100,16 @@ function DashboardContent({ section, data, reload, setNotice }) {
   if (section === 'overview') return <Overview data={data} />
   if (section === 'bookings') return <Bookings items={data.bookings} reload={reload} setNotice={setNotice} />
   if (section === 'clients') return <Clients bookings={data.bookings} />
+  if (section === 'users') return <Users setNotice={setNotice} />
   return <ContentManager type={section} items={data[section]} reload={reload} setNotice={setNotice} />
+}
+
+function Users({ setNotice }) {
+  const [users,setUsers]=useState([]),[form,setForm]=useState({fullName:'',email:'',password:'',role:'client'})
+  const load=()=>api('/admin/users').then(data=>setUsers(data.users)).catch(error=>setNotice(error.message))
+  useEffect(()=>{let active=true;api('/admin/users').then(data=>{if(active)setUsers(data.users)}).catch(error=>setNotice(error.message));return()=>{active=false}},[setNotice])
+  async function create(event){event.preventDefault();try{await api('/admin/users',{method:'POST',body:JSON.stringify(form)});setNotice('Account created.');setForm({fullName:'',email:'',password:'',role:'client'});load()}catch(error){setNotice(error.message)}}
+  return <section className="dashboard-panel"><div className="panel-heading"><div><p>Portal security</p><h2>Manage user accounts</h2></div><span>{users.length} users</span></div><form className="content-form" onSubmit={create}><label>Full name<input value={form.fullName} onChange={e=>setForm({...form,fullName:e.target.value})}/></label><label>Email<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label><label>Temporary password<input required minLength="8" type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/></label><label>Role<select value={form.role} onChange={e=>setForm({...form,role:e.target.value})}><option value="client">Client</option><option value="staff">Staff</option><option value="admin">Admin</option></select></label><div className="content-form-actions"><button className="dashboard-primary">Create account</button></div></form><div className="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th></tr></thead><tbody>{users.map(user=><tr key={user.id}><td>{user.full_name||'—'}</td><td>{user.email}</td><td><span className="status">{user.role}</span></td><td>{new Date(user.created_at).toLocaleDateString()}</td></tr>)}</tbody></table></div></section>
 }
 
 function Overview({ data }) {

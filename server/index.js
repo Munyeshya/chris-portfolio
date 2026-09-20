@@ -6,7 +6,7 @@ import express from 'express'
 import multer from 'multer'
 import { randomUUID } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
-import { clearSession, createSession, readSession, requireStaff } from './auth.js'
+import { clearSession, createSession, readSession, requireAdmin, requireStaff } from './auth.js'
 import { databaseConfigured, pool, query } from './database.js'
 
 export const app = express()
@@ -23,14 +23,6 @@ app.get('/api/health', async (_req, res) => {
   try { await query('select 1'); res.json({ ok: true, database: 'aiven-mysql' }) } catch { res.status(503).json({ ok: false, error: 'Database is unavailable.' }) }
 })
 
-app.post('/api/auth/register', async (req, res) => {
-  const email=req.body.email?.trim().toLowerCase(), password=req.body.password
-  if (!email || !password || password.length<8) return res.status(400).json({ error:'A valid email and an 8-character password are required.' })
-  if ((await query('select id from users where email=? limit 1',[email])).length) return res.status(409).json({ error:'An account with this email already exists.' })
-  const id=randomUUID(), role=process.env.ADMIN_EMAIL?.trim().toLowerCase()===email?'admin':'client'
-  await query('insert into users (id,email,password_hash,full_name,role) values (?,?,?,?,?)',[id,email,await bcrypt.hash(password,12),req.body.fullName?.trim()||null,role])
-  const user={ id,email,full_name:req.body.fullName?.trim()||null,role }; createSession(res,user); res.status(201).json({ user })
-})
 app.post('/api/auth/login', async (req,res) => {
   const users=await query('select id,email,password_hash,full_name,role from users where email=? limit 1',[req.body.email?.trim().toLowerCase()])
   if (!users.length || !await bcrypt.compare(req.body.password||'',users[0].password_hash)) return res.status(401).json({ error:'Incorrect email or password.' })
@@ -76,6 +68,14 @@ app.patch('/api/admin/bookings/:id/status',requireStaff,async (req,res) => {
   const allowed=['submitted','under_review','quoted','contract_sent','deposit_pending','confirmed','in_production','client_review','completed','cancelled']
   if (!allowed.includes(req.body.status)) return res.status(400).json({ error:'Invalid booking status.' })
   await query('update booking_requests set status=? where id=?',[req.body.status,req.params.id]); res.json({ ok:true })
+})
+app.get('/api/admin/users',requireAdmin,async (_req,res)=>res.json({ users:await query('select id,email,full_name,role,created_at from users order by created_at desc') }))
+app.post('/api/admin/users',requireAdmin,async (req,res)=>{
+  const email=req.body.email?.trim().toLowerCase(),password=req.body.password,role=['client','staff','admin'].includes(req.body.role)?req.body.role:'client'
+  if(!email||!password||password.length<8)return res.status(400).json({error:'A valid email and an 8-character password are required.'})
+  if((await query('select id from users where email=? limit 1',[email])).length)return res.status(409).json({error:'An account with this email already exists.'})
+  await query('insert into users (id,email,password_hash,full_name,role) values (?,?,?,?,?)',[randomUUID(),email,await bcrypt.hash(password,12),req.body.fullName?.trim()||null,role])
+  res.status(201).json({ok:true})
 })
 app.post('/api/admin/content/:type',requireStaff,imageUpload.single('image'),contentHandler('insert'))
 app.put('/api/admin/content/:type/:id',requireStaff,imageUpload.single('image'),contentHandler('update'))

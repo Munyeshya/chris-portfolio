@@ -32,3 +32,11 @@ export function requireStaff(request, response, next) {
   request.user = session
   next()
 }
+
+export function requireAdmin(request, response, next) {
+  const session = readSession(request)
+  if (!session) return response.status(401).json({ error: 'Authentication required.' })
+  if (session.role !== 'admin') return response.status(403).json({ error: 'Administrator access required.' })
+  request.user = session
+  next()
+}
