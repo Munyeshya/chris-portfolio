@@ -1,0 +1,29 @@
+name: Deploy Aiven MySQL migrations
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'migrations/mysql/**'
+      - 'server/migrate.js'
+      - '.github/workflows/aiven-migrations.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Apply pending MySQL migrations
+        run: npm run migrate
+        env:
+          AIVEN_MYSQL_URI: ${{ secrets.AIVEN_MYSQL_URI }}

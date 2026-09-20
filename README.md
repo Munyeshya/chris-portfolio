@@ -11,17 +11,17 @@ npm run dev
 
 `npm run build` creates the production output. `npm run lint` checks the source.
 
-## Supabase authentication
+## Aiven MySQL and authentication
 
-Copy `.env.example` to `.env` and provide both server-side and browser-safe credentials. The secret/service-role key is used only by Node.js. `VITE_SUPABASE_PUBLISHABLE_KEY` is the browser-safe key used by Supabase Auth.
+Copy `.env.example` to `.env` and provide the private Aiven MySQL URI, a long random JWT secret, and the email address that should receive the initial admin role. These values are server-only and must never use the `VITE_` prefix.
 
 Run `npm run dev` and `npm run dev:api` in separate terminals.
 
 ## Automatic database migrations
 
-Create every database change as a new timestamped SQL file under `supabase/migrations`. The GitHub workflow applies pending migrations when they are pushed to `main`.
+Create every database change as a new numbered SQL file under `migrations/mysql`. The GitHub workflow records and applies pending migrations when they are pushed to `main`.
 
-In GitHub, open **Settings → Secrets and variables → Actions** and add `SUPABASE_ACCESS_TOKEN`, `SUPABASE_PROJECT_ID`, and `SUPABASE_DB_PASSWORD`. Never commit those values or the Supabase secret/service-role key.
+In GitHub, open **Settings → Secrets and variables → Actions** and add `AIVEN_MYSQL_URI`. Never commit the service URI or database password.
 
 ## Approved section order
 

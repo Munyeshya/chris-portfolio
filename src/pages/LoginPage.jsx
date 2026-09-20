@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa6'
-import { authConfigured, supabase } from '../lib/supabase.js'
+import { authApi } from '../lib/api.js'
 import './PortalPages.css'
 
 export default function LoginPage() {
@@ -13,31 +13,23 @@ export default function LoginPage() {
   const [status, setStatus] = useState({ state: 'idle', message: '' })
 
   useEffect(() => {
-    if (!supabase) return undefined
-    supabase.auth.getSession().then(({ data }) => setSession(data.session))
-    const { data } = supabase.auth.onAuthStateChange((_event, nextSession) => setSession(nextSession))
-    return () => data.subscription.unsubscribe()
+    authApi.session().then(data => setSession(data.user)).catch(() => setSession(null))
   }, [])
 
   async function submit(event) {
     event.preventDefault()
-    if (!supabase) return setStatus({ state: 'error', message: 'Authentication is not configured yet.' })
     setStatus({ state: 'loading', message: mode === 'register' ? 'Creating your account...' : 'Signing you in...' })
-    const action = mode === 'register'
-      ? supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/login` } })
-      : supabase.auth.signInWithPassword({ email, password })
-    const { data, error } = await action
-    if (error) return setStatus({ state: 'error', message: error.message })
-    if (mode === 'register' && !data.session) return setStatus({ state: 'success', message: 'Account created. Check your email and confirm it before signing in.' })
-    navigate('/dashboard', { replace: true, state: { toast: 'Login successful. Welcome back.' } })
+    try {
+      const data = mode === 'register' ? await authApi.register(email, password) : await authApi.login(email, password)
+      setSession(data.user)
+      navigate('/dashboard', { replace: true, state: { toast: mode === 'register' ? 'Account created successfully.' : 'Login successful. Welcome back.' } })
+    } catch (error) { setStatus({ state: 'error', message: error.message }) }
   }
 
   async function resetPassword() {
     if (!email) return setStatus({ state: 'error', message: 'Enter your email address first.' })
-    if (!supabase) return setStatus({ state: 'error', message: 'Authentication is not configured yet.' })
     setStatus({ state: 'loading', message: 'Sending reset instructions...' })
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/login` })
-    setStatus(error ? { state: 'error', message: error.message } : { state: 'success', message: 'Password reset instructions were sent to your email.' })
+    try { await authApi.reset(email); setStatus({ state: 'success', message: 'Password reset instructions were sent.' }) } catch (error) { setStatus({ state: 'error', message: error.message }) }
   }
 
   return <main className="portal-page auth-page">
@@ -47,7 +39,6 @@ export default function LoginPage() {
         <p className="portal-eyebrow">Lions Entertainment Portal</p>
         <h1>{mode === 'register' ? 'Create account' : 'Welcome back'}</h1>
         <p>{mode === 'register' ? 'Create your portal account. You may need to confirm your email.' : 'Sign in securely to your Lions Entertainment account.'}</p>
-        {!authConfigured && <p className="form-status error">Add the public Supabase URL and publishable key to your environment before logging in.</p>}
         <form className="auth-form" onSubmit={submit}>
           <label>Email address<input required type="email" value={email} onChange={event => setEmail(event.target.value)} autoComplete="email" /></label>
           <label>Password<input required type="password" minLength="8" value={password} onChange={event => setPassword(event.target.value)} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} /></label>

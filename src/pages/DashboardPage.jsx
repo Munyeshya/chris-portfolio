@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaXmark } from 'react-icons/fa6'
-import { authConfigured, supabase } from '../lib/supabase.js'
+import { api, authApi } from '../lib/api.js'
 import './DashboardPage.css'
 
 const sections = [
@@ -18,7 +18,7 @@ const emptyForms = {
 export default function DashboardPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const [session, setSession] = useState(authConfigured ? undefined : null)
+  const [session, setSession] = useState(undefined)
   const [profile, setProfile] = useState(undefined)
   const [section, setSection] = useState('overview')
   const [menuOpen, setMenuOpen] = useState(false)
@@ -50,18 +50,8 @@ export default function DashboardPage() {
   }, [accountOpen])
 
   useEffect(() => {
-    if (!supabase) return undefined
-    supabase.auth.getSession().then(({ data: auth }) => setSession(auth.session))
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, next) => setSession(next))
-    return () => listener.subscription.unsubscribe()
+    authApi.session().then(({ user }) => { setSession(user); setProfile(user) }).catch(() => { setSession(null); setProfile(null) })
   }, [])
-
-  useEffect(() => {
-    if (!session) return
-    supabase.from('profiles').select('*').eq('id', session.user.id).single().then(({ data: current, error }) => {
-      setProfile(error ? null : current)
-    })
-  }, [session])
 
   useEffect(() => {
     if (!profile || !['staff', 'admin'].includes(profile.role)) return
@@ -70,20 +60,11 @@ export default function DashboardPage() {
 
   async function loadAll() {
     setLoading(true)
-    const [bookings, team, partners, work] = await Promise.all([
-      supabase.from('booking_requests').select('*').order('created_at', { ascending: false }),
-      supabase.from('website_team').select('*').order('sort_order'),
-      supabase.from('website_partners').select('*').order('sort_order'),
-      supabase.from('website_work').select('*').order('sort_order'),
-    ])
-    const error = [bookings, team, partners, work].find(result => result.error)?.error
-    if (error) setNotice(error.message)
-    setData({ bookings: bookings.data || [], team: team.data || [], partners: partners.data || [], work: work.data || [] })
+    try { setData(await api('/admin/dashboard')) } catch(error) { setNotice(error.message) }
     setLoading(false)
   }
 
-  async function signOut() { await supabase.auth.signOut() }
-  if (!authConfigured) return <DashboardMessage title="Dashboard is not configured" message="Add your public Supabase environment variables, then restart the website." />
+  async function signOut() { await authApi.logout(); setSession(null) }
   if (session === undefined || (session && profile === undefined)) return <DashboardMessage title="Opening dashboard…" message="Checking your secure session." />
   if (!session) return <Navigate to="/login" replace />
   if (!profile || !['staff', 'admin'].includes(profile.role)) return <DashboardMessage title="Management access required" message="This account is signed in but has not been assigned a staff or admin role." action={<><Link className="portal-button primary" to="/booking">Go to booking</Link><button className="portal-button" onClick={signOut}>Sign out</button></>} />
@@ -128,7 +109,7 @@ function Overview({ data }) {
 function Stat({ label, value }) { return <article><span>{label}</span><strong>{value}</strong></article> }
 
 function Bookings({ items, reload, setNotice }) {
-  async function updateStatus(id, status) { const { error } = await supabase.from('booking_requests').update({ status }).eq('id', id); setNotice(error ? error.message : 'Booking status updated.'); if (!error) reload() }
+  async function updateStatus(id, status) { try { await api(`/admin/bookings/${id}/status`,{method:'PATCH',body:JSON.stringify({status})}); setNotice('Booking status updated.'); reload() } catch(error) { setNotice(error.message) } }
   return <section className="dashboard-panel"><div className="panel-heading"><div><p>Booking management</p><h2>All booking requests</h2></div><span>{items.length} requests</span></div><BookingTable items={items} updateStatus={updateStatus} /></section>
 }
 
@@ -152,25 +133,16 @@ function ContentManager({ type, items, reload, setNotice }) {
   }
   async function save(event, imageFile) {
     event.preventDefault()
-    const table = `website_${type}`
     const payload = { ...form }; delete payload.id; delete payload.created_at; delete payload.updated_at
     if (type !== 'work') delete payload.categories
-    if (type === 'team' && imageFile) {
-      if (!imageFile.type.startsWith('image/')) return setNotice('Please select an image file.')
-      if (imageFile.size > 5 * 1024 * 1024) return setNotice('Team photos must be 5 MB or smaller.')
-      const extension = imageFile.name.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg'
-      const objectPath = `team/${crypto.randomUUID()}.${extension}`
-      const uploaded = await supabase.storage.from('website-media').upload(objectPath, imageFile, { contentType: imageFile.type, upsert: false })
-      if (uploaded.error) return setNotice(uploaded.error.message)
-      payload.photo_url = supabase.storage.from('website-media').getPublicUrl(objectPath).data.publicUrl
-    }
-    if (type === 'team' && editing === 'new' && !payload.photo_url) return setNotice('Please choose a team member photo.')
+    if (type === 'team' && editing === 'new' && !payload.photo_url && !imageFile) return setNotice('Please choose a team member photo.')
     if (type === 'work') payload.categories = form.categories.split(',').map(value => value.trim()).filter(Boolean)
-    const result = editing === 'new' ? await supabase.from(table).insert(payload) : await supabase.from(table).update(payload).eq('id', editing)
-    setNotice(result.error ? result.error.message : `${labels[type]} saved.`)
-    if (!result.error) { setEditing(null); reload() }
+    const body = new FormData()
+    Object.entries(payload).forEach(([key,value])=>body.append(key,Array.isArray(value)?JSON.stringify(value):String(value ?? '')))
+    if (imageFile) body.append('image',imageFile)
+    try { await api(`/admin/content/${type}${editing==='new'?'':`/${editing}`}`,{method:editing==='new'?'POST':'PUT',body}); setNotice(`${labels[type]} saved.`); setEditing(null); reload() } catch(error) { setNotice(error.message) }
   }
-  async function remove(item) { if (!window.confirm(`Delete ${item.name || item.title}?`)) return; const { error } = await supabase.from(`website_${type}`).delete().eq('id', item.id); setNotice(error ? error.message : `${labels[type]} deleted.`); if (!error) reload() }
+  async function remove(item) { if (!window.confirm(`Delete ${item.name || item.title}?`)) return; try { await api(`/admin/content/${type}/${item.id}`,{method:'DELETE'}); setNotice(`${labels[type]} deleted.`); reload() } catch(error) { setNotice(error.message) } }
   return <section className="dashboard-panel"><div className="panel-heading"><div><p>Website content</p><h2>Manage {type === 'work' ? 'our work' : type}</h2></div><button className="dashboard-primary" onClick={() => start(null)}>Add {labels[type]}</button></div>{editing && <ContentForm type={type} form={form} setForm={setForm} save={save} cancel={() => setEditing(null)} />}<div className="content-list">{items.map(item => <article key={item.id}><div className="content-thumb"><img src={item.photo_url || item.logo_url || item.image_url} alt="" /></div><div><strong>{item.name || item.title}</strong><span>{item.role || item.external_url || 'Partner logo'}</span><small>{item.active ? 'Visible' : 'Hidden'} · Order {item.sort_order}</small></div><div className="row-actions"><button onClick={() => start(item)}>Edit</button><button className="danger" onClick={() => remove(item)}>Delete</button></div></article>)}</div></section>
 }
 
