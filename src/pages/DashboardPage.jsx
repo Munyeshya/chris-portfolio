@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaUserPlus, FaXmark } from 'react-icons/fa6'
+import { FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaTicket, FaUserPlus, FaXmark } from 'react-icons/fa6'
 import { api, authApi } from '../lib/api.js'
 import './DashboardPage.css'
 
 const sections = [
   ['overview', 'Overview', FaHouse], ['bookings', 'Bookings', FaCalendarDays], ['clients', 'Clients', FaPeopleGroup],
   ['team', 'Team', FaPeopleGroup], ['partners', 'Partners', FaHandshake], ['work', 'Our Work', FaImage],
-  ['users', 'Users', FaUserPlus],
+  ['ticketing', 'Ticketing', FaTicket], ['users', 'Users', FaUserPlus],
 ]
 const statuses = ['submitted','under_review','quoted','contract_sent','deposit_pending','confirmed','in_production','client_review','completed','cancelled']
 const emptyForms = {
@@ -101,7 +101,16 @@ function DashboardContent({ section, data, reload, setNotice }) {
   if (section === 'bookings') return <Bookings items={data.bookings} reload={reload} setNotice={setNotice} />
   if (section === 'clients') return <Clients bookings={data.bookings} />
   if (section === 'users') return <Users setNotice={setNotice} />
+  if (section === 'ticketing') return <TicketingAdmin setNotice={setNotice} />
   return <ContentManager type={section} items={data[section]} reload={reload} setNotice={setNotice} />
+}
+
+function TicketingAdmin({ setNotice }) {
+  const [ticketing, setTicketing] = useState({ organizers: [], events: [] })
+  const load = () => api('/admin/ticketing').then(setTicketing).catch(error => setNotice(error.message))
+  useEffect(() => { let active = true; api('/admin/ticketing').then(data => { if (active) setTicketing(data) }).catch(error => setNotice(error.message)); return () => { active = false } }, [setNotice])
+  async function review(id, status) { try { await api(`/admin/ticketing/organizers/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }); setNotice(`Organizer ${status}.`); load() } catch (error) { setNotice(error.message) } }
+  return <><section className="dashboard-panel"><div className="panel-heading"><div><p>Access requests</p><h2>Ticketing organizers</h2></div><span>{ticketing.organizers.length} applications</span></div><div className="table-scroll"><table><thead><tr><th>Client</th><th>Organization</th><th>Reason</th><th>Status</th><th>Decision</th></tr></thead><tbody>{ticketing.organizers.length ? ticketing.organizers.map(item => <tr key={item.id}><td><strong>{item.full_name || item.email}</strong><small>{item.email}<br />{item.phone || ''}</small></td><td>{item.organization_name}</td><td>{item.reason || '—'}</td><td><span className={`status status-${item.status}`}>{item.status}</span></td><td><div className="row-actions"><button onClick={() => review(item.id, 'approved')}>Approve</button><button onClick={() => review(item.id, 'rejected')} className="danger">Reject</button>{item.status === 'approved' && <button onClick={() => review(item.id, 'suspended')} className="danger">Suspend</button>}</div></td></tr>) : <tr><td colSpan="5" className="empty-cell">No organizer applications yet.</td></tr>}</tbody></table></div></section><section className="dashboard-panel"><div className="panel-heading"><div><p>Event activity</p><h2>Ticketing events</h2></div><span>{ticketing.events.length} events</span></div><div className="table-scroll"><table><thead><tr><th>Event</th><th>Organizer</th><th>Venue</th><th>Start</th><th>Capacity</th><th>Status</th></tr></thead><tbody>{ticketing.events.length ? ticketing.events.map(event => <tr key={event.id}><td><strong>{event.title}</strong></td><td>{event.organization_name}</td><td>{event.venue}</td><td>{new Date(event.starts_at).toLocaleString()}</td><td>{event.registered}/{event.capacity}</td><td><span className={`status status-${event.status}`}>{event.status}</span></td></tr>) : <tr><td colSpan="6" className="empty-cell">No ticketing events yet.</td></tr>}</tbody></table></div></section></>
 }
 
 function Users({ setNotice }) {

@@ -56,6 +56,12 @@ export default function BookingPage() {
   const [files, setFiles] = useState([])
   const [status, setStatus] = useState({ state: 'idle', message: '' })
 
+  useEffect(() => {
+    if (!['success', 'error'].includes(status.state)) return undefined
+    const timer = window.setTimeout(() => setStatus({ state: 'idle', message: '' }), 7000)
+    return () => window.clearTimeout(timer)
+  }, [status.state])
+
   const update = event => setForm(current => ({ ...current, [event.target.name]: event.target.value }))
   const toggleService = service => setForm(current => ({ ...current, services: current.services.includes(service) ? current.services.filter(item => item !== service) : [...current.services, service] }))
 
@@ -69,7 +75,7 @@ export default function BookingPage() {
       const response = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/bookings`, { method: 'POST', body })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'The request could not be submitted.')
-      setStatus({ state: 'success', message: `Request ${result.reference} received. It is not yet a confirmed booking; our team will review it and send a quotation.` })
+      setStatus({ state: 'success', message: `Booking request submitted successfully. Your reference is ${result.reference}. Our team will review it and send a quotation; it is not yet a confirmed booking.` })
       setForm(initialForm)
       setFiles([])
       event.currentTarget.reset()
@@ -79,6 +85,7 @@ export default function BookingPage() {
   }
 
   return <div className="portal-page">
+    {['success', 'error'].includes(status.state) && <div className={`booking-toast ${status.state}`} role="status" aria-live="polite"><span>{status.message}</span><button type="button" onClick={() => setStatus({ state: 'idle', message: '' })} aria-label="Close notification"><FaXmark aria-hidden="true" /></button></div>}
     <BookingHeader />
 
     <main>
@@ -94,7 +101,7 @@ export default function BookingPage() {
           <fieldset><legend>Project requirements</legend><div className="form-grid"><label>Project name<input required name="projectName" value={form.projectName} onChange={update} /></label><label>Project type<select name="projectType" value={form.projectType} onChange={update}><option value="event">Event-based project</option><option value="non-event">Non-event project</option></select></label></div><span className="field-label">Requested services</span><div className="service-checks">{serviceOptions.map(service => <label key={service}><input type="checkbox" checked={form.services.includes(service)} onChange={() => toggleService(service)} /><span>{service}</span></label>)}</div><label>Project brief<textarea required name="brief" rows="5" value={form.brief} onChange={update} /></label></fieldset>
           <fieldset><legend>{form.projectType === 'event' ? 'Event schedule' : 'Delivery schedule'}</legend>{form.projectType === 'event' ? <div className="form-grid"><label>Event date<input required type="date" name="eventDate" value={form.eventDate} onChange={update} /></label><label>Location<input required name="location" value={form.location} onChange={update} /></label><label>Start time<input required type="time" name="startTime" value={form.startTime} onChange={update} /></label><label>End time<input required type="time" name="endTime" value={form.endTime} onChange={update} /></label></div> : <label>Required delivery deadline<input required type="date" name="deadline" value={form.deadline} onChange={update} /></label>}</fieldset>
           <fieldset><legend>Package and references</legend><div className="form-grid"><label>Package or option<input name="packageChoice" value={form.packageChoice} onChange={update} placeholder="Package name, custom, or undecided" /></label><label>Estimated budget <small>Optional</small><input name="budget" value={form.budget} onChange={update} placeholder="Currency and amount" /></label></div><label>Custom requirements<textarea name="customRequirements" rows="4" value={form.customRequirements} onChange={update} /></label><label className="file-input"><FaUpload aria-hidden="true" /><span>Reference files <small>Optional, up to 5 files</small></span><input type="file" multiple accept="image/*,.pdf,.doc,.docx,.ppt,.pptx" onChange={event => setFiles([...event.target.files].slice(0, 5))} /></label>{files.length > 0 && <p className="file-list">{files.map(file => file.name).join(', ')}</p>}<label>Additional notes<textarea name="notes" rows="4" value={form.notes} onChange={update} /></label></fieldset>
-          {status.message && <p className={`form-status ${status.state}`} role="status">{status.message}</p>}
+          {status.state === 'loading' && <p className="form-status" role="status">{status.message}</p>}
           <button className="portal-button primary submit" disabled={status.state === 'loading'}>{status.state === 'loading' ? 'Sending...' : 'Submit booking request'} <FaArrowRight aria-hidden="true" /></button>
         </form></div>
       </section>

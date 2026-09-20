@@ -6,7 +6,7 @@ import express from 'express'
 import multer from 'multer'
 import { randomUUID } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
-import { clearSession, createSession, readSession, requireAdmin, requireStaff } from './auth.js'
+import { clearSession, createSession, readSession, requireAdmin, requireAuth, requireStaff } from './auth.js'
 import { databaseConfigured, pool, query } from './database.js'
 
 export const app = express()
@@ -43,6 +43,63 @@ app.get('/api/content', async (_req,res) => {
 app.get('/api/media/:id', async (req,res) => {
   const rows=await query('select mime_type,contents from media where id=? limit 1',[req.params.id]); if (!rows.length) return res.status(404).end()
   res.set('Content-Type',rows[0].mime_type).set('Cache-Control','public, max-age=31536000, immutable').send(rows[0].contents)
+})
+
+app.get('/api/ticketing/events',async (_req,res)=>{
+  const events=await query(`select e.id,e.title,e.description,e.venue,e.starts_at,e.ends_at,e.capacity,e.registration_deadline,o.organization_name,
+    (select count(*) from event_attendees a where a.event_id=e.id and a.status<>'cancelled') registered
+    from ticketing_events e join organizer_accounts o on o.id=e.organizer_id where e.status='published' and e.starts_at>=now() order by e.starts_at`)
+  res.json({events})
+})
+app.get('/api/ticketing/events/:id',async (req,res)=>{
+  const rows=await query(`select e.*,o.organization_name,(select count(*) from event_attendees a where a.event_id=e.id and a.status<>'cancelled') registered from ticketing_events e join organizer_accounts o on o.id=e.organizer_id where e.id=? and e.status='published' limit 1`,[req.params.id])
+  if(!rows.length)return res.status(404).json({error:'Event not found.'});res.json({event:rows[0]})
+})
+app.post('/api/ticketing/events/:id/register',async (req,res)=>{
+  const name=req.body.fullName?.trim(),email=req.body.email?.trim().toLowerCase();if(!name||!email)return res.status(400).json({error:'Full name and email are required.'})
+  const connection=await pool.getConnection()
+  try{await connection.beginTransaction();const [events]=await connection.execute("select id,title,capacity,status,starts_at,registration_deadline from ticketing_events where id=? for update",[req.params.id]);if(!events.length||events[0].status!=='published')throw publicError('Registration is not available.',400)
+    if(events[0].registration_deadline&&new Date(events[0].registration_deadline)<new Date())throw publicError('Registration has closed.',400)
+    const [[count]]=await connection.execute("select count(*) total from event_attendees where event_id=? and status<>'cancelled'",[req.params.id]);if(count.total>=events[0].capacity)throw publicError('This event has reached its capacity.',409)
+    const id=randomUUID(),qrToken=randomUUID().replaceAll('-','')+randomUUID().slice(0,8),ticketCode=`LE-T-${randomUUID().slice(0,8).toUpperCase()}`
+    await connection.execute('insert into event_attendees (id,event_id,ticket_code,qr_token,full_name,email,phone) values (?,?,?,?,?,?,?)',[id,req.params.id,ticketCode,qrToken,name,email,empty(req.body.phone)])
+    await connection.commit();res.status(201).json({ticket:{ticketCode,qrToken,fullName:name,eventTitle:events[0].title,startsAt:events[0].starts_at}})
+  }catch(error){await connection.rollback();if(error.code==='ER_DUP_ENTRY')return res.status(409).json({error:'This email is already registered for the event.'});if(error.public)return res.status(error.status).json({error:error.message});throw error}finally{connection.release()}
+})
+app.get('/api/ticketing/tickets/:token',async (req,res)=>{
+  const rows=await query(`select a.ticket_code,a.full_name,a.status,e.title,e.venue,e.starts_at from event_attendees a join ticketing_events e on e.id=a.event_id where a.qr_token=? limit 1`,[req.params.token]);if(!rows.length)return res.status(404).json({error:'Ticket not found.'});res.json({ticket:rows[0]})
+})
+
+app.get('/api/ticketing/organizer',requireAuth,async (req,res)=>{
+  const rows=await query('select * from organizer_accounts where user_id=? limit 1',[req.user.sub]);res.json({organizer:rows[0]||null})
+})
+app.post('/api/ticketing/organizer/apply',requireAuth,async (req,res)=>{
+  if(!req.body.organizationName?.trim())return res.status(400).json({error:'Organization name is required.'})
+  if((await query('select id from organizer_accounts where user_id=? limit 1',[req.user.sub])).length)return res.status(409).json({error:'An organizer application already exists.'})
+  await query('insert into organizer_accounts (id,user_id,organization_name,phone,reason) values (?,?,?,?,?)',[randomUUID(),req.user.sub,req.body.organizationName.trim(),empty(req.body.phone),empty(req.body.reason)]);res.status(201).json({ok:true})
+})
+app.get('/api/ticketing/organizer/events',requireAuth,approvedOrganizer,async (req,res)=>{
+  const events=await query(`select e.*,(select count(*) from event_attendees a where a.event_id=e.id and a.status<>'cancelled') registered from ticketing_events e where e.organizer_id=? order by e.starts_at desc`,[req.organizer.id]);res.json({events})
+})
+app.post('/api/ticketing/organizer/events',requireAuth,approvedOrganizer,async (req,res)=>{
+  if(!req.body.title?.trim()||!req.body.venue?.trim()||!req.body.startsAt||Number(req.body.capacity)<1)return res.status(400).json({error:'Title, venue, date and a valid capacity are required.'})
+  const id=randomUUID();await query('insert into ticketing_events (id,organizer_id,title,description,venue,starts_at,ends_at,capacity,registration_deadline,status) values (?,?,?,?,?,?,?,?,?,?)',[id,req.organizer.id,req.body.title.trim(),empty(req.body.description),req.body.venue.trim(),req.body.startsAt,empty(req.body.endsAt),Number(req.body.capacity),empty(req.body.registrationDeadline),req.body.publish?'published':'draft']);res.status(201).json({id})
+})
+app.get('/api/ticketing/organizer/events/:id/attendees',requireAuth,approvedOrganizer,organizerEvent,async (req,res)=>{
+  const attendees=await query('select id,ticket_code,qr_token,full_name,email,phone,status,checked_in_at,created_at from event_attendees where event_id=? order by full_name',[req.params.id]);res.json({event:req.event,attendees})
+})
+app.post('/api/ticketing/organizer/events/:id/check-in',requireAuth,approvedOrganizer,organizerEvent,async (req,res)=>{
+  const search=req.body.query?.trim();if(!search)return res.status(400).json({error:'Enter a guest name, ticket code or QR value.'})
+  const rows=await query('select * from event_attendees where event_id=? and (qr_token=? or ticket_code=? or lower(full_name)=lower(?)) limit 1',[req.params.id,search,search,search]);if(!rows.length)return res.status(404).json({error:'Guest not found.'})
+  const guest=rows[0];if(guest.status==='cancelled')return res.status(409).json({error:'This registration was cancelled.'});if(guest.status==='checked_in')return res.status(409).json({error:`${guest.full_name} already entered.`})
+  await query("update event_attendees set status='checked_in',checked_in_at=now(),checked_in_by=? where id=?",[req.user.sub,guest.id]);res.json({guest:{...guest,status:'checked_in'}})
+})
+
+app.get('/api/admin/ticketing',requireAdmin,async (_req,res)=>{
+  const [organizers,events]=await Promise.all([query(`select o.*,u.email,u.full_name from organizer_accounts o join users u on u.id=o.user_id order by o.created_at desc`),query(`select e.*,o.organization_name,(select count(*) from event_attendees a where a.event_id=e.id and a.status<>'cancelled') registered from ticketing_events e join organizer_accounts o on o.id=e.organizer_id order by e.created_at desc`)]);res.json({organizers,events})
+})
+app.patch('/api/admin/ticketing/organizers/:id',requireAdmin,async (req,res)=>{
+  if(!['approved','rejected','suspended'].includes(req.body.status))return res.status(400).json({error:'Invalid approval status.'});await query('update organizer_accounts set status=?,reviewed_by=?,reviewed_at=now() where id=?',[req.body.status,req.user.sub,req.params.id]);res.json({ok:true})
 })
 
 app.post('/api/bookings',bookingUpload.array('references',5),async (req,res) => {
@@ -112,3 +169,6 @@ function boolRow(row){return{...row,active:Boolean(row.active),knockout:Boolean(
 function teamRow(row){return{...row,active:Boolean(row.active)}}
 function workRow(row){return{...row,active:Boolean(row.active),categories:jsonValue(row.categories)}}
 function bookingRow(row){return{...row,services:jsonValue(row.services)}}
+async function approvedOrganizer(req,res,next){const rows=await query("select * from organizer_accounts where user_id=? and status='approved' limit 1",[req.user.sub]);if(!rows.length)return res.status(403).json({error:'Your organizer account has not been approved.'});req.organizer=rows[0];next()}
+async function organizerEvent(req,res,next){const rows=await query('select * from ticketing_events where id=? and organizer_id=? limit 1',[req.params.id,req.organizer.id]);if(!rows.length)return res.status(404).json({error:'Event not found.'});req.event=rows[0];next()}
+function publicError(message,status){const error=new Error(message);error.public=true;error.status=status;return error}
