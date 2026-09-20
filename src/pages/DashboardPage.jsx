@@ -75,12 +75,12 @@ export default function DashboardPage() {
   return <div className="dashboard-page">
     {toast && <div className="dashboard-toast" role="status"><FaCheck aria-hidden="true" /><span>{toast}</span><button type="button" onClick={() => setToast('')} aria-label="Close notification"><FaXmark aria-hidden="true" /></button></div>}
     <aside className={`dashboard-sidebar${menuOpen ? ' open' : ''}`}>
-      <div className="dashboard-logo"><img src="/brand/lions-ent-white.png" alt="Lions Entertainment" /><button onClick={() => setMenuOpen(false)} aria-label="Close menu"><FaXmark /></button></div>
+      <div className="dashboard-logo"><img src="/brand/lions-plus-white.png" alt="Lions Plus" /><button onClick={() => setMenuOpen(false)} aria-label="Close menu"><FaXmark /></button></div>
       <nav>{navigationSections.map(([id, label, Icon]) => <button className={section === id ? 'active' : ''} key={id} onClick={() => { setSection(id); setMenuOpen(false) }}><Icon /><span>{label}</span></button>)}</nav>
       <div className="dashboard-site-link"><Link to="/"><FaHouse /> View website</Link></div>
     </aside>
     <main className="dashboard-main">
-      <header><button className="dashboard-menu" onClick={() => setMenuOpen(true)}><FaBars /> Menu</button><div className="dashboard-title"><p>Lions Entertainment</p><h1><CurrentIcon /> {navigationSections.find(item => item[0] === section)?.[1]}</h1></div><div className="dashboard-account" ref={accountRef}><button className="account-avatar" type="button" aria-label="Open account menu" aria-expanded={accountOpen} onClick={() => setAccountOpen(open => !open)}>{getInitials(profile.full_name || profile.email)}</button>{accountOpen && <div className="account-dropdown"><small>Signed in as</small><strong>{profile.full_name || profile.email}</strong><span>{profile.role}</span><button className="account-signout" onClick={signOut}><FaArrowRightFromBracket /> Sign out</button></div>}</div></header>
+      <header><button className="dashboard-menu" onClick={() => setMenuOpen(true)}><FaBars /> Menu</button><div className="dashboard-title"><p>Lions Plus</p><h1><CurrentIcon /> {navigationSections.find(item => item[0] === section)?.[1]}</h1></div><div className="dashboard-account" ref={accountRef}><button className="account-avatar" type="button" aria-label="Open account menu" aria-expanded={accountOpen} onClick={() => setAccountOpen(open => !open)}>{getInitials(profile.full_name || profile.email)}</button>{accountOpen && <div className="account-dropdown"><small>Signed in as</small><strong>{profile.full_name || profile.email}</strong><span>{profile.role}</span><button className="account-signout" onClick={signOut}><FaArrowRightFromBracket /> Sign out</button></div>}</div></header>
       {notice && <p className="dashboard-notice" role="status">{notice}<button onClick={() => setNotice('')}>Dismiss</button></p>}
       {loading ? <p className="dashboard-loading">Loading dashboard…</p> : <DashboardContent section={section} data={data} reload={loadAll} setNotice={setNotice} />}
     </main>
@@ -93,7 +93,7 @@ function getInitials(value = '') {
 }
 
 function DashboardMessage({ title, message, action }) {
-  return <main className="portal-page auth-page"><section className="auth-card"><p className="portal-eyebrow">Lions Entertainment Portal</p><h1>{title}</h1><p>{message}</p>{action && <div className="portal-actions">{action}</div>}</section></main>
+  return <main className="portal-page auth-page"><section className="auth-card"><p className="portal-eyebrow">Lions Plus Portal</p><h1>{title}</h1><p>{message}</p>{action && <div className="portal-actions">{action}</div>}</section></main>
 }
 
 function DashboardContent({ section, data, reload, setNotice }) {

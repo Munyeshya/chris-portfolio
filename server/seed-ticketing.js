@@ -18,13 +18,13 @@ try {
   const [existingOrganizers] = await connection.execute('select id from organizer_accounts where user_id=? limit 1', [admins[0].id])
   const organizerId = existingOrganizers[0]?.id || '10000000-0000-4000-8000-000000000001'
   if (!existingOrganizers.length) {
-    await connection.execute("insert into organizer_accounts (id,user_id,organization_name,phone,reason,status,reviewed_by,reviewed_at) values (?,?,?,'+250 788 000 000',?,'approved',?,now())", [organizerId, admins[0].id, 'Lions Entertainment', 'Official sample organizer account', admins[0].id])
+    await connection.execute("insert into organizer_accounts (id,user_id,organization_name,phone,reason,status,reviewed_by,reviewed_at) values (?,?,?,'+250 788 000 000',?,'approved',?,now())", [organizerId, admins[0].id, 'Lions Plus', 'Official sample organizer account', admins[0].id])
   }
 
   const events = [
     ['20000000-0000-4000-8000-000000000001','Africa Creative Leaders Forum','A full-day gathering for creative, production and technology leaders.','Kigali Convention Centre','2027-03-20 09:00:00','2027-03-20 17:00:00',350,'2027-03-19 18:00:00'],
     ['20000000-0000-4000-8000-000000000002','Future of Live Events Meetup','An evening of conversations, demonstrations and industry networking.','Mundi Center, Kigali','2027-04-17 17:30:00','2027-04-17 21:00:00',120,'2027-04-17 12:00:00'],
-    ['20000000-0000-4000-8000-000000000003','Production Masterclass','A practical session covering event production, broadcast and audience experience.','Lions Entertainment Studio','2027-05-08 10:00:00','2027-05-08 15:00:00',60,'2027-05-07 18:00:00'],
+    ['20000000-0000-4000-8000-000000000003','Production Masterclass','A practical session covering event production, broadcast and audience experience.','Lions Plus Studio','2027-05-08 10:00:00','2027-05-08 15:00:00',60,'2027-05-07 18:00:00'],
   ]
   for (const event of events) {
     await connection.execute("insert ignore into ticketing_events (id,organizer_id,title,description,venue,starts_at,ends_at,capacity,registration_deadline,status) values (?,?,?,?,?,?,?,?,?,'published')", [event[0], organizerId, ...event.slice(1)])

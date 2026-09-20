@@ -102,6 +102,10 @@
 .ticketing-hero { width: 100%; max-width: none; min-height: calc(100svh - 68px); margin: 0; padding: 130px max(28px,calc((100vw - 1180px)/2)) 80px; display: flex; flex-direction: column; justify-content: center; background-image: linear-gradient(90deg, rgba(8,8,8,.92) 0%, rgba(8,8,8,.78) 42%, rgba(8,8,8,.38) 72%, rgba(8,8,8,.28) 100%), url('/ticketing_hero.jpeg'); background-size: cover; background-position: center; }
 .ticketing-hero h1 { margin: 0; max-width: 950px; font-size: clamp(3.5rem, 8vw, 7.5rem); line-height: .88; letter-spacing: -.065em; }
 .ticketing-hero h1 span { color: #ed1c24; }.ticketing-hero > p:not(.portal-eyebrow) { max-width: 580px; margin: 28px 0; color: #aaa; line-height: 1.7; }
+.event-search { width: min(620px,100%); margin: -18px 0 34px; display: grid; gap: 9px; color: #aaa; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.event-search input { width: 100%; padding: 15px 17px; border: 1px solid rgba(255,255,255,.22); border-radius: 0; outline: 0; color: #fff; background: rgba(255,255,255,.06); font: inherit; font-size: .86rem; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.event-search input:focus { border-color: #ed1c24; background: rgba(255,255,255,.09); }
+.event-search input::placeholder { color: #777; }
 .ticket-event-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid rgba(255,255,255,.14); }
 .ticket-event-grid article { min-height: 390px; padding: 30px; display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,.14); }.ticket-event-grid article:nth-child(3n) { border-right: 0; }
 .ticket-event-grid h3 { margin: 32px 0 15px; font-size: 1.65rem; }.ticket-event-grid p { display: flex; gap: 8px; color: #bbb; }.ticket-event-grid small { color: #777; }

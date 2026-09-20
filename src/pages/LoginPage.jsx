@@ -33,11 +33,11 @@ export default function LoginPage() {
 
   return <main className="portal-page auth-page">
     <div className="auth-shell">
-      <Link to="/" className="portal-brand auth-brand"><img src="/brand/lions-ent-white.png" alt="Lions Entertainment" /></Link>
+      <Link to="/" className="portal-brand auth-brand"><img src="/brand/lions-plus-white.png" alt="Lions Plus" /></Link>
       {session ? <Navigate to="/dashboard" replace state={{ toast: 'You are already signed in.' }} /> : <section className="auth-card">
-        <p className="portal-eyebrow">Lions Entertainment Portal</p>
+        <p className="portal-eyebrow">Lions Plus Portal</p>
         <h1>Welcome back</h1>
-        <p>Sign in securely to your Lions Entertainment account.</p>
+        <p>Sign in securely to your Lions Plus account.</p>
         <form className="auth-form" onSubmit={submit}>
           <label>Email address<input required type="email" value={email} onChange={event => setEmail(event.target.value)} autoComplete="email" /></label>
           <label>Password<input required type="password" minLength="8" value={password} onChange={event => setPassword(event.target.value)} autoComplete="current-password" /></label>
