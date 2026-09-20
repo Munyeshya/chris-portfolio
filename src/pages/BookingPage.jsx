@@ -43,7 +43,7 @@ function BookingHeader() {
       <button ref={menuButtonRef} className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="booking-navigation" onClick={() => setMenuOpen(!menuOpen)}><span>{menuOpen ? 'Close' : 'Menu'}</span>{menuOpen ? <FaXmark aria-hidden="true" /> : <FaBars aria-hidden="true" />}</button>
       <nav ref={menuRef} id="booking-navigation" className={`navigation${menuOpen ? ' open' : ''}`} aria-label="Main navigation">
         {navLinks.map(([id, label]) => <a key={id} href={`/#${id}`} onClick={() => setMenuOpen(false)}>{label}</a>)}
-        <Link className="button outline nav-portal-button" to="/booking" aria-current="page" onClick={() => setMenuOpen(false)}>Booking</Link>
+        <Link className="button outline nav-portal-button nav-group-start" to="/booking" aria-current="page" onClick={() => setMenuOpen(false)}>Booking</Link>
         <Link className="button outline nav-portal-button" to="/ticketing" onClick={() => setMenuOpen(false)}>Ticketing</Link>
         <Link className="nav-cta" to="/login" onClick={() => setMenuOpen(false)}>Login <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></Link>
       </nav>

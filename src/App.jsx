@@ -97,7 +97,7 @@ function App() {
           <button ref={menuButtonRef} className="menu-toggle" type="button" aria-expanded={menuOpen} aria-controls="navigation" onClick={() => setMenuOpen(!menuOpen)}><span>{menuOpen ? 'Close' : 'Menu'}</span>{menuOpen ? <FaXmark aria-hidden="true" /> : <FaBars aria-hidden="true" />}</button>
           <nav ref={menuRef} id="navigation" className={`navigation${menuOpen ? ' open' : ''}`} aria-label="Main navigation">
             {navLinks.map(([id, label]) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
-            <a className="button outline nav-portal-button" href="./booking">Booking</a>
+            <a className="button outline nav-portal-button nav-group-start" href="./booking">Booking</a>
             <a className="button outline nav-portal-button" href="./ticketing">Ticketing</a>
             <a className="nav-cta" href="./login">Login <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a>
           </nav>

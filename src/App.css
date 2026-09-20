@@ -393,11 +393,23 @@ main:focus { outline: none; }
 .nav-wrap { height: 68px; }
 .navigation { font-family: var(--heading); font-size: 12px; font-weight: 600; letter-spacing: .025em; text-transform: none; }
 .navigation .nav-cta { font-family: inherit; }
-.navigation .nav-portal-button { min-height: 38px; padding: 10px 15px; display: inline-flex; align-items: center; justify-content: center; color: #fff; line-height: 1; }
+.navigation { gap: 0; }
+.navigation > a:not(.nav-portal-button):not(.nav-cta) { margin-right: 34px; }
+.navigation .nav-portal-button, .navigation .nav-cta { width: 116px; min-height: 48px; padding: 12px 14px; display: inline-flex; align-items: center; justify-content: center; color: #fff; line-height: 1; }
+.navigation .nav-group-start { margin-left: 14px; }
+.navigation .nav-portal-button + .nav-portal-button, .navigation .nav-portal-button + .nav-cta { margin-left: 8px; }
+.navigation .nav-cta { gap: 10px; }
 .navigation .nav-portal-button:hover, .navigation .nav-portal-button[aria-current] { color: #fff; }
 .ui-icon { display: inline-block; width: 1em; height: 1em; flex-shrink: 0; vertical-align: -.1em; }
 .button > .ui-icon { width: 15px; height: 15px; }
 .nav-cta > .ui-icon { width: 14px; height: 14px; }
+
+@media (max-width: 900px) {
+  .navigation > a:not(.nav-portal-button):not(.nav-cta) { margin-right: 0; }
+  .navigation .nav-portal-button, .navigation .nav-cta { width: 100%; margin-left: 0 !important; }
+  .navigation .nav-portal-button + .nav-portal-button, .navigation .nav-portal-button + .nav-cta { margin-top: 8px; }
+  .navigation .nav-group-start { margin-top: 12px; }
+}
 
 /* Translucent glass controls inspired by BK's polished call-to-action treatment. */
 .button, .nav-cta, .menu-toggle, .portfolio-filters button, .gallery-close, .gallery-controls button {
