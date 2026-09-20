@@ -11,7 +11,7 @@ export async function sendBookingEmails(booking) {
   const reference = escapeHtml(booking.reference)
   const services = booking.services.map(escapeHtml).join(', ')
   const schedule = booking.projectType === 'event'
-    ? `${escapeHtml(booking.eventDate)} from ${escapeHtml(booking.startTime)} to ${escapeHtml(booking.endTime)} at ${escapeHtml(booking.location)}`
+    ? `${escapeHtml(booking.eventDateFrom)} to ${escapeHtml(booking.eventDateTo)}, from ${escapeHtml(booking.startTime)} to ${escapeHtml(booking.endTime)} at ${escapeHtml(booking.location)}`
     : `Delivery requested by ${escapeHtml(booking.deadline)}`
   const sharedStyle = 'font-family:Arial,sans-serif;color:#1b1b1b;line-height:1.65;max-width:640px;margin:auto'
   try {

@@ -71,7 +71,15 @@ app.post('/api/ticketing/events/:id/register',async (req,res)=>{
   }catch(error){await connection.rollback();if(error.code==='ER_DUP_ENTRY')return res.status(409).json({error:'This email is already registered for the event.'});if(error.public)return res.status(error.status).json({error:error.message});throw error}finally{connection.release()}
 })
 app.get('/api/ticketing/tickets/:token',async (req,res)=>{
-  const rows=await query(`select a.ticket_code,a.full_name,a.status,e.title,e.venue,e.starts_at from event_attendees a join ticketing_events e on e.id=a.event_id where a.qr_token=? limit 1`,[req.params.token]);if(!rows.length)return res.status(404).json({error:'Ticket not found.'});res.json({ticket:rows[0]})
+  const rows=await query(`select a.ticket_code,a.full_name,a.status,a.checked_in_at,e.title,e.venue,e.starts_at,e.ends_at,o.organization_name from event_attendees a join ticketing_events e on e.id=a.event_id join organizer_accounts o on o.id=e.organizer_id where a.qr_token=? limit 1`,[req.params.token]);if(!rows.length)return res.status(404).json({error:'Ticket not found.'});res.json({ticket:rows[0]})
+})
+app.get('/api/ticketing/tickets/:token/access',requireAuth,async (req,res)=>{
+  const rows=await query(`select a.id from event_attendees a join ticketing_events e on e.id=a.event_id join organizer_accounts o on o.id=e.organizer_id where a.qr_token=? and o.user_id=? and o.status='approved' limit 1`,[req.params.token,req.user.sub]);res.json({canManage:Boolean(rows.length)})
+})
+app.post('/api/ticketing/tickets/:token/check-in',requireAuth,async (req,res)=>{
+  const rows=await query(`select a.id,a.full_name,a.status from event_attendees a join ticketing_events e on e.id=a.event_id join organizer_accounts o on o.id=e.organizer_id where a.qr_token=? and o.user_id=? and o.status='approved' limit 1`,[req.params.token,req.user.sub]);if(!rows.length)return res.status(403).json({error:'You cannot manage this event ticket.'})
+  const guest=rows[0];if(guest.status==='checked_in')return res.status(409).json({error:'This ticket has already been used.'});if(guest.status==='cancelled')return res.status(409).json({error:'This ticket was cancelled.'})
+  const result=await query("update event_attendees set status='checked_in',checked_in_at=now(),checked_in_by=? where id=? and status='registered'",[req.user.sub,guest.id]);if(!result.affectedRows)return res.status(409).json({error:'This ticket has already been used.'});res.json({ok:true,guest:guest.full_name})
 })
 
 app.get('/api/ticketing/organizer',requireAuth,async (req,res)=>{
@@ -110,16 +118,17 @@ app.patch('/api/admin/ticketing/organizers/:id',requireAdmin,async (req,res)=>{
 app.post('/api/bookings',bookingUpload.array('references',5),async (req,res) => {
   const services=arrayValue(req.body.services), required=['clientName','phone','email','projectName','projectType','brief'], missing=required.filter(f=>!req.body[f]?.trim())
   if (!services.length) missing.push('services')
-  if (req.body.projectType==='event' && (!req.body.eventDate||!req.body.startTime||!req.body.endTime||!req.body.location)) missing.push('event schedule')
+  if (req.body.projectType==='event' && (!req.body.eventDateFrom||!req.body.eventDateTo||!req.body.startTime||!req.body.endTime||!req.body.location)) missing.push('event schedule')
+  if (req.body.projectType==='event' && req.body.eventDateFrom && req.body.eventDateTo && req.body.eventDateTo<req.body.eventDateFrom) return res.status(400).json({error:'The event To date cannot be before the From date.'})
   if (req.body.projectType==='non-event' && !req.body.deadline) missing.push('delivery deadline')
   if (missing.length) return res.status(400).json({ error:`Please complete: ${[...new Set(missing)].join(', ')}.` })
   const id=randomUUID(), reference=`LE-${new Date().getFullYear()}-${randomUUID().slice(0,8).toUpperCase()}`, connection=await pool.getConnection()
   try {
     await connection.beginTransaction()
-    await connection.execute('insert into booking_requests (id,reference,client_name,phone,email,company,project_name,project_type,services,brief,event_date,start_time,end_time,location,delivery_deadline,package_choice,custom_requirements,estimated_budget,notes) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[id,reference,req.body.clientName.trim(),req.body.phone.trim(),req.body.email.trim().toLowerCase(),empty(req.body.company),req.body.projectName.trim(),req.body.projectType,JSON.stringify(services),req.body.brief.trim(),empty(req.body.eventDate),empty(req.body.startTime),empty(req.body.endTime),empty(req.body.location),empty(req.body.deadline),empty(req.body.packageChoice),empty(req.body.customRequirements),empty(req.body.budget),empty(req.body.notes)])
+    await connection.execute('insert into booking_requests (id,reference,client_name,phone,email,company,project_name,project_type,services,brief,event_date,event_end_date,start_time,end_time,location,delivery_deadline,package_choice,custom_requirements,estimated_budget,notes) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[id,reference,req.body.clientName.trim(),req.body.phone.trim(),req.body.email.trim().toLowerCase(),empty(req.body.company),req.body.projectName.trim(),req.body.projectType,JSON.stringify(services),req.body.brief.trim(),empty(req.body.eventDateFrom),empty(req.body.eventDateTo),empty(req.body.startTime),empty(req.body.endTime),empty(req.body.location),empty(req.body.deadline),empty(req.body.packageChoice),empty(req.body.customRequirements),empty(req.body.budget),empty(req.body.notes)])
     for (const file of req.files||[]) await connection.execute('insert into booking_files (id,booking_id,original_name,mime_type,size_bytes,contents) values (?,?,?,?,?,?)',[randomUUID(),id,file.originalname,file.mimetype,file.size,file.buffer])
     await connection.commit()
-    const email=await sendBookingEmails({reference,clientName:req.body.clientName.trim(),phone:req.body.phone.trim(),email:req.body.email.trim().toLowerCase(),projectName:req.body.projectName.trim(),projectType:req.body.projectType,services,brief:req.body.brief.trim(),eventDate:req.body.eventDate,startTime:req.body.startTime,endTime:req.body.endTime,location:req.body.location,deadline:req.body.deadline})
+    const email=await sendBookingEmails({reference,clientName:req.body.clientName.trim(),phone:req.body.phone.trim(),email:req.body.email.trim().toLowerCase(),projectName:req.body.projectName.trim(),projectType:req.body.projectType,services,brief:req.body.brief.trim(),eventDateFrom:req.body.eventDateFrom,eventDateTo:req.body.eventDateTo,startTime:req.body.startTime,endTime:req.body.endTime,location:req.body.location,deadline:req.body.deadline})
     res.status(201).json({ reference, emailSent:email.sent })
   } catch(error) { await connection.rollback(); throw error } finally { connection.release() }
 })
@@ -167,8 +176,8 @@ function contentHandler(operation) { return async (req,res) => {
     if (operation==='insert') await query('insert into website_team (id,name,role,photo_media_id,photo_url,sort_order,active) values (?,?,?,?,?,?,?)',[randomUUID(),b.name,b.role||'',mediaId,photoUrl,Number(b.sort_order)||0,toBool(b.active)])
     else await query('update website_team set name=?,role=?,photo_media_id=coalesce(?,photo_media_id),photo_url=coalesce(?,photo_url),sort_order=?,active=? where id=?',[b.name,b.role||'',mediaId,photoUrl,Number(b.sort_order)||0,toBool(b.active),req.params.id])
   } else if (req.params.type==='partners') {
-    const values=[b.name,b.logo_url,toBool(b.knockout),Number(b.sort_order)||0,toBool(b.active)]
-    if (operation==='insert') await query('insert into website_partners (id,name,logo_url,knockout,sort_order,active) values (?,?,?,?,?,?)',[randomUUID(),...values]); else await query('update website_partners set name=?,logo_url=?,knockout=?,sort_order=?,active=? where id=?',[...values,req.params.id])
+    if(!b.name||(!photoUrl&&operation==='insert'))return res.status(400).json({error:'Name and logo are required.'})
+    if (operation==='insert') await query('insert into website_partners (id,name,logo_url,knockout,sort_order,active) values (?,?,?,?,?,?)',[randomUUID(),b.name,photoUrl,toBool(b.knockout),Number(b.sort_order)||0,toBool(b.active)]); else await query('update website_partners set name=?,logo_url=coalesce(?,logo_url),knockout=?,sort_order=?,active=? where id=?',[b.name,photoUrl,toBool(b.knockout),Number(b.sort_order)||0,toBool(b.active),req.params.id])
   } else {
     const values=[b.title,b.external_url,b.image_url,JSON.stringify(arrayValue(b.categories)),Number(b.sort_order)||0,toBool(b.active)]
     if (operation==='insert') await query('insert into website_work (id,title,external_url,image_url,categories,sort_order,active) values (?,?,?,?,?,?,?)',[randomUUID(),...values]); else await query('update website_work set title=?,external_url=?,image_url=?,categories=?,sort_order=?,active=? where id=?',[...values,req.params.id])
