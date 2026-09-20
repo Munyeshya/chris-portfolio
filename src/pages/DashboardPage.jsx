@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { FaArrowLeft, FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaTicket, FaUserPlus, FaXmark } from 'react-icons/fa6'
 import { api, authApi } from '../lib/api.js'
+import { workCategories } from '../content.js'
 import './DashboardPage.css'
 
 const sections = [
@@ -158,7 +159,7 @@ function ContentManager({ type, items, reload, setNotice }) {
   function start(item) {
     setEditing(item?.id || 'new')
     if (!item) return setForm(emptyForms[type])
-    setForm(type === 'work' ? { ...item, categories: item.categories?.join(', ') || '' } : { ...item })
+    setForm(type === 'work' ? { ...item, categories: item.categories?.[0] || 'Photography' } : { ...item })
   }
   async function save(event, imageFile) {
     event.preventDefault()
@@ -182,7 +183,7 @@ function ContentForm({ type, form, setForm, save, cancel }) {
     <label>{type === 'work' ? 'Title' : 'Name'}<input required name={type === 'work' ? 'title' : 'name'} value={form[type === 'work' ? 'title' : 'name']} onChange={update} /></label>
     {type === 'team' && <label>Role<input name="role" value={form.role} onChange={update} /></label>}
     {type === 'team' || type === 'partners' ? <label className="dashboard-file-field">{type === 'team' ? 'Team photo' : 'Partner logo'}<input required={type === 'team' ? !form.photo_url : !form.logo_url} type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" onChange={event => setImageFile(event.target.files?.[0] || null)} /><small>{imageFile ? imageFile.name : (form.photo_url || form.logo_url) ? 'Choose a file only when replacing the current image.' : 'JPG, PNG, WebP, GIF or SVG · maximum 4 MB'}</small></label> : <label>Image URL<input required name="image_url" value={form.image_url} onChange={update} /></label>}
-    {type === 'work' && <><label>External project or album URL<input required type="url" name="external_url" value={form.external_url} onChange={update} /></label><label>Video link <small>For AV Production &amp; Livestreaming or Videography &amp; Documentaries. YouTube and Vimeo links are supported.</small><input type="url" name="video_url" value={form.video_url || ''} onChange={update} placeholder="https://www.youtube.com/watch?v=..." /></label><label>Categories <small>Separate with commas</small><input name="categories" value={form.categories} onChange={update} /></label></>}
+    {type === 'work' && <><label>External project or album URL<input required type="url" name="external_url" value={form.external_url} onChange={update} /></label><label>Video link <small>For AV Production &amp; Livestreaming or Videography &amp; Documentaries. YouTube and Vimeo links are supported.</small><input type="url" name="video_url" value={form.video_url || ''} onChange={update} placeholder="https://www.youtube.com/watch?v=..." /></label><label>Category<select required name="categories" value={form.categories} onChange={update}>{workCategories.map(category => <option key={category.title} value={category.title}>{category.title}</option>)}</select></label></>}
     {type === 'partners' && <label className="check-field"><input type="checkbox" name="knockout" checked={form.knockout} onChange={update} /> Use knockout treatment</label>}
     <label>Display order<input type="number" name="sort_order" value={form.sort_order} onChange={update} /></label>
     <label className="check-field"><input type="checkbox" name="active" checked={form.active} onChange={update} /> Visible on website</label>
