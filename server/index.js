@@ -8,6 +8,7 @@ import { randomUUID } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
 import { clearSession, createSession, readSession, requireAdmin, requireAuth, requireStaff } from './auth.js'
 import { databaseConfigured, pool, query } from './database.js'
+import { sendBookingEmails } from './mailer.js'
 
 export const app = express()
 const port = Number(process.env.PORT || 8787)
@@ -116,7 +117,9 @@ app.post('/api/bookings',bookingUpload.array('references',5),async (req,res) => 
     await connection.beginTransaction()
     await connection.execute('insert into booking_requests (id,reference,client_name,phone,email,company,project_name,project_type,services,brief,event_date,start_time,end_time,location,delivery_deadline,package_choice,custom_requirements,estimated_budget,notes) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',[id,reference,req.body.clientName.trim(),req.body.phone.trim(),req.body.email.trim().toLowerCase(),empty(req.body.company),req.body.projectName.trim(),req.body.projectType,JSON.stringify(services),req.body.brief.trim(),empty(req.body.eventDate),empty(req.body.startTime),empty(req.body.endTime),empty(req.body.location),empty(req.body.deadline),empty(req.body.packageChoice),empty(req.body.customRequirements),empty(req.body.budget),empty(req.body.notes)])
     for (const file of req.files||[]) await connection.execute('insert into booking_files (id,booking_id,original_name,mime_type,size_bytes,contents) values (?,?,?,?,?,?)',[randomUUID(),id,file.originalname,file.mimetype,file.size,file.buffer])
-    await connection.commit(); res.status(201).json({ reference })
+    await connection.commit()
+    const email=await sendBookingEmails({reference,clientName:req.body.clientName.trim(),phone:req.body.phone.trim(),email:req.body.email.trim().toLowerCase(),projectName:req.body.projectName.trim(),projectType:req.body.projectType,services,brief:req.body.brief.trim(),eventDate:req.body.eventDate,startTime:req.body.startTime,endTime:req.body.endTime,location:req.body.location,deadline:req.body.deadline})
+    res.status(201).json({ reference, emailSent:email.sent })
   } catch(error) { await connection.rollback(); throw error } finally { connection.release() }
 })
 

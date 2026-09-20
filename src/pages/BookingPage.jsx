@@ -76,7 +76,7 @@ export default function BookingPage() {
       const response = await fetch(`${import.meta.env.VITE_API_URL || '/api'}/bookings`, { method: 'POST', body })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'The request could not be submitted.')
-      setStatus({ state: 'success', message: `Booking request submitted successfully. Your reference is ${result.reference}. Our team will review it and send a quotation; it is not yet a confirmed booking.` })
+      setStatus({ state: 'success', message: result.emailSent ? `Booking request received. Your reference is ${result.reference}. A confirmation email has been sent to ${form.email}. Our team will review it and send a quotation.` : `Booking request received. Your reference is ${result.reference}. It was saved successfully, but the confirmation email could not be delivered. Our team will still review it and contact you.` })
       setForm(initialForm)
       setFiles([])
       formElement.reset()
