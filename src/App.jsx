@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { company, services, eventSolutions } from './content'
 import './App.css'
 import Portfolio from './Portfolio'
-import { FaInstagram, FaYoutube, FaWhatsapp, FaArrowUpRightFromSquare, FaArrowDown, FaArrowUp, FaBars, FaXmark, FaAsterisk, FaCalendarDays, FaTicket } from 'react-icons/fa6'
+import { FaInstagram, FaYoutube, FaWhatsapp, FaArrowUpRightFromSquare, FaArrowDown, FaArrowUp, FaBars, FaXmark, FaAsterisk, FaCalendarDays } from 'react-icons/fa6'
 import { useScrollHeader, useSectionReveals } from './usePageMotion'
 import { useWebsiteContent } from './useWebsiteContent'
 
@@ -86,6 +86,7 @@ function App() {
 
   const navLinks = [['about', 'About Us'], ['services', 'Services'], ['portfolio', 'Portfolio'], ['contact', 'Contact Us']]
   const footerLinks = [['about', 'About Us'], ['services', 'Services'], ['event-solutions', 'Event Solutions'], ['portfolio', 'Portfolio'], ['team', 'Our Team'], ['contact', 'Contact Us']]
+  const bookingSteps = ['Click the Book Now button below', 'Choose the services you need', 'Share your event date, location, and requirements', 'Review the quotation we send you', 'Confirm your booking']
   const contactHref = company.whatsapp ? `https://wa.me/${company.whatsapp}` : company.email ? `mailto:${company.email}` : company.phone ? `tel:${company.phone.replace(/[^+\d]/g, '')}` : company.socials.Instagram
 
   return (
@@ -98,7 +99,6 @@ function App() {
           <nav ref={menuRef} id="navigation" className={`navigation${menuOpen ? ' open' : ''}`} aria-label="Main navigation">
             {navLinks.map(([id, label]) => <a key={id} href={`#${id}`} aria-current={activeSection === id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{label}</a>)}
             <a className="button outline nav-portal-button nav-group-start" href="./booking"><FaCalendarDays aria-hidden="true" className="ui-icon" /> Booking</a>
-            <a className="button outline nav-portal-button" href="./ticketing"><FaTicket aria-hidden="true" className="ui-icon" /> Ticketing</a>
             <a className="nav-cta" href="./login">Login <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a>
           </nav>
         </div>
@@ -112,8 +112,7 @@ function App() {
             <p className="eyebrow hero-kicker"><span className="red-dash" /><span className="hero-kicker-label">Lions Plus<span className="red-dot" /></span></p>
             <h1 id="hero-title">We Are a <br className="hero-mobile-break" /><span>Creative Production</span><br />and Technology Partner.</h1>
             <div className="hero-copy">
-              <p>Lions Plus combines professional AV production, creative media, and digital technology to help businesses, organizations, and events communicate, connect, and create memorable experiences.</p>
-              <p>From photography, videography, livestreaming, LED displays, and audiovisual production to web design and web application development, we deliver integrated solutions from concept to execution.</p>
+              <p>Lions Plus provides photography, video production, livestreaming, LED screens, event AV, websites, and web apps for businesses, organizations, and individuals.</p>
             </div>
             <div className="hero-actions"><a className="button red" href="#services">Explore Our Services <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a><a className="button outline" href="#portfolio">View Portfolio <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a></div>
           </div>
@@ -124,8 +123,14 @@ function App() {
 
         <section className="about section-shell" id="about" data-section="03-about" aria-labelledby="about-title">
           <div className="about-heading"><SectionLabel>WHO WE ARE</SectionLabel><h2 id="about-title">About <span>Us</span></h2><div className="experience"><strong>5<span>+</span></strong><span>YEARS OF<br />EXPERIENCE</span></div></div>
-          <div className="about-copy"><p>Lions Plus is a creative production and technology company with over 5 years of experience delivering professional AV production, media, event, and digital solutions.</p><p>We combine creativity and technology to provide photography, videography, livestreaming, LED displays, web design, and web application development for businesses, organizations, and events.</p></div>
+          <div className="about-copy"><p>Lions Plus works with businesses, organizations, and individuals on media, event, and digital projects.</p><p>We bring creative and technical work together, from planning through production to final delivery.</p></div>
           <img className="lion-motif about-pattern" src="/brand/vector.png" alt="" aria-hidden="true" />
+        </section>
+
+        <section className="home-booking section-shell" id="booking-process" aria-labelledby="home-booking-title">
+          <div className="section-heading"><div><SectionLabel>HOW BOOKING WORKS</SectionLabel><h2 id="home-booking-title">Book Your <span>Project</span></h2></div><FaCalendarDays className="section-motif" aria-hidden="true" /></div>
+          <ol className="home-booking-steps">{bookingSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span><strong>{step}</strong></li>)}</ol>
+          <div className="home-booking-actions"><a className="button red" href="./booking">Book Now <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a><p>Prefer not to fill out the booking form? Visit our <a href="#contact">Contact Us</a> section and call us directly using the phone number listed there.</p></div>
         </section>
 
         <section className="services section-shell" id="services" data-section="04-services" aria-labelledby="services-title">
@@ -178,7 +183,7 @@ function App() {
       <footer className="footer section-shell" data-section="10-footer">
         <WavyBackdrop id="footer-wave-stroke" />
         <div className="footer-intro"><Brand /><div><p className="footer-tagline">Creative Production and Technology Partner.</p><p>Professional AV production, media, event management, and digital solutions for businesses, organizations, and events.</p></div></div>
-        <div className="footer-columns"><div><h2>Quick Links</h2><ul>{footerLinks.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}<li><a className="footer-portal" href="./booking">Booking</a></li><li><a className="footer-portal" href="./ticketing">Ticketing</a></li></ul></div><div><h2>Services</h2><ul>{services.slice(0, 3).map(service => <li key={service.id}><a href={`#${service.id}`}>{service.title}</a></li>)}<li><a href="#event-solutions">Event Planning &amp; Management</a></li><li><a href="#creative-digital">Creative &amp; Digital Solutions</a></li></ul></div><div><h2>Contact</h2><ul><li>{company.location}</li>{company.whatsappNumbers.map(number => <li key={number.international}><a className="footer-whatsapp" href={`https://wa.me/${number.international}`} target="_blank" rel="noreferrer"><FaWhatsapp aria-hidden="true" /> {number.label}</a></li>)}{company.email && <li><a href={`mailto:${company.email}`}>{company.email}</a></li>}</ul></div><div><h2>Follow Us</h2><ul>{Object.entries(company.socials).map(([label, url]) => <li key={label}>{url ? <a href={url} target="_blank" rel="noreferrer"><span className="footer-social">{label === 'Instagram' ? <FaInstagram aria-hidden="true" /> : <FaYoutube aria-hidden="true" />}{label}</span></a> : <span className="social-pending">{label}<small>Link pending</small></span>}</li>)}</ul></div></div>
+        <div className="footer-columns"><div><h2>Quick Links</h2><ul>{footerLinks.map(([id, label]) => <li key={id}><a href={`#${id}`}>{label}</a></li>)}<li><a className="footer-portal" href="./booking">Booking</a></li></ul></div><div><h2>Services</h2><ul>{services.slice(0, 3).map(service => <li key={service.id}><a href={`#${service.id}`}>{service.title}</a></li>)}<li><a href="#event-solutions">Event Planning &amp; Management</a></li><li><a href="#creative-digital">Creative &amp; Digital Solutions</a></li></ul></div><div><h2>Contact</h2><ul><li>{company.location}</li>{company.whatsappNumbers.map(number => <li key={number.international}><a className="footer-whatsapp" href={`https://wa.me/${number.international}`} target="_blank" rel="noreferrer"><FaWhatsapp aria-hidden="true" /> {number.label}</a></li>)}{company.email && <li><a href={`mailto:${company.email}`}>{company.email}</a></li>}</ul></div><div><h2>Follow Us</h2><ul>{Object.entries(company.socials).map(([label, url]) => <li key={label}>{url ? <a href={url} target="_blank" rel="noreferrer"><span className="footer-social">{label === 'Instagram' ? <FaInstagram aria-hidden="true" /> : <FaYoutube aria-hidden="true" />}{label}</span></a> : <span className="social-pending">{label}<small>Link pending</small></span>}</li>)}</ul></div></div>
         <div className="footer-bottom"><p>© 2026 Lions Plus. All Rights Reserved.</p></div>
       </footer>
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { FaArrowLeft, FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaTicket, FaUserPlus, FaXmark } from 'react-icons/fa6'
+import { FaArrowLeft, FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaUserPlus, FaXmark } from 'react-icons/fa6'
 import { api, authApi } from '../lib/api.js'
 import { workCategories } from '../content.js'
 import './DashboardPage.css'
@@ -8,7 +8,7 @@ import './DashboardPage.css'
 const sections = [
   ['overview', 'Overview', FaHouse], ['bookings', 'Bookings', FaCalendarDays], ['clients', 'Clients', FaPeopleGroup],
   ['team', 'Team', FaPeopleGroup], ['partners', 'Partners', FaHandshake], ['work', 'Our Work', FaImage],
-  ['ticketing', 'Ticketing', FaTicket], ['users', 'Users', FaUserPlus],
+  ['users', 'Users', FaUserPlus],
 ]
 const statuses = ['submitted','under_review','quoted','contract_sent','deposit_pending','confirmed','in_production','client_review','completed','cancelled']
 const emptyForms = {
@@ -69,7 +69,7 @@ export default function DashboardPage() {
   async function signOut() { await authApi.logout(); setSession(null) }
   if (session === undefined || (session && profile === undefined)) return <DashboardMessage title="Opening dashboard…" message="Checking your secure session." />
   if (!session) return <Navigate to="/login" replace />
-  if (!profile || profile.role !== 'admin') return <Navigate to="/planner" replace />
+  if (!profile || profile.role !== 'admin') return <DashboardMessage title="Administrator access required" message="This account does not have access to the management dashboard." action={<button className="portal-button" onClick={signOut}>Sign out</button>} />
 
   const navigationSections = sections
   const CurrentIcon = navigationSections.find(item => item[0] === section)?.[2] || FaBriefcase
@@ -102,24 +102,15 @@ function DashboardContent({ section, data, reload, setNotice }) {
   if (section === 'bookings') return <Bookings items={data.bookings} reload={reload} setNotice={setNotice} />
   if (section === 'clients') return <Clients bookings={data.bookings} />
   if (section === 'users') return <Users setNotice={setNotice} />
-  if (section === 'ticketing') return <TicketingAdmin setNotice={setNotice} />
   return <ContentManager type={section} items={data[section]} reload={reload} setNotice={setNotice} />
 }
 
-function TicketingAdmin({ setNotice }) {
-  const [ticketing, setTicketing] = useState({ organizers: [] })
-  const load = () => api('/admin/ticketing').then(setTicketing).catch(error => setNotice(error.message))
-  useEffect(() => { let active = true; api('/admin/ticketing').then(data => { if (active) setTicketing(data) }).catch(error => setNotice(error.message)); return () => { active = false } }, [setNotice])
-  async function review(id, status) { try { await api(`/admin/ticketing/organizers/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) }); setNotice(`Organizer ${status}.`); load() } catch (error) { setNotice(error.message) } }
-  return <section className="dashboard-panel"><div className="panel-heading"><div><p>Access requests</p><h2>Event planner applications</h2></div><span>{ticketing.organizers.length} applications</span></div><div className="table-scroll"><table><thead><tr><th>Applicant</th><th>Organization</th><th>Reason</th><th>Status</th><th>Decision</th></tr></thead><tbody>{ticketing.organizers.length ? ticketing.organizers.map(item => <tr key={item.id}><td><strong>{item.full_name || item.email}</strong><small>{item.email}<br />{item.phone || ''}</small></td><td>{item.organization_name}</td><td>{item.reason || '—'}</td><td><span className={`status status-${item.status}`}>{item.status}</span></td><td><div className="row-actions"><button onClick={() => review(item.id, 'approved')}>Approve</button><button onClick={() => review(item.id, 'rejected')} className="danger">Reject</button>{item.status === 'approved' && <button onClick={() => review(item.id, 'suspended')} className="danger">Suspend</button>}</div></td></tr>) : <tr><td colSpan="5" className="empty-cell">No planner applications yet.</td></tr>}</tbody></table></div></section>
-}
-
 function Users({ setNotice }) {
-  const [users,setUsers]=useState([]),[form,setForm]=useState({fullName:'',email:'',password:'',role:'client'})
+  const [users,setUsers]=useState([]),[form,setForm]=useState({fullName:'',email:'',password:'',role:'admin'})
   const load=()=>api('/admin/users').then(data=>setUsers(data.users)).catch(error=>setNotice(error.message))
   useEffect(()=>{let active=true;api('/admin/users').then(data=>{if(active)setUsers(data.users)}).catch(error=>setNotice(error.message));return()=>{active=false}},[setNotice])
-  async function create(event){event.preventDefault();try{await api('/admin/users',{method:'POST',body:JSON.stringify(form)});setNotice('Account created.');setForm({fullName:'',email:'',password:'',role:'client'});load()}catch(error){setNotice(error.message)}}
-  return <section className="dashboard-panel"><div className="panel-heading"><div><p>Portal security</p><h2>Manage portal accounts</h2></div><span>{users.length} users</span></div><form className="content-form" onSubmit={create}><label>Full name<input value={form.fullName} onChange={e=>setForm({...form,fullName:e.target.value})}/></label><label>Email<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label><label>Temporary password<input required minLength="8" type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/></label><label>Account type<select value={form.role} onChange={e=>setForm({...form,role:e.target.value})}><option value="client">Planner applicant</option><option value="admin">Overall admin</option></select></label><div className="content-form-actions"><button className="dashboard-primary">Create account</button></div></form><div className="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Account type</th><th>Created</th></tr></thead><tbody>{users.map(user=><tr key={user.id}><td>{user.full_name||'—'}</td><td>{user.email}</td><td><span className="status">{user.role === 'client' ? 'planner applicant' : user.role}</span></td><td>{new Date(user.created_at).toLocaleDateString()}</td></tr>)}</tbody></table></div></section>
+  async function create(event){event.preventDefault();try{await api('/admin/users',{method:'POST',body:JSON.stringify(form)});setNotice('Administrator account created.');setForm({fullName:'',email:'',password:'',role:'admin'});load()}catch(error){setNotice(error.message)}}
+  return <section className="dashboard-panel"><div className="panel-heading"><div><p>Portal security</p><h2>Manage administrators</h2></div><span>{users.filter(user => user.role === 'admin').length} admins</span></div><form className="content-form" onSubmit={create}><label>Full name<input value={form.fullName} onChange={e=>setForm({...form,fullName:e.target.value})}/></label><label>Email<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label><label>Temporary password<input required minLength="8" type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/></label><div className="content-form-actions"><button className="dashboard-primary">Create administrator</button></div></form><div className="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th></tr></thead><tbody>{users.filter(user => user.role === 'admin').map(user=><tr key={user.id}><td>{user.full_name||'—'}</td><td>{user.email}</td><td><span className="status">admin</span></td><td>{new Date(user.created_at).toLocaleDateString()}</td></tr>)}</tbody></table></div></section>
 }
 
 function Overview({ data }) {

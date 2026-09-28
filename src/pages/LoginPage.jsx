@@ -22,8 +22,7 @@ export default function LoginPage() {
     try {
       const data = await authApi.login(email, password)
       setSession(data.user)
-      const destination = data.user.role === 'admin' ? '/dashboard' : '/planner'
-      navigate(location.state?.destination || destination, { replace: true, state: { toast: 'Login successful. Welcome back.' } })
+      navigate(location.state?.destination || '/dashboard', { replace: true, state: { toast: 'Login successful. Welcome back.' } })
     } catch (error) { setStatus({ state: 'error', message: error.message }) }
   }
 
@@ -36,7 +35,7 @@ export default function LoginPage() {
   return <main className="portal-page auth-page">
     <div className="auth-shell">
       <Link to="/" className="portal-brand auth-brand"><img src="/brand/lions-plus-white.png" alt="Lions Plus" /></Link>
-      {session ? <Navigate to={session.role === 'admin' ? '/dashboard' : '/planner'} replace state={{ toast: 'You are already signed in.' }} /> : <section className="auth-card">
+      {session ? <Navigate to="/dashboard" replace state={{ toast: 'You are already signed in.' }} /> : <section className="auth-card">
         <p className="portal-eyebrow">Lions Plus Portal</p>
         <h1>Welcome back</h1>
         <p>Sign in securely to your Lions Plus account.</p>

@@ -24,7 +24,6 @@ export const services = [
 export const eventSolutions = [
   'Event Planning & Coordination',
   'Online Registration & Booking',
-  'Ticketing & Guest Management',
   'Check-In & Accreditation',
   'Registration Desk Staff',
   'Guest Lists & Attendance Tracking',
