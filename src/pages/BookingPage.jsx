@@ -5,7 +5,7 @@ import { useScrollHeader } from '../usePageMotion.js'
 import './PortalPages.css'
 
 const serviceOptions = ['Photography', 'Videography', 'Livestreaming', 'AV Production', 'LED Screens', 'Event Production', 'Graphics & Printing', 'Audio Production', 'Websites', 'Software Development']
-const workflow = ['Submit a request', 'Scope and availability review', 'Quotation and revisions', 'Contract and deposit', 'Booking confirmation', 'Production and editing', 'Client review and revisions', 'Final delivery and closure']
+const workflow = ['Click the Book Now button below', 'Choose the services you need', 'Share your event date, location, and requirements', 'Review the quotation we send you', 'Confirm your booking']
 
 const initialForm = { clientName: '', phone: '', email: '', company: '', projectName: '', projectType: 'event', services: [], brief: '', eventDateFrom: '', eventDateTo: '', startTime: '', endTime: '', location: '', deadline: '', packageChoice: '', customRequirements: '', budget: '', notes: '' }
 
@@ -93,7 +93,7 @@ export default function BookingPage() {
 
       <section className="portal-section booking-dark-section" id="services"><BookingWave id="booking-services-wave" /><div className="portal-shell booking-section-content"><div className="portal-heading"><p className="portal-eyebrow">Services covered</p><h2>What you can request</h2></div><div className="service-options">{serviceOptions.map(service => <div key={service}><FaCheck aria-hidden="true" /><span>{service}</span></div>)}</div></div></section>
 
-      <section className="portal-section process-section" id="process"><img className="booking-lion-motif" src="/brand/vector.png" alt="" aria-hidden="true" /><div className="portal-shell booking-section-content"><div className="portal-heading"><p className="portal-eyebrow">Booking workflow</p><h2>How your booking will work</h2></div><ol className="booking-steps">{workflow.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span><strong>{step}</strong></li>)}</ol></div></section>
+      <section className="portal-section process-section" id="process"><img className="booking-lion-motif" src="/brand/vector.png" alt="" aria-hidden="true" /><div className="portal-shell booking-section-content"><div className="portal-heading"><p className="portal-eyebrow">Booking workflow</p><h2>How booking works</h2></div><ol className="booking-steps">{workflow.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span><strong>{step}</strong></li>)}</ol><div className="booking-process-actions"><a className="portal-button primary" href="#request">Book Now <FaArrowRight aria-hidden="true" /></a><p>Prefer not to fill out the booking form? Visit our <Link to="/#contact">Contact Us</Link> section and call us directly using the phone number listed there.</p></div></div></section>
 
       <section className="portal-section booking-dark-section" id="request"><BookingWave id="booking-request-wave" /><div className="portal-shell booking-section-content"><div className="portal-heading"><p className="portal-eyebrow">New booking</p><h2>Tell us about your project</h2><p>Provide the information below. Lions Plus will review the scope, crew and equipment availability before issuing a quotation.</p></div>
         <form className="booking-form" onSubmit={submitRequest}>

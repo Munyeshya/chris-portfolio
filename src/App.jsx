@@ -86,7 +86,6 @@ function App() {
 
   const navLinks = [['about', 'About Us'], ['services', 'Services'], ['portfolio', 'Portfolio'], ['contact', 'Contact Us']]
   const footerLinks = [['about', 'About Us'], ['services', 'Services'], ['event-solutions', 'Event Solutions'], ['portfolio', 'Portfolio'], ['team', 'Our Team'], ['contact', 'Contact Us']]
-  const bookingSteps = ['Click the Book Now button below', 'Choose the services you need', 'Share your event date, location, and requirements', 'Review the quotation we send you', 'Confirm your booking']
   const contactHref = company.whatsapp ? `https://wa.me/${company.whatsapp}` : company.email ? `mailto:${company.email}` : company.phone ? `tel:${company.phone.replace(/[^+\d]/g, '')}` : company.socials.Instagram
 
   return (
@@ -125,12 +124,6 @@ function App() {
           <div className="about-heading"><SectionLabel>WHO WE ARE</SectionLabel><h2 id="about-title">About <span>Us</span></h2><div className="experience"><strong>5<span>+</span></strong><span>YEARS OF<br />EXPERIENCE</span></div></div>
           <div className="about-copy"><p>Lions Plus works with businesses, organizations, and individuals on media, event, and digital projects.</p><p>We bring creative and technical work together, from planning through production to final delivery.</p></div>
           <img className="lion-motif about-pattern" src="/brand/vector.png" alt="" aria-hidden="true" />
-        </section>
-
-        <section className="home-booking section-shell" id="booking-process" aria-labelledby="home-booking-title">
-          <div className="section-heading"><div><SectionLabel>HOW BOOKING WORKS</SectionLabel><h2 id="home-booking-title">Book Your <span>Project</span></h2></div><FaCalendarDays className="section-motif" aria-hidden="true" /></div>
-          <ol className="home-booking-steps">{bookingSteps.map((step, index) => <li key={step}><span>{String(index + 1).padStart(2, '0')}</span><strong>{step}</strong></li>)}</ol>
-          <div className="home-booking-actions"><a className="button red" href="./booking">Book Now <FaArrowUpRightFromSquare aria-hidden="true" className="ui-icon" /></a><p>Prefer not to fill out the booking form? Visit our <a href="#contact">Contact Us</a> section and call us directly using the phone number listed there.</p></div>
         </section>
 
         <section className="services section-shell" id="services" data-section="04-services" aria-labelledby="services-title">
