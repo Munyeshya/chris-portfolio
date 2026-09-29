@@ -1,18 +1,24 @@
 export function mysqlConnectionConfig(connectionUri) {
   const parsed = new URL(connectionUri)
   const ca = getCaCertificate()
-  return {
+  const sslMode = parsed.searchParams.get('ssl-mode')?.toLowerCase()
+  const sslRequired = ['required', 'verify-ca', 'verify-identity'].includes(sslMode)
+  const config = {
     host: parsed.hostname,
     port: Number(parsed.port || 3306),
     user: decodeURIComponent(parsed.username),
     password: decodeURIComponent(parsed.password),
     database: parsed.pathname.slice(1),
-    ssl: ca ? { ca, rejectUnauthorized: true } : { rejectUnauthorized: true },
   }
+
+  if (ca) config.ssl = { ca, rejectUnauthorized: true }
+  else if (sslRequired) config.ssl = { rejectUnauthorized: true }
+
+  return config
 }
 
 function getCaCertificate() {
-  if (process.env.AIVEN_CA_CERT_BASE64) return Buffer.from(process.env.AIVEN_CA_CERT_BASE64.trim(), 'base64').toString('utf8')
-  if (process.env.AIVEN_CA_CERT) return process.env.AIVEN_CA_CERT.replace(/\\n/g, '\n')
+  if (process.env.MYSQL_CA_CERT_BASE64) return Buffer.from(process.env.MYSQL_CA_CERT_BASE64.trim(), 'base64').toString('utf8')
+  if (process.env.MYSQL_CA_CERT) return process.env.MYSQL_CA_CERT.replace(/\\n/g, '\n')
   return null
 }

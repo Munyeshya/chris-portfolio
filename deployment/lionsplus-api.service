@@ -1,0 +1,19 @@
+[Unit]
+Description=Lions Plus Node.js API
+After=network.target mysql.service
+Wants=mysql.service
+
+[Service]
+Type=simple
+User=lionsplus
+Group=lionsplus
+WorkingDirectory=/srv/lionsplus/current
+EnvironmentFile=/srv/lionsplus/shared/.env
+ExecStart=/usr/bin/node server/index.js
+Restart=on-failure
+RestartSec=5
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

@@ -22,7 +22,7 @@ app.use(express.json({ limit: '1mb' }))
 
 app.get('/api/health', async (_req, res) => {
   if (!databaseConfigured) return res.status(503).json({ ok: false, error: 'Database is not configured.' })
-  try { await query('select 1'); res.json({ ok: true, database: 'aiven-mysql' }) } catch { res.status(503).json({ ok: false, error: 'Database is unavailable.' }) }
+  try { await query('select 1'); res.json({ ok: true, database: 'mysql' }) } catch { res.status(503).json({ ok: false, error: 'Database is unavailable.' }) }
 })
 
 app.post('/api/auth/login', async (req,res) => {

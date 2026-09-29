@@ -5,8 +5,8 @@ import { resolve } from 'node:path'
 import mysql from 'mysql2/promise'
 import { mysqlConnectionConfig } from './mysql-config.js'
 
-const connectionUri = process.env.AIVEN_MYSQL_URI || process.env.MYSQL_URL
-if (!connectionUri) throw new Error('AIVEN_MYSQL_URI is required.')
+const connectionUri = process.env.MYSQL_URL
+if (!connectionUri) throw new Error('MYSQL_URL is required.')
 
 const connection = await mysql.createConnection({ ...mysqlConnectionConfig(connectionUri), multipleStatements:true })
 await connection.query('create table if not exists schema_migrations (name varchar(255) primary key, checksum char(64) not null, applied_at timestamp not null default current_timestamp)')

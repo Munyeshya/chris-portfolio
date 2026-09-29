@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise'
 import { mysqlConnectionConfig } from './mysql-config.js'
 
-const connectionUri = process.env.AIVEN_MYSQL_URI || process.env.MYSQL_URL
+const connectionUri = process.env.MYSQL_URL
 
 export const databaseConfigured = Boolean(connectionUri)
 export const mysqlConfig = databaseConfigured ? mysqlConnectionConfig(connectionUri) : null
