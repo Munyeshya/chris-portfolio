@@ -4,11 +4,11 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import multer from 'multer'
-import { randomBytes, randomUUID } from 'node:crypto'
+import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
 import { clearSession, createSession, readSession, requireAdmin, requireAuth } from './auth.js'
 import { databaseConfigured, pool, query } from './database.js'
-import { sendAccountInvitation, sendBookingEmails, sendQuotationEmail } from './mailer.js'
+import { sendAccountInvitation, sendBookingEmails, sendPasswordResetEmail, sendQuotationEmail } from './mailer.js'
 
 export const app = express()
 const port = Number(process.env.PORT || 8787)
@@ -29,6 +29,32 @@ app.post('/api/auth/login', async (req,res) => {
   const users=await query('select id,email,password_hash,full_name,role,must_change_password,active from users where email=? limit 1',[req.body.email?.trim().toLowerCase()])
   if (!users.length || !users[0].active || !await bcrypt.compare(req.body.password||'',users[0].password_hash)) return res.status(401).json({ error:'Incorrect email or password.' })
   const { password_hash:_hash,...user }=users[0]; createSession(res,user); res.json({ user })
+})
+app.post('/api/auth/forgot-password', async (req,res) => {
+  const email=req.body.email?.trim().toLowerCase()
+  const response={message:'If an active account exists for that email, a password reset link has been sent.'}
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return res.json(response)
+  const users=await query("select id,email from users where email=? and active=true and role='admin' limit 1",[email])
+  if(!users.length)return res.json(response)
+  const token=randomBytes(32).toString('base64url'),tokenHash=createHash('sha256').update(token).digest('hex')
+  await query('delete from password_reset_tokens where user_id=? or expires_at<now()',[users[0].id])
+  await query('insert into password_reset_tokens (id,user_id,token_hash,expires_at) values (?,?,?,date_add(now(),interval 1 hour))',[randomUUID(),users[0].id,tokenHash])
+  const delivery=await sendPasswordResetEmail({email:users[0].email,token})
+  if(!delivery.sent)await query('delete from password_reset_tokens where token_hash=?',[tokenHash])
+  res.json(response)
+})
+app.post('/api/auth/reset-password', async (req,res) => {
+  const token=req.body.token||'',newPassword=req.body.newPassword||''
+  if(!token)return res.status(400).json({error:'This password reset link is invalid.'})
+  if(newPassword.length<10)return res.status(400).json({error:'Your new password must contain at least 10 characters.'})
+  const tokenHash=createHash('sha256').update(token).digest('hex')
+  const rows=await query(`select pr.id token_id,u.id user_id from password_reset_tokens pr join users u on u.id=pr.user_id where pr.token_hash=? and pr.used_at is null and pr.expires_at>now() and u.active=true and u.role='admin' limit 1`,[tokenHash])
+  if(!rows.length)return res.status(400).json({error:'This password reset link is invalid or has expired.'})
+  const claimed=await query('update password_reset_tokens set used_at=now() where id=? and used_at is null',[rows[0].token_id])
+  if(!claimed.affectedRows)return res.status(400).json({error:'This password reset link has already been used.'})
+  await query('update users set password_hash=?,must_change_password=false where id=?',[await bcrypt.hash(newPassword,12),rows[0].user_id])
+  clearSession(res)
+  res.json({message:'Your password has been reset. You can now sign in.'})
 })
 app.get('/api/auth/session', async (req,res) => {
   const session=readSession(req); if (!session) return res.status(401).json({ user:null })

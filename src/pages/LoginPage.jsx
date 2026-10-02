@@ -39,7 +39,7 @@ export default function LoginPage() {
           {status.message && <p className={`form-status ${status.state}`} role="status">{status.message}</p>}
           <button className="portal-button primary auth-submit" disabled={status.state === 'loading'}>{status.state === 'loading' ? 'Please wait...' : 'Log in'} <FaArrowRight aria-hidden="true" /></button>
         </form>
-        <div className="auth-options"><span>Forgot your password? Ask another administrator to send you a temporary password.</span></div>
+        <div className="auth-options"><Link to="/reset-password">Forgot your password?</Link></div>
       </section>}
       <Link className="auth-back" to="/"><FaArrowLeft aria-hidden="true" /> Main website</Link>
     </div>

@@ -17,6 +17,20 @@ export async function sendAccountInvitation({ email, temporaryPassword, reset = 
   } catch(error){console.error('Account email delivery failed:',error.message);return{sent:false,reason:'Email delivery failed.'}}
 }
 
+export async function sendPasswordResetEmail({ email, token }) {
+  if (!transporter) return { sent:false, reason:'Email is not configured.' }
+  const siteUrl=(process.env.CLIENT_ORIGIN||'').split(',')[0]||'https://lionsplus.rw'
+  const resetUrl=`${siteUrl}/reset-password?token=${encodeURIComponent(token)}`
+  try {
+    await transporter.sendMail({
+      from:`Lions Plus <${user}>`,to:email,
+      subject:'Reset your Lions Plus password',
+      html:`<div style="font-family:Arial,sans-serif;color:#1b1b1b;line-height:1.65;max-width:640px;margin:auto"><h1 style="color:#d51f27">Reset your password</h1><p>We received a request to reset the password for your Lions Plus administrator account.</p><p><a href="${escapeHtml(resetUrl)}" style="display:inline-block;padding:13px 20px;background:#d51f27;color:#fff;text-decoration:none;font-weight:bold">Choose a new password</a></p><p>This link expires in one hour and can only be used once. If you did not request this change, you can safely ignore this email.</p></div>`,
+    })
+    return {sent:true}
+  } catch(error){console.error('Password reset email delivery failed:',error.message);return{sent:false,reason:'Email delivery failed.'}}
+}
+
 export async function sendBookingEmails(booking) {
   if (!transporter) return { sent:false, reason:'Email is not configured.' }
   const clientName = escapeHtml(booking.clientName)

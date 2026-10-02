@@ -94,6 +94,8 @@
 .auth-submit { width: 100%; }
 .auth-options { margin-top: 22px; display: flex; justify-content: space-between; gap: 15px; }
 .auth-options button { padding: 0; border: 0; color: #aaa; background: none; font: inherit; font-size: .72rem; text-decoration: underline; }
+.auth-options a { color: #aaa; font-size: .72rem; text-decoration: underline; }
+.auth-options a:hover { color: #fff; }
 .auth-options button:hover { color: #fff; }
 .auth-options span { color: #888; font-size: .7rem; line-height: 1.55; }
 .auth-back { margin-top: 20px; display: inline-flex; align-items: center; gap: 8px; color: #888; font-size: .72rem; text-decoration: none; }
