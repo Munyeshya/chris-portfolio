@@ -143,14 +143,6 @@ app.patch('/api/admin/users/:id',requireAdmin,async(req,res)=>{
   if(!result.affectedRows)return res.status(404).json({error:'User not found.'})
   res.json({ok:true})
 })
-app.post('/api/admin/users/:id/reset-password',requireAdmin,async(req,res)=>{
-  if(req.params.id===req.user.sub)return res.status(400).json({error:'Use Account settings to change your own password.'})
-  const users=await query('select id,email from users where id=? limit 1',[req.params.id]);if(!users.length)return res.status(404).json({error:'User not found.'})
-  const temporaryPassword=randomBytes(12).toString('base64url'),delivery=await sendAccountInvitation({email:users[0].email,temporaryPassword,reset:true})
-  if(!delivery.sent)return res.status(502).json({error:'The temporary password email could not be sent.'})
-  await query('update users set password_hash=?,must_change_password=true,active=true where id=?',[await bcrypt.hash(temporaryPassword,12),req.params.id])
-  res.json({ok:true})
-})
 app.delete('/api/admin/users/:id',requireAdmin,async(req,res)=>{
   if(req.params.id===req.user.sub)return res.status(400).json({error:'You cannot delete your own account.'})
   const users=await query('select active from users where id=? limit 1',[req.params.id]);if(!users.length)return res.status(404).json({error:'User not found.'})

@@ -4,14 +4,14 @@ const user = process.env.EMAIL_USER
 const password = process.env.EMAIL_APP_PASSWORD
 const transporter = user && password ? nodemailer.createTransport({ service:'gmail', auth:{ user, pass:password } }) : null
 
-export async function sendAccountInvitation({ email, temporaryPassword, reset = false }) {
+export async function sendAccountInvitation({ email, temporaryPassword }) {
   if (!transporter) return { sent:false, reason:'Email is not configured.' }
   const siteUrl=(process.env.CLIENT_ORIGIN||'').split(',')[0]||'https://lionsplus.rw'
   try {
     await transporter.sendMail({
       from:`Lions Plus <${user}>`,to:email,
-      subject:reset?'Your Lions Plus temporary password':'Your Lions Plus portal account',
-      html:`<div style="font-family:Arial,sans-serif;color:#1b1b1b;line-height:1.65;max-width:640px;margin:auto"><h1 style="color:#d51f27">${reset?'Password reset':'Portal access created'}</h1><p>Use the temporary password below to sign in:</p><p style="padding:16px;background:#f2f2f2;font-family:monospace;font-size:18px"><strong>${escapeHtml(temporaryPassword)}</strong></p><p><a href="${escapeHtml(siteUrl)}/login">Sign in to Lions Plus</a></p><p>You will be required to enter your full name and choose a new password immediately after signing in. Do not share this temporary password.</p></div>`,
+      subject:'Your Lions Plus portal account',
+      html:`<div style="font-family:Arial,sans-serif;color:#1b1b1b;line-height:1.65;max-width:640px;margin:auto"><h1 style="color:#d51f27">Portal access created</h1><p>Use the temporary password below to sign in:</p><p style="padding:16px;background:#f2f2f2;font-family:monospace;font-size:18px"><strong>${escapeHtml(temporaryPassword)}</strong></p><p><a href="${escapeHtml(siteUrl)}/login">Sign in to Lions Plus</a></p><p>You will be required to enter your full name and choose a new password immediately after signing in. Do not share this temporary password.</p></div>`,
     })
     return {sent:true}
   } catch(error){console.error('Account email delivery failed:',error.message);return{sent:false,reason:'Email delivery failed.'}}
