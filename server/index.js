@@ -4,11 +4,11 @@ import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import multer from 'multer'
-import { randomUUID } from 'node:crypto'
+import { randomBytes, randomUUID } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
-import { clearSession, createSession, readSession, requireAdmin } from './auth.js'
+import { clearSession, createSession, readSession, requireAdmin, requireAuth } from './auth.js'
 import { databaseConfigured, pool, query } from './database.js'
-import { sendBookingEmails, sendQuotationEmail } from './mailer.js'
+import { sendAccountInvitation, sendBookingEmails, sendQuotationEmail } from './mailer.js'
 
 export const app = express()
 const port = Number(process.env.PORT || 8787)
@@ -26,17 +26,26 @@ app.get('/api/health', async (_req, res) => {
 })
 
 app.post('/api/auth/login', async (req,res) => {
-  const users=await query('select id,email,password_hash,full_name,role from users where email=? limit 1',[req.body.email?.trim().toLowerCase()])
-  if (!users.length || !await bcrypt.compare(req.body.password||'',users[0].password_hash)) return res.status(401).json({ error:'Incorrect email or password.' })
+  const users=await query('select id,email,password_hash,full_name,role,must_change_password,active from users where email=? limit 1',[req.body.email?.trim().toLowerCase()])
+  if (!users.length || !users[0].active || !await bcrypt.compare(req.body.password||'',users[0].password_hash)) return res.status(401).json({ error:'Incorrect email or password.' })
   const { password_hash:_hash,...user }=users[0]; createSession(res,user); res.json({ user })
 })
 app.get('/api/auth/session', async (req,res) => {
   const session=readSession(req); if (!session) return res.status(401).json({ user:null })
-  const users=await query('select id,email,full_name,role from users where id=? limit 1',[session.sub]); if (!users.length) return res.status(401).json({ user:null })
+  const users=await query('select id,email,full_name,role,must_change_password,active from users where id=? limit 1',[session.sub]); if (!users.length || !users[0].active) return res.status(401).json({ user:null })
   res.json({ user:users[0] })
 })
 app.post('/api/auth/logout',(_req,res)=>{ clearSession(res); res.status(204).end() })
-app.post('/api/auth/reset-password',(_req,res)=>res.status(501).json({ error:'Password reset email delivery is not configured yet. Contact an administrator.' }))
+app.patch('/api/account',requireAuth,async(req,res)=>{
+  const fullName=req.body.fullName?.trim(),currentPassword=req.body.currentPassword||'',newPassword=req.body.newPassword||''
+  if(!fullName)return res.status(400).json({error:'Your full name is required.'})
+  if(newPassword.length<10)return res.status(400).json({error:'Your new password must contain at least 10 characters.'})
+  const users=await query('select id,email,password_hash,role from users where id=? and active=true limit 1',[req.user.sub])
+  if(!users.length||!await bcrypt.compare(currentPassword,users[0].password_hash))return res.status(401).json({error:'Your current password is incorrect.'})
+  await query('update users set full_name=?,password_hash=?,must_change_password=false where id=?',[fullName,await bcrypt.hash(newPassword,12),req.user.sub])
+  const user={id:users[0].id,email:users[0].email,full_name:fullName,role:users[0].role,must_change_password:0,active:1}
+  createSession(res,user);res.json({user})
+})
 
 app.get('/api/content', async (_req,res) => {
   const [team,partners,work]=await Promise.all([query('select * from website_team where active=true order by sort_order,id'),query('select * from website_partners where active=true order by sort_order,id'),query('select * from website_work where active=true order by sort_order,id')])
@@ -87,13 +96,41 @@ app.get('/api/admin/bookings/:id/quotation',requireAdmin,async (req,res)=>{
   const rows=await query('select file_name,mime_type,contents from booking_quotations where booking_id=? limit 1',[req.params.id]);if(!rows.length)return res.status(404).json({error:'Quotation not found.'})
   res.set('Content-Type',rows[0].mime_type).set('Content-Disposition',`attachment; filename="${rows[0].file_name.replace(/["\r\n]/g,'')}"`).send(rows[0].contents)
 })
-app.get('/api/admin/users',requireAdmin,async (_req,res)=>res.json({ users:await query('select id,email,full_name,role,created_at from users order by created_at desc') }))
+app.get('/api/admin/users',requireAdmin,async (_req,res)=>res.json({ users:await query('select id,email,full_name,role,must_change_password,active,created_at from users order by created_at desc') }))
 app.post('/api/admin/users',requireAdmin,async (req,res)=>{
-  const email=req.body.email?.trim().toLowerCase(),password=req.body.password,role='admin'
-  if(!email||!password||password.length<8)return res.status(400).json({error:'A valid email and an 8-character password are required.'})
+  const email=req.body.email?.trim().toLowerCase(),temporaryPassword=randomBytes(12).toString('base64url'),role='admin'
+  if(!email||!/^\S+@\S+\.\S+$/.test(email))return res.status(400).json({error:'A valid email address is required.'})
   if((await query('select id from users where email=? limit 1',[email])).length)return res.status(409).json({error:'An account with this email already exists.'})
-  await query('insert into users (id,email,password_hash,full_name,role) values (?,?,?,?,?)',[randomUUID(),email,await bcrypt.hash(password,12),req.body.fullName?.trim()||null,role])
+  const id=randomUUID()
+  await query('insert into users (id,email,password_hash,role,must_change_password,active) values (?,?,?,?,true,true)',[id,email,await bcrypt.hash(temporaryPassword,12),role])
+  const delivery=await sendAccountInvitation({email,temporaryPassword})
+  if(!delivery.sent){await query('delete from users where id=?',[id]);return res.status(502).json({error:'The invitation email could not be sent, so the account was not created.'})}
   res.status(201).json({ok:true})
+})
+app.patch('/api/admin/users/:id',requireAdmin,async(req,res)=>{
+  const email=req.body.email?.trim().toLowerCase(),fullName=req.body.fullName?.trim()||null,active=toBool(req.body.active)
+  if(!email||!/^\S+@\S+\.\S+$/.test(email))return res.status(400).json({error:'A valid email address is required.'})
+  if(req.params.id===req.user.sub&&!active)return res.status(400).json({error:'You cannot disable your own account.'})
+  if(!active){const activeAdmins=await query("select count(*) count from users where role='admin' and active=true");if(Number(activeAdmins[0].count)<=1)return res.status(400).json({error:'At least one active administrator is required.'})}
+  if((await query('select id from users where email=? and id<>? limit 1',[email,req.params.id])).length)return res.status(409).json({error:'Another account already uses this email.'})
+  const result=await query('update users set email=?,full_name=?,active=? where id=?',[email,fullName,active,req.params.id])
+  if(!result.affectedRows)return res.status(404).json({error:'User not found.'})
+  res.json({ok:true})
+})
+app.post('/api/admin/users/:id/reset-password',requireAdmin,async(req,res)=>{
+  if(req.params.id===req.user.sub)return res.status(400).json({error:'Use Account settings to change your own password.'})
+  const users=await query('select id,email from users where id=? limit 1',[req.params.id]);if(!users.length)return res.status(404).json({error:'User not found.'})
+  const temporaryPassword=randomBytes(12).toString('base64url'),delivery=await sendAccountInvitation({email:users[0].email,temporaryPassword,reset:true})
+  if(!delivery.sent)return res.status(502).json({error:'The temporary password email could not be sent.'})
+  await query('update users set password_hash=?,must_change_password=true,active=true where id=?',[await bcrypt.hash(temporaryPassword,12),req.params.id])
+  res.json({ok:true})
+})
+app.delete('/api/admin/users/:id',requireAdmin,async(req,res)=>{
+  if(req.params.id===req.user.sub)return res.status(400).json({error:'You cannot delete your own account.'})
+  const users=await query('select active from users where id=? limit 1',[req.params.id]);if(!users.length)return res.status(404).json({error:'User not found.'})
+  if(users[0].active){const activeAdmins=await query("select count(*) count from users where role='admin' and active=true");if(Number(activeAdmins[0].count)<=1)return res.status(400).json({error:'At least one active administrator is required.'})}
+  const result=await query('delete from users where id=?',[req.params.id]);if(!result.affectedRows)return res.status(404).json({error:'User not found.'})
+  res.status(204).end()
 })
 app.post('/api/admin/content/:type',requireAdmin,imageUpload.single('image'),contentHandler('insert'))
 app.put('/api/admin/content/:type/:id',requireAdmin,imageUpload.single('image'),contentHandler('update'))

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { FaArrowLeft, FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaHandshake, FaHouse, FaImage, FaPeopleGroup, FaUserPlus, FaXmark } from 'react-icons/fa6'
+import { FaArrowLeft, FaArrowRightFromBracket, FaBars, FaBriefcase, FaCalendarDays, FaCheck, FaGear, FaHandshake, FaHouse, FaImage, FaPen, FaPeopleGroup, FaRotate, FaTrash, FaUserPlus, FaXmark } from 'react-icons/fa6'
 import { api, authApi } from '../lib/api.js'
 import { workCategories } from '../content.js'
 import './DashboardPage.css'
@@ -8,7 +8,7 @@ import './DashboardPage.css'
 const sections = [
   ['overview', 'Overview', FaHouse], ['bookings', 'Bookings', FaCalendarDays], ['clients', 'Clients', FaPeopleGroup],
   ['team', 'Team', FaPeopleGroup], ['partners', 'Partners', FaHandshake], ['work', 'Our Work', FaImage],
-  ['users', 'Users', FaUserPlus],
+  ['users', 'Users', FaUserPlus], ['account', 'Account settings', FaGear],
 ]
 const statuses = ['submitted','under_review','quoted','contract_sent','deposit_pending','confirmed','in_production','client_review','completed','cancelled']
 const emptyForms = {
@@ -56,7 +56,7 @@ export default function DashboardPage() {
   }, [])
 
   useEffect(() => {
-    if (!profile || profile.role !== 'admin') return
+    if (!profile || profile.role !== 'admin' || profile.must_change_password) return
     loadAll()
   }, [profile])
 
@@ -70,6 +70,7 @@ export default function DashboardPage() {
   if (session === undefined || (session && profile === undefined)) return <DashboardMessage title="Opening dashboard…" message="Checking your secure session." />
   if (!session) return <Navigate to="/login" replace />
   if (!profile || profile.role !== 'admin') return <DashboardMessage title="Administrator access required" message="This account does not have access to the management dashboard." action={<button className="portal-button" onClick={signOut}>Sign out</button>} />
+  if (profile.must_change_password) return <AccountSettings profile={profile} setProfile={user => { setProfile(user); setSession(user); setToast('Account setup complete. Welcome to the dashboard.') }} required signOut={signOut} />
 
   const navigationSections = sections
   const CurrentIcon = navigationSections.find(item => item[0] === section)?.[2] || FaBriefcase
@@ -83,7 +84,7 @@ export default function DashboardPage() {
     <main className="dashboard-main">
       <header><button className="dashboard-menu" onClick={() => setMenuOpen(true)}><FaBars /> Menu</button><div className="dashboard-title"><p>Lions Plus</p><h1><CurrentIcon /> {navigationSections.find(item => item[0] === section)?.[1]}</h1></div><div className="dashboard-account" ref={accountRef}><button className="account-avatar" type="button" aria-label="Open account menu" aria-expanded={accountOpen} onClick={() => setAccountOpen(open => !open)}>{getInitials(profile.full_name || profile.email)}</button>{accountOpen && <div className="account-dropdown"><small>Signed in as</small><strong>{profile.full_name || profile.email}</strong><span>{profile.role}</span><button className="account-signout" onClick={signOut}><FaArrowRightFromBracket /> Sign out</button></div>}</div></header>
       {notice && <p className="dashboard-notice" role="status">{notice}<button onClick={() => setNotice('')}>Dismiss</button></p>}
-      {loading ? <p className="dashboard-loading">Loading dashboard…</p> : <DashboardContent section={section} data={data} reload={loadAll} setNotice={setNotice} />}
+      {section === 'account' ? <AccountSettings profile={profile} setProfile={user => { setProfile(user); setSession(user); setToast('Account settings updated.') }} /> : loading ? <p className="dashboard-loading">Loading dashboard…</p> : <DashboardContent section={section} data={data} reload={loadAll} setNotice={setNotice} profile={profile} />}
     </main>
   </div>
 }
@@ -97,20 +98,30 @@ function DashboardMessage({ title, message, action }) {
   return <main className="portal-page auth-page"><section className="auth-card"><p className="portal-eyebrow">Lions Plus Portal</p><h1>{title}</h1><p>{message}</p>{action && <div className="portal-actions">{action}</div>}</section></main>
 }
 
-function DashboardContent({ section, data, reload, setNotice }) {
+function DashboardContent({ section, data, reload, setNotice, profile }) {
   if (section === 'overview') return <Overview data={data} />
   if (section === 'bookings') return <Bookings items={data.bookings} reload={reload} setNotice={setNotice} />
   if (section === 'clients') return <Clients bookings={data.bookings} />
-  if (section === 'users') return <Users setNotice={setNotice} />
+  if (section === 'users') return <Users setNotice={setNotice} currentUserId={profile.id} />
   return <ContentManager type={section} items={data[section]} reload={reload} setNotice={setNotice} />
 }
 
-function Users({ setNotice }) {
-  const [users,setUsers]=useState([]),[form,setForm]=useState({fullName:'',email:'',password:'',role:'admin'})
+function Users({ setNotice, currentUserId }) {
+  const [users,setUsers]=useState([]),[email,setEmail]=useState(''),[editing,setEditing]=useState(null),[busy,setBusy]=useState('')
   const load=()=>api('/admin/users').then(data=>setUsers(data.users)).catch(error=>setNotice(error.message))
   useEffect(()=>{let active=true;api('/admin/users').then(data=>{if(active)setUsers(data.users)}).catch(error=>setNotice(error.message));return()=>{active=false}},[setNotice])
-  async function create(event){event.preventDefault();try{await api('/admin/users',{method:'POST',body:JSON.stringify(form)});setNotice('Administrator account created.');setForm({fullName:'',email:'',password:'',role:'admin'});load()}catch(error){setNotice(error.message)}}
-  return <section className="dashboard-panel"><div className="panel-heading"><div><p>Portal security</p><h2>Manage administrators</h2></div><span>{users.filter(user => user.role === 'admin').length} admins</span></div><form className="content-form" onSubmit={create}><label>Full name<input value={form.fullName} onChange={e=>setForm({...form,fullName:e.target.value})}/></label><label>Email<input required type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/></label><label>Temporary password<input required minLength="8" type="password" value={form.password} onChange={e=>setForm({...form,password:e.target.value})}/></label><div className="content-form-actions"><button className="dashboard-primary">Create administrator</button></div></form><div className="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th></tr></thead><tbody>{users.filter(user => user.role === 'admin').map(user=><tr key={user.id}><td>{user.full_name||'—'}</td><td>{user.email}</td><td><span className="status">admin</span></td><td>{new Date(user.created_at).toLocaleDateString()}</td></tr>)}</tbody></table></div></section>
+  async function create(event){event.preventDefault();setBusy('create');try{await api('/admin/users',{method:'POST',body:JSON.stringify({email})});setNotice('Administrator created. A temporary password was emailed to them.');setEmail('');load()}catch(error){setNotice(error.message)}finally{setBusy('')}}
+  async function save(event){event.preventDefault();setBusy(editing.id);try{await api(`/admin/users/${editing.id}`,{method:'PATCH',body:JSON.stringify({email:editing.email,fullName:editing.full_name,active:editing.active})});setNotice('Administrator updated.');setEditing(null);load()}catch(error){setNotice(error.message)}finally{setBusy('')}}
+  async function reset(user){if(!window.confirm(`Send a new temporary password to ${user.email}?`))return;setBusy(user.id);try{await api(`/admin/users/${user.id}/reset-password`,{method:'POST'});setNotice('A new temporary password was emailed to the administrator.');load()}catch(error){setNotice(error.message)}finally{setBusy('')}}
+  async function remove(user){if(!window.confirm(`Permanently delete ${user.email}?`))return;setBusy(user.id);try{await api(`/admin/users/${user.id}`,{method:'DELETE'});setNotice('Administrator deleted.');load()}catch(error){setNotice(error.message)}finally{setBusy('')}}
+  return <section className="dashboard-panel"><div className="panel-heading"><div><p>Portal security</p><h2>Manage administrators</h2></div><span>{users.length} admins</span></div><form className="content-form admin-invite-form" onSubmit={create}><label>Administrator email<input required type="email" value={email} onChange={event=>setEmail(event.target.value)} placeholder="name@example.com" /></label><div className="content-form-actions"><button className="dashboard-primary" disabled={busy==='create'}>{busy==='create'?'Sending invitation…':'Create & email temporary password'}</button></div></form><div className="table-scroll"><table><thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody>{users.map(user=><tr key={user.id}><td>{user.full_name||'Pending setup'}</td><td>{user.email}{user.id===currentUserId&&<small>You</small>}</td><td><span className={`status ${user.active?'status-confirmed':'status-cancelled'}`}>{!user.active?'disabled':user.must_change_password?'setup required':'active'}</span></td><td>{new Date(user.created_at).toLocaleDateString()}</td><td><div className="row-actions"><button onClick={()=>setEditing({...user,active:Boolean(user.active)})}><FaPen /> Edit</button><button disabled={user.id===currentUserId||busy===user.id} onClick={()=>reset(user)}><FaRotate /> Reset password</button><button disabled={user.id===currentUserId||busy===user.id} onClick={()=>remove(user)}><FaTrash /> Delete</button></div></td></tr>)}</tbody></table></div>{editing&&<div className="dashboard-modal" role="dialog" aria-modal="true" aria-labelledby="edit-admin-title"><form className="dashboard-modal-card" onSubmit={save}><button className="dashboard-modal-close" type="button" onClick={()=>setEditing(null)} aria-label="Close"><FaXmark /></button><p>Administrator</p><h2 id="edit-admin-title">Edit account</h2><label>Full name<input value={editing.full_name||''} onChange={event=>setEditing({...editing,full_name:event.target.value})}/></label><label>Email<input required type="email" value={editing.email} onChange={event=>setEditing({...editing,email:event.target.value})}/></label><label className="check-field"><input type="checkbox" checked={editing.active} disabled={editing.id===currentUserId} onChange={event=>setEditing({...editing,active:event.target.checked})}/> Account active</label><div className="content-form-actions"><button className="dashboard-primary" disabled={busy===editing.id}>Save changes</button><button type="button" onClick={()=>setEditing(null)}>Cancel</button></div></form></div>}</section>
+}
+
+function AccountSettings({ profile, setProfile, required = false, signOut }) {
+  const [form,setForm]=useState({fullName:profile.full_name||'',currentPassword:'',newPassword:'',confirmPassword:''}),[status,setStatus]=useState({state:'idle',message:''})
+  async function submit(event){event.preventDefault();if(form.newPassword!==form.confirmPassword)return setStatus({state:'error',message:'The new passwords do not match.'});setStatus({state:'loading',message:'Saving your account…'});try{const {user}=await authApi.updateAccount(form);setProfile(user);setForm({...form,currentPassword:'',newPassword:'',confirmPassword:''});setStatus({state:'success',message:'Your account has been updated.'})}catch(error){setStatus({state:'error',message:error.message})}}
+  const content=<section className="account-settings-card"><p className="portal-eyebrow">{required?'First login':'Security'}</p><h1>{required?'Complete your account setup':'Account settings'}</h1><p>{required?'Enter your name and replace the temporary password before continuing.':'Update your name and password.'}</p><form onSubmit={submit}><label>Full name<input required value={form.fullName} onChange={event=>setForm({...form,fullName:event.target.value})} autoComplete="name" /></label><label>Current password<input required type="password" value={form.currentPassword} onChange={event=>setForm({...form,currentPassword:event.target.value})} autoComplete="current-password" /></label><label>New password<input required type="password" minLength="10" value={form.newPassword} onChange={event=>setForm({...form,newPassword:event.target.value})} autoComplete="new-password" /></label><label>Confirm new password<input required type="password" minLength="10" value={form.confirmPassword} onChange={event=>setForm({...form,confirmPassword:event.target.value})} autoComplete="new-password" /></label>{status.message&&<p className={`form-status ${status.state}`} role="status">{status.message}</p>}<button className="dashboard-primary" disabled={status.state==='loading'}>{status.state==='loading'?'Saving…':'Save account settings'}</button>{required&&<button className="account-setup-signout" type="button" onClick={signOut}>Sign out</button>}</form></section>
+  return required?<main className="account-setup-page">{content}</main>:content
 }
 
 function Overview({ data }) {

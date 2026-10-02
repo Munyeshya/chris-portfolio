@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { query } from './database.js'
 
 const cookieName = 'lions_session'
 const secret = process.env.JWT_SECRET
@@ -25,10 +26,13 @@ export function requireAuth(request, response, next) {
   next()
 }
 
-export function requireAdmin(request, response, next) {
+export async function requireAdmin(request, response, next) {
   const session = readSession(request)
   if (!session) return response.status(401).json({ error: 'Authentication required.' })
-  if (session.role !== 'admin') return response.status(403).json({ error: 'Administrator access required.' })
+  const users = await query('select role,active,must_change_password from users where id=? limit 1', [session.sub])
+  if (!users.length || !users[0].active) return response.status(401).json({ error: 'This account is no longer active.' })
+  if (users[0].role !== 'admin') return response.status(403).json({ error: 'Administrator access required.' })
+  if (users[0].must_change_password) return response.status(403).json({ error: 'Complete your account setup before using the dashboard.' })
   request.user = session
   next()
 }

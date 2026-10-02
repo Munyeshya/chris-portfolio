@@ -46,6 +46,7 @@
 .panel-heading h2 { margin: 0; font-size: 1.05rem; }
 .panel-heading > span { color: #777; font-size: .68rem; }
 .dashboard-primary { min-height: 34px; padding: 0 13px; border: 0; color: #fff; background: #c41b1b; font: inherit; font-size: .62rem; font-weight: 700; }
+.dashboard-primary:disabled, .row-actions button:disabled { opacity: .48; cursor: not-allowed; }
 .table-scroll { overflow-x: auto; }
 .dashboard-panel table { width: 100%; border-collapse: collapse; font-size: .7rem; }
 .dashboard-panel th { padding: 9px 11px; color: #888; background: #faf9f6; text-align: left; font-size: .54rem; letter-spacing: .07em; text-transform: uppercase; }
@@ -74,6 +75,21 @@
 .content-list article > div:nth-child(2) { display: grid; gap: 5px; overflow-wrap: anywhere; }
 .content-list strong { font-size: .78rem; }.content-list span,.content-list small { color: #777; font-size: .62rem; }
 .row-actions { display: flex; gap: 8px; }.row-actions .danger { color: #b0181d; }
+.row-actions button { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.admin-invite-form { grid-template-columns: minmax(240px,520px); }
+.dashboard-modal { position: fixed; inset: 0; z-index: 80; padding: 20px; display: grid; place-items: center; background: #000a; backdrop-filter: blur(8px); }
+.dashboard-modal-card { position: relative; width: min(520px,100%); padding: 28px; display: grid; gap: 16px; background: #fff; box-shadow: 0 28px 80px #0007; }
+.dashboard-modal-card > p { margin: 0; color: #c41b1b; font-size: .58rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+.dashboard-modal-card h2 { margin: -8px 0 8px; font-size: 1.35rem; }
+.dashboard-modal-card label, .account-settings-card label { display: grid; gap: 7px; color: #555; font-size: .67rem; font-weight: 650; }
+.dashboard-modal-card input, .account-settings-card input { min-height: 40px; padding: 8px 10px; border: 1px solid #d5d3cd; background: #fff; font: inherit; font-size: .74rem; }
+.dashboard-modal-card .check-field { display: flex; align-items: center; gap: 9px; }.dashboard-modal-card .check-field input { min-height: auto; accent-color: #c41b1b; }
+.dashboard-modal-close { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; display: grid; place-items: center; border: 0; background: #eee; }
+.account-settings-card { width: min(620px,100%); margin-top: 22px; padding: clamp(24px,4vw,42px); background: #fff; border: 1px solid #dedcd6; }
+.account-settings-card h1 { margin: 0; font-size: clamp(1.8rem,4vw,3rem); letter-spacing: -.05em; }.account-settings-card > p:not(.portal-eyebrow) { margin: 15px 0 28px; color: #777; line-height: 1.6; }
+.account-settings-card form { display: grid; gap: 16px; }.account-settings-card .form-status { margin: 0; }.account-settings-card .dashboard-primary { min-height: 42px; justify-self: start; }
+.account-setup-page { min-height: 100svh; padding: 32px 20px; display: grid; place-items: center; background: #0b0b0b; font-family: Montserrat,sans-serif; }.account-setup-page .account-settings-card { margin: 0; }
+.account-setup-signout { justify-self: start; padding: 0; border: 0; color: #777; background: none; font: inherit; font-size: .65rem; text-decoration: underline; }
 .table-view-button { min-height: 30px; padding: 0 10px; border: 1px solid #c41b1b; color: #a3151a; background: #fff; font: inherit; font-size: .59rem; font-weight: 700; white-space: nowrap; }
 .table-view-button:hover { color: #fff; background: #c41b1b; }
 .booking-detail-page { padding-top: 22px; }.booking-detail-back { min-height: 36px; margin-bottom: 14px; padding: 0 13px; display: inline-flex; align-items: center; gap: 9px; border: 1px solid #cbc9c3; color: #333; background: #fff; font: inherit; font-size: .64rem; font-weight: 700; }.booking-detail-card { width: 100%; background: #fff; border: 1px solid #dedcd6; }

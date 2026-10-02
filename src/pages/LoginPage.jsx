@@ -26,12 +26,6 @@ export default function LoginPage() {
     } catch (error) { setStatus({ state: 'error', message: error.message }) }
   }
 
-  async function resetPassword() {
-    if (!email) return setStatus({ state: 'error', message: 'Enter your email address first.' })
-    setStatus({ state: 'loading', message: 'Sending reset instructions...' })
-    try { await authApi.reset(email); setStatus({ state: 'success', message: 'Password reset instructions were sent.' }) } catch (error) { setStatus({ state: 'error', message: error.message }) }
-  }
-
   return <main className="portal-page auth-page">
     <div className="auth-shell">
       <Link to="/" className="portal-brand auth-brand"><img src="/brand/lions-plus-white.png" alt="Lions Plus" /></Link>
@@ -45,7 +39,7 @@ export default function LoginPage() {
           {status.message && <p className={`form-status ${status.state}`} role="status">{status.message}</p>}
           <button className="portal-button primary auth-submit" disabled={status.state === 'loading'}>{status.state === 'loading' ? 'Please wait...' : 'Log in'} <FaArrowRight aria-hidden="true" /></button>
         </form>
-        <div className="auth-options"><button type="button" onClick={resetPassword}>Forgot password?</button></div>
+        <div className="auth-options"><span>Forgot your password? Ask another administrator to send you a temporary password.</span></div>
       </section>}
       <Link className="auth-back" to="/"><FaArrowLeft aria-hidden="true" /> Main website</Link>
     </div>

@@ -1,0 +1,4 @@
+ALTER TABLE users
+  ADD COLUMN must_change_password BOOLEAN NOT NULL DEFAULT FALSE AFTER role,
+  ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE AFTER must_change_password,
+  MODIFY COLUMN role ENUM('admin') NOT NULL DEFAULT 'admin';

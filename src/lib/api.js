@@ -14,5 +14,5 @@ export const authApi = {
   session: () => api('/auth/session'),
   login: (email,password) => api('/auth/login',{method:'POST',body:JSON.stringify({email,password})}),
   logout: () => api('/auth/logout',{method:'POST'}),
-  reset: email => api('/auth/reset-password',{method:'POST',body:JSON.stringify({email})}),
+  updateAccount: data => api('/account',{method:'PATCH',body:JSON.stringify(data)}),
 }
